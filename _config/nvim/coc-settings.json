@@ -1,0 +1,19 @@
+{
+  "coc.preferences.formatOnSaveFiletypes": [
+    "css",
+    "graphql",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "markdown",
+    "typescript",
+    "typescriptreact"
+  ],
+  // "coc.preferences.formatOnType": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.format.enable": true,
+  "eslint.packageManager": "yarn",
+  "prettier.disableSuccessMessage": true,
+  // "tsserver.formatOnType": true,
+  "typescript.preferences.importModuleSpecifier": "non-relative"
+}
