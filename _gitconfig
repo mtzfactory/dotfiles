@@ -1,0 +1,15 @@
+[includeIf "gitdir:~/paack/"]
+    path = .gitconfig-paack
+
+[includeIf "gitdir:~/personal/"]
+    path = .gitconfig-mtz
+[pull]
+	ff = only
+[user]
+	name = Ricardo Martínez
+	email = ricardo.martinez.monje@gmail.com
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
