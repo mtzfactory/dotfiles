@@ -16,6 +16,7 @@ brew install --cask ccleaner
 brew install --cask db-browser-for-sqlite
 brew install --cask vysor
 brew install --cask sf-symbols
+brew install --cask runjs
 
 // Flipper
 brew install --cask flipper
