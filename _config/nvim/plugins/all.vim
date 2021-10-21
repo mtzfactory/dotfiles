@@ -5,5 +5,6 @@ source $HOME/.config/nvim/plugins/ctrl-p.vim
 source $HOME/.config/nvim/plugins/git.vim
 source $HOME/.config/nvim/plugins/nerdtree.vim
 source $HOME/.config/nvim/plugins/nerdtree-git.vim
+source $HOME/.config/nvim/plugins/nerdtree-sync.vim
 source $HOME/.config/nvim/plugins/tagbar.vim
 source $HOME/.config/nvim/plugins/yats.vim

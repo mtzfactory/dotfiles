@@ -16,6 +16,7 @@ call plug#begin('~/.vim/plugged')
   
 " Browse files
   Plug 'scrooloose/nerdtree'
+  Plug 'unkiwii/vim-nerdtree-sync'
   Plug 'ctrlpvim/ctrlp.vim'
   Plug 'universal-ctags/ctags'
   Plug 'majutsushi/tagbar'
@@ -45,7 +46,10 @@ call plug#begin('~/.vim/plugged')
   Plug 'jiangmiao/auto-pairs'
   Plug 'ap/vim-css-color'
 
-" Visualizes the Vim undo tree.
+  " For Facts, Ruby functions, and custom providers
+  Plug 'vim-ruby/vim-ruby'
+
+  " Visualizes the Vim undo tree.
   Plug 'simnalamburt/vim-mundo'
 
 call plug#end()

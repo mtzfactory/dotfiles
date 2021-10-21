@@ -4,6 +4,7 @@ source $HOME/.config/nvim/vim-plug.vim
 " LOAD NVIM SETTING
 source $HOME/.config/nvim/settings/set.vim
 source $HOME/.config/nvim/settings/keybind.vim
+source $HOME/.config/nvim/settings/filetype.vim
 
 " LOAD PLUGIN SETTINGS
 source $HOME/.config/nvim/plugins/all.vim

@@ -15,5 +15,8 @@
   "eslint.packageManager": "yarn",
   "prettier.disableSuccessMessage": true,
   // "tsserver.formatOnType": true,
-  "typescript.preferences.importModuleSpecifier": "non-relative"
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  // Ruby
+  "codeLens.enable": true,
+  "solargraph.useBundler": true
 }
