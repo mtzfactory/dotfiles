@@ -1,15 +1,11 @@
 [includeIf "gitdir:~/paack/"]
-  path = .gitconfig-paack
+  path = ~/.gitconfig-paack
 
 [includeIf "gitdir:~/personal/"]
-  path = .gitconfig-mtz
+  path = ~/.gitconfig-mtz
 
 [pull]
   ff = only
-
-[user]
-  name = Ricardo Martínez
-  email = ricardo.martinez.monje@gmail.com
 
 [init]
   defaultBranch = main
@@ -23,3 +19,5 @@
 [alias]
   ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
   # git ch v1.1.0 v1.0.0
+[core]
+	pager = less -F -X
