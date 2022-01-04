@@ -1,7 +1,12 @@
 {
+  // Auto formatting
+  // "coc.preferences.formatOnType": true,
+  // "tsserver.formatOnType": true,
+  // Prettier
   "coc.preferences.formatOnSaveFiletypes": [
     "css",
     "graphql",
+    "html",
     "javascript",
     "javascriptreact",
     "json",
@@ -9,14 +14,14 @@
     "typescript",
     "typescriptreact"
   ],
-  // "coc.preferences.formatOnType": true,
+  //"prettier.disableSuccessMessage": true,
+  // Esling
   "eslint.autoFixOnSave": true,
   "eslint.format.enable": true,
   "eslint.packageManager": "yarn",
-  "prettier.disableSuccessMessage": true,
-  // "tsserver.formatOnType": true,
+  "eslint.alwaysShowStatus": true,
+  "eslint.run": "onSave",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   // Ruby
-  "codeLens.enable": true,
   "solargraph.useBundler": true
 }
