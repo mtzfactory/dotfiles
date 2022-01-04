@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+#!/usr/bin/env zsh
+
+function is_in_git_repo() {
+    # git rev-parse HEAD > /dev/null 2>&1
+    git rev-parse HEAD > /dev/null
+}
+
+function fshow() {
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+  fzf --ansi --no-sort --reverse --tiebreak=index --toggle-sort=\` \
+      --bind 'ctrl-m:execute/
+                echo {} | grep -o "[a-f0-9]\{7\}" |
+                xargs -I % sh -c "git show --color=always % | less -R"
+              /'
+}
+
+# Filter branches.
+function git-br-fzf() {
+    is_in_git_repo || return
+
+    local tags branches target
+    tags=$(
+	    git tag | awk '{print "\x1b[31;1mtag\x1b[m\t" $1}') || return
+    branches=$(
+	    git branch --all | grep -v HEAD |
+	    sed "s/.* //" | sed "s#remotes/[^/]*/##" |
+	    sort -u | awk '{print "\x1b[34;1mbranch\x1b[m\t" $1}') || return
+    target=$(
+	    (echo "$tags"; echo "$branches") |
+	    fzf --no-hscroll --no-multi --delimiter="\t" -n 2 \
+		--ansi --preview="git log -200 --pretty=format:%s $(echo {+2..} |  sed 's/$/../' )" ) || return
+    echo $(echo "$target" | awk -F "\t" '{print $2}')
+}
+
+# Filter branches and checkout the selected one with <enter> key,
+git-co-fzf() {
+    is_in_git_repo || return
+    git checkout $(git-br-fzf)
+}
+
+# Filter commit logs. The diff is shown on the preview window.
+function git-log-fzf() { # fshow - git commit browser
+    is_in_git_repo || return
+
+    _gitLogLineToHash="echo {} | grep -o '[a-f0-9]\{7\}' | head -1"
+    _viewGitLogLine="$_gitLogLineToHash | xargs -I % sh -c 'git show --color=always %'"
+    
+    git log --graph --color=always \
+	    --format="%C(auto)%h%d [%an] %s %C(black)%C(bold)%cr" "$@" |
+    
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+	    --preview="$_viewGitLogLine" \
+	    --bind "ctrl-m:execute:
+		    (grep -o '[a-f0-9]\{7\}' | head -1 |
+		    xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+		    {}
+            FZF-EOF"
+}
+
+function gfzf() {
+    local filter;
+
+    if [ -n $@ ] && [ -e $@ ]; then
+        filter=\"-- $@\";
+    fi;
+
+    export LESS='-R'
+    export BAT_PAGER='less -S -R -M -i';
+
+    git log \
+        --graph --color=always --abbrev=7 --glob="refs/heads/*" \
+        --format=format:"%C(bold blue)%h%C(reset) %C(dim white)%an%C(reset)%C(bold yellow)%d%C(reset) %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset)" $@ |
+            fzf --ansi --no-sort --layout=reverse --tiebreak=index \
+                --preview="f() { set -- $(echo -- $@ | rg -o '\b[a-f0-9]{7,}\b'); [ $# -eq 0 ] || git show --color=always $1 $filter | delta --line-numbers; }; f" \
+                --bind="ctrl-j:preview-down,ctrl-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up" \
+                --bind="ctrl-m:execute:
+                        (rg -o '\b[a-f0-9]{7,}\b' | head -1 | xargs -I % -- git show --color=always %) << 'FZF-EOF'
+                        {}
+                        FZF-EOF" \
+                --bind="alt-h:execute-silent:
+                        (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n');
+                        [[ -n $TMUX ]] && tmux display -d0 \"#[bg=blue,italics] Branches #[none,fg=black,bg=default] $(git branch --contains $1 | sed 's/^\*\?\s'
+                        | sort | paste -sd, - | sed 's/,/, /g')\"; }; f) << 'FZF-EOF'
+                        {}
+                        FZF-EOF" \
+                # --bind="alt-H:execute-silent: \
+                #         (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); \
+                #         SUMMARY=\"$(git show --format='%s' $1 | head -1)\"; \
+                #         [[ -n $TMUX ]] && tmux display -d0 \"#[bg=blue,italics] Branches (Grep) #[none,fg=black,bg=default] $(git log --all --format='%H' -F \
+                #         --grep=\"$SUMMARY\" | xargs -I{} -- git branch --contains {} \
+                #         | sed 's/^\*\?\s\+/' | sort | uniq | paste -sd, - | sed 's/,/, /g')\"; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                # --bind="alt-n:execute-silent: \
+                #         (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); \
+                #         [[ -n $TMUX ]] && tmux display -d0 \"#[bg=blue,italics] Tags #[none,fg=black,bg=default] $(git tag --contains $1 | sed 's/^\*\?\s\+/' \
+                #         | sort | paste -sd, - | sed 's/,/, /g')\"; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                # --bind="alt-N:execute-silent: \
+                #         (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); \
+                #         SUMMARY=\"$(git show --format='%s' $1 | head -1)\"; \
+                #         [[ -n $TMUX ]] && tmux display -d0 \"#[bg=blue,italics] Tags (Grep) #[none,fg=black,bg=default] $(git log --all --format='%H' -F \
+                #         --grep=\"$SUMMARY\" | xargs -I{} -- git tag --contains {} \
+                #         | sed 's/^\*\?\s\+/' | sort | uniq | paste -sd, - | sed 's/,/, /g')\"; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                # --bind="ctrl-y:execute-silent: \
+                #         (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); \
+                #         printf '%s' $1 | clipboard; [[ -n $TMUX ]] && tmux display \"#[bg=blue,italics] Yanked #[none,fg=black,bg=default] $1\"; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                # --bind="ctrl-s:execute-silent: \
+                #         (f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); \
+                #         SUMMARY=\"$(git show --format='%s' $1 | head -1)\"; \
+                #         printf '%s' \"$SUMMARY\" | clipboard; \
+                #         [[ -n $TMUX ]] && tmux display \"#[bg=blue,italics] Yanked #[none,fg=black,bg=default] $SUMMARY\"; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                # --bind="ctrl-l:execute:(f() { set -- $(rg -o '\b[a-f0-9]{7,}\b' | head -1 | tr -d $'\n'); git lgl | less -p $1 +'u'; }; f) << FZFEOF\n \
+                #         {} \
+                #         \nFZFEOF" \
+                --preview-window=right:60%;
+};
+
+is_in_git_repo || return
+
+# gfzf
+git-br-fzf

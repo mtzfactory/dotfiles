@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#!/usr/bin/env zsh
+
+function is_in_git_repo() {
+    # git rev-parse HEAD > /dev/null 2>&1
+    git rev-parse HEAD > /dev/null
+}
+
+is_in_git_repo || return
+
+PREVIEW="git diff {} | diff-so-fancy"
+
+git ls-files -m | 
+  fzf --cycle --ansi --no-sort --tiebreak=index  --no-multi \
+    --preview="$PREVIEW" \
+    --bind "enter:execute:$PREVIEW | less -R" \
+    --preview-window=right:70%;

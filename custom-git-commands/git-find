@@ -1,0 +1,32 @@
+#!/bin/bash
+
+## git-find
+# Find files containing the search strings, in any order. For example:
+#
+# $ git find modules main modal js
+# main/lib/modules/modal/index.js
+#
+
+PREFIX=$(git rev-parse --show-prefix)
+COLOUR=always
+
+if [[ $1 == '--plain' || $1 == '-p' ]]; then
+  COLOUR=no
+  shift
+fi
+
+if ! type "rg" &> /dev/null; then
+	cmd="grep --colour=$COLOUR"
+else
+	cmd="rg -N"
+fi
+
+for pattern in $@; do
+  greps+=" | $cmd -i $pattern"
+done
+
+if [[ -z $PREFIX ]]; then
+    eval "git ls-files $greps"
+else
+    eval "git ls-files $greps" | sed s%`git rev-parse --show-prefix`%%
+fi

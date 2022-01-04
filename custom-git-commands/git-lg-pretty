@@ -1,0 +1,12 @@
+#!/bin/sh
+
+## git-log-pretty
+# Better version of git log (e.g., short commit ID, commit message, commit author, relative timestamp).
+#
+# Usage:
+#   git log-pretty
+
+#igit log --oneline --decorate --graph
+
+git log --decorate --pretty=format:'%C(red)%h%C(reset) %C(yellow)%d%C(reset) %s [%C(green)%an, %C(bold black)%cr%C(reset)]' --abbrev-commit --date=relative --all --no-merges $@
+

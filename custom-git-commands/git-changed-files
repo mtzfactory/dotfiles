@@ -1,0 +1,6 @@
+#!/bin/bash
+
+## git-cahgned-files
+# Find modified files on a branch
+
+git diff --name-only master...
