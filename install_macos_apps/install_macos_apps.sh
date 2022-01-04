@@ -65,6 +65,7 @@ declare -a brew_cli_tools=(
   'composer'
   'coreutils'
   'ctags'
+  'diff-so-fancy'
   'dos2unix'
   'exiftool'
   'fastlane'
