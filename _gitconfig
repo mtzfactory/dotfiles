@@ -19,5 +19,6 @@
 [alias]
   ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
   # git ch v1.1.0 v1.0.0
+
 [core]
-	pager = less -F -X
+  pager = less -F -X
