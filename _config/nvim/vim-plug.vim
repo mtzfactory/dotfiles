@@ -13,7 +13,7 @@ call plug#begin('~/.vim/plugged')
   Plug 'airblade/vim-gitgutter'
   Plug 'rhysd/conflict-marker.vim'
   Plug 'xuyuanp/nerdtree-git-plugin'
-  
+
 " Browse files
   Plug 'scrooloose/nerdtree'
   Plug 'unkiwii/vim-nerdtree-sync'
@@ -46,10 +46,10 @@ call plug#begin('~/.vim/plugged')
   Plug 'jiangmiao/auto-pairs'
   Plug 'ap/vim-css-color'
 
-  " For Facts, Ruby functions, and custom providers
+" For Facts, Ruby functions, and custom providers
   Plug 'vim-ruby/vim-ruby'
 
-  " Visualizes the Vim undo tree.
+" Visualizes the Vim undo tree.
   Plug 'simnalamburt/vim-mundo'
 
 call plug#end()
