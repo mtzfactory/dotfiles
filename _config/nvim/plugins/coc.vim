@@ -2,6 +2,8 @@
 " ----------------------
 if exists('g:plugs["coc.nvim"]')
   let g:coc_global_extensions = [
+  \ 'coc-css',
+  \ 'coc-html',
   \ 'coc-java',
   \ 'coc-json',
   \ 'coc-tsserver',
