@@ -3,11 +3,15 @@
 if exists('g:plugs["coc.nvim"]')
   let g:coc_global_extensions = [
   \ 'coc-css',
+  \ 'coc-emmet',
   \ 'coc-html',
   \ 'coc-java',
   \ 'coc-json',
+  \ 'coc-markdownlint',
+  \ 'coc-python',
+  \ 'coc-solargraph',
   \ 'coc-tsserver',
-  \ 'coc-solargraph'
+  \ 'coc-yaml'
   \ ]
 
   if isdirectory('./node_modules') && isdirectory('./node_modules/prettier')
