@@ -38,6 +38,7 @@ declare -a brew_cask_apps=(
   'iterm2'
   'jumpcut'
   'keybase'
+  'macdown',
   'notion'
   'packetsender'
   'postman'
