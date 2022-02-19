@@ -20,6 +20,7 @@
 [alias]
   ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
   # git ch v1.1.0 v1.0.0
+  c4wt = clone-for-worktrees
 
 [core]
   pager = less -F -X
