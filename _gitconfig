@@ -1,6 +1,9 @@
 [includeIf "gitdir:~/paack/"]
   path = ~/.gitconfig-paack
 
+[includeIf "gitdir:~/paack/development/apps/mobile-party/"]
+  path = ~/.gitconfig-mobile-bot
+
 [includeIf "gitdir:~/personal/"]
   path = ~/.gitconfig-mtz
 
@@ -18,9 +21,13 @@
   required = true
 
 [alias]
-  ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
   # git ch v1.1.0 v1.0.0
+  ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
+  # git c4wt git@your-repo.git
   c4wt = clone-for-worktrees
+  wt = worktree
+  # get git directory path
+  path = rev-parse --git-dir
 
 [core]
   pager = less -F -X
