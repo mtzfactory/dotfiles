@@ -154,6 +154,11 @@ export PATH="$PATH:$HOME/custom-git-commands"
 #
 alias ls="ls -lisa"
 
+# npm package
+alias scripts="jq -r .scripts package.json"
+alias dependencies="jq -r .dependencies package.json"
+alias devDependencies="jq -r .devDependencies package.json"
+
 # android adb
 alias a:devices="adb devices"
 alias a:reverse="adb reverse tcp:8081 tcp:8081; adb reverse tcp:8097 tcp:8097"
