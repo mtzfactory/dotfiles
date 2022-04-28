@@ -21,13 +21,27 @@
   required = true
 
 [alias]
-  # git ch v1.1.0 v1.0.0
+  # Get commit history with style.
+  # Example: git ch v1.1.0 v1.0.0
   ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
-  # git c4wt git@your-repo.git
+  
+  # Clone repo using worktree
+  # Example: git c4wt git@your-repo.git
   c4wt = clone-for-worktrees
   wt = worktree
-  # get git directory path
+  
+  # Get git directory path
   path = rev-parse --git-dir
+  
+  # Get git hooks path
+  path-hooks = rev-parse --git-path hooks
+  
+  # Get head branch
+  head-branch = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
+  
+  # Delete all branches on remote `origin` that have been merged into `origin/master`
+  # link https://salferrarello.com/git-delete-merged-branches-from-remote/
+  delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git head-branch)  | grep --invert-match $(git head-branch) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
 
 [core]
   pager = less -F -X
@@ -37,3 +51,6 @@
 
 [diff]
   colorMoved = zebra
+[user]
+	email = ricardo.martinez.monje@gmail.com
+	name = Ricardo Martínez
