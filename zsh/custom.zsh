@@ -1,3 +1,8 @@
+# zsh extended glob operators
+# https://zsh.sourceforge.io/Doc/Release/Options.html#index-EXTENDED_005fGLOB
+# https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Operators
+setopt extended_glob
+
 # zsh etenxions
 autoload -U zmv
 
@@ -17,6 +22,14 @@ if [ -d "$ANDROID" ]; then
   export PATH="$PATH:$ANDROID_HOME/platform-tools"
   export PATH="$PATH:$ANDROID_HOME/tools"
   export PATH="$PATH:$ANDROID_HOME/tools/bin"
+fi
+
+# java
+# https://docs.gradle.org/current/userguide/compatibility.html#java
+JAVA_VERSION="jdk-14.0.2.jdk"
+JAVA="/Library/Java/JavaVirtualMachines/$JAVA_VERSION"
+if [ -d "$JAVA" ]; then
+  export JAVA_HOME="$JAVA/Contents/Home"
 fi
 
 # base root directory for brew intalled apps
@@ -91,7 +104,8 @@ NVM="$USR_LOCAL_OPT/nvm"
 # openjdk
 OPENJDK="$USR_LOCAL_OPT/openjdk"
 if [ -d "$OPENJDK" ]; then
-  export PATH="$PATH:$OPENJDK/bin"
+  # sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+  export PATH="$OPENJDK/bin:$PATH"
   export CPPFLAGS="$CPPFLAGS -I$OPENJDK/include"
 fi
 
