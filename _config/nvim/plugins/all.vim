@@ -2,7 +2,7 @@ source $HOME/.config/nvim/plugins/airline.vim
 source $HOME/.config/nvim/plugins/coc.vim
 source $HOME/.config/nvim/plugins/coc-config.vim
 source $HOME/.config/nvim/plugins/ctrl-p.vim
-source $HOME/.config/nvim/plugins/git.vim
+source $HOME/.config/nvim/plugins/fugitive.vim
 source $HOME/.config/nvim/plugins/nerdtree.vim
 source $HOME/.config/nvim/plugins/nerdtree-git.vim
 source $HOME/.config/nvim/plugins/nerdtree-sync.vim

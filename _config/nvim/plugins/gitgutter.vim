@@ -1,4 +1,4 @@
-" Nerdtree Git
+" Git Gutter
 " ----------------------
 if exists('g:plugs["vim-gitgutter"]')
   let g:gitgutter_highlight_linenrs = 1
