@@ -33,7 +33,7 @@ declare -a brew_cask_apps=(
   'colorpicker-skalacolor'
   'db-browser-for-sqlite'
   'flipper'
-  'fontforge'
+  'fontforge'       # Fontcustom
   'google-chrome'
   'iterm2'
   'jumpcut'
@@ -48,6 +48,7 @@ declare -a brew_cask_apps=(
   'qlstephen'
   'qlvideo'
   'quicklook-json'
+  'raycast'
   'react-native-debugger'
   'rowanj-gitx'
   'runjs'
@@ -174,6 +175,9 @@ pip3 install fb-idb --user
 ## Fontcustom
 export GEM_HOME="$HOME/.gem"
 gem install fontcustom
+
+## Ruby development with Vim and CoC
+gem install solargraph
 
 ###############################################################################
 # Configure installed apps                                                    #

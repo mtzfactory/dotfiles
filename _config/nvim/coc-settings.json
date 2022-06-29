@@ -1,8 +1,4 @@
 {
-  // Auto formatting
-  // "coc.preferences.formatOnType": true,
-  // "tsserver.formatOnType": true,
-  // Prettier
   "coc.preferences.formatOnSaveFiletypes": [
     "css",
     "graphql",
@@ -14,14 +10,10 @@
     "typescript",
     "typescriptreact"
   ],
-  //"prettier.disableSuccessMessage": true,
-  // Esling
   "eslint.autoFixOnSave": true,
   "eslint.format.enable": true,
   "eslint.packageManager": "yarn",
   "eslint.alwaysShowStatus": true,
   "eslint.run": "onSave",
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  // Ruby
-  "solargraph.useBundler": true
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }
