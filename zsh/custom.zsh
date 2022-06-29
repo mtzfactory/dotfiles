@@ -51,6 +51,10 @@ fi
 ESP_IDF="$HOME/esp/esp-idf"
 [ -d "$ESP_IDF" ] && alias get_idf=". $ESP_IDF/export.sh"
 
+# fontcustom
+FONTCUSTOM="/Applications/FontForge.app"
+[ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
+
 # gnu-sed
 GNU_SED="$USR_LOCAL_OPT/gnu-sed"
 [ -d "$GNU_SED" ] && export PATH="$PATH:$GNU_SED/libexec/gnubin"
