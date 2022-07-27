@@ -172,6 +172,9 @@ done
 ## Flipper
 pip3 install fb-idb --user
 
+## Python client to Neovim -- for vim-mundo plugin
+pip3 install pynvim
+
 ## Fontcustom
 export GEM_HOME="$HOME/.gem"
 gem install fontcustom
