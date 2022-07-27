@@ -2,6 +2,7 @@
 " ----------------------
 if exists('g:plugs["vim-gitgutter"]')
   let g:gitgutter_highlight_linenrs = 1
+  nmap ghp <Plug>(GitGutterPreviewHunk)
 endif
 
 " You can jump between hunks:
