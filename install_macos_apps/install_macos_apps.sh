@@ -33,7 +33,8 @@ declare -a brew_cask_apps=(
   'colorpicker-skalacolor'
   'db-browser-for-sqlite'
   'flipper'
-  'fontforge'       # Fontcustom
+  'fontforge'		# Fontcustom
+  'fork'		# Git client
   'google-chrome'
   'iterm2'
   'jumpcut'
