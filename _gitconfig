@@ -1,8 +1,5 @@
-[includeIf "gitdir:~/paack/"]
-  path = ~/.gitconfig-paack
-
-[includeIf "gitdir:~/paack/development/apps/mobile-party/"]
-  path = ~/.gitconfig-mobile-bot
+[includeIf "gitdir:~/rated-people/"]
+  path = ~/.gitconfig-rated-people
 
 [includeIf "gitdir:~/personal/"]
   path = ~/.gitconfig-mtz
