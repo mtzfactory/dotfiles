@@ -92,6 +92,7 @@ declare -a brew_cli_tools=(
   'fzf'
   'gettext'
   'git'
+  'git-lfs'
   'gnu-getopt'
   'gnu-sed'
   'gnu-tar'
