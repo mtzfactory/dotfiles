@@ -36,6 +36,7 @@ declare -a brew_cask_apps=(
   'fontforge'		# Fontcustom
   'fork'		# Git client
   'google-chrome'
+  'http-toolkit'	# HTTP(S) debugging proxy, analyzer, and client
   'iterm2'
   'jumpcut'
   'keybase'
