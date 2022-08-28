@@ -163,9 +163,47 @@ if [ -d "$SQLITE" ]; then
 fi
 
 ##
-# custom git commands
+# customization
 ##
-export PATH="$PATH:$HOME/custom-git-commands"
+DOTFILES="$HOME/personal/dotfiles"
+DOTFILES_SYMLINKS="$DOTFILES/symlinks"
+
+DOTFILES_SYMLINK="$HOME/dotfiles"
+if [ ! -d "$DOTFILES_SYMLINK" ]; then
+  ln -s "$DOTFILES" "$DOTFILES_SYMLINK"
+fi
+
+CUSTOM_GIT_COMMANDS_SYMLINK="$HOME/custom-git-commands"
+if [ ! -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ]; then
+  ln -s "$DOTFILES/custom-git-commands" "$CUSTOM_GIT_COMMANDS_SYMLINK"
+fi
+
+[ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$PATH:$CUSTOM_GIT_COMMANDS_SYMLINK"
+
+GITCONFIG_SYMLINK="$HOME/.gitconfig"
+if [ ! -f "$GITCONFIG_SYMLINK" ]; then
+  ln -s "$DOTFILES_SYMLINKS/_gitconfig" "$GITCONFIG_SYMLINK"
+fi
+
+GITCONFIG_PERSONAL_SYMLINK="$HOME/.gitconfig-personal"
+if [ ! -f "$GITCONFIG_PERSONAL_SYMLINK" ]; then
+  ln -s "$DOTFILES_SYMLINKS/_gitconfig-personal" "$GITCONFIG_PERSONAL_SYMLINK"
+fi
+
+GITCONFIG_WORK_SYMLINK="$HOME/.gitconfig-work"
+if [ ! -f "$GITCONFIG_WORK_SYMLINK" ]; then
+  ln -s "$DOTFILES_SYMLINKS/_gitconfig-work" "$GITCONFIG_WORK_SYMLINK"
+fi
+
+NVIM_CONFIG_SYMLINK="$HOME/.config/nvim"
+if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
+  ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
+fi
+
+SSH_CONFIG_SYMLINK="$HOME/.ssh/config"
+if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
+  ln -s "$DOTFILES_SYMLINKS/ssh/config" "$SSH_CONFIG_SYMLINK"
+fi
 
 ##
 # alias
