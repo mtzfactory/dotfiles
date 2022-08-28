@@ -1,5 +1,5 @@
-[includeIf "gitdir:~/rated-people/"]
-  path = ~/.gitconfig-company
+[includeIf "gitdir:~/work"]
+  path = ~/.gitconfig-work
 
 [includeIf "gitdir:~/personal/"]
   path = ~/.gitconfig-personal
