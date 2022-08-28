@@ -1,0 +1,33 @@
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+# Personal Github account
+Host github.com-mtzfactory
+  HostName github.com
+  User git
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_c4p
+  IdentitiesOnly yes
+
+# Personal Bitbucket account
+Host bitbucket.org-mtzfactory
+  Hostname bitbucket.org
+  User git
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_c4p
+  IdentitiesOnly yes
+
+# Github
+# https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+#
+# Bitbucket
+# https://blog.developer.atlassian.com/different-ssh-keys-multiple-bitbucket-accounts/
+#
+# Create new ssh key
+# ssh-keygen -t ed25519 -C "your_email@example.com"
+#
+# Add ssh key to Mac SSH Agent with passphrase
+# ssh-add --apple-use-keychain ~/.ssh/your_ssh_file
+# ssh-l

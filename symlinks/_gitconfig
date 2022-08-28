@@ -1,8 +1,8 @@
 [includeIf "gitdir:~/rated-people/"]
-  path = ~/.gitconfig-rated-people
+  path = ~/.gitconfig-company
 
 [includeIf "gitdir:~/personal/"]
-  path = ~/.gitconfig-mtz
+  path = ~/.gitconfig-personal
 
 [pull]
   ff = only
