@@ -192,4 +192,3 @@ alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\"
 export EDITOR="nvim"
 alias v="nvim"
 
-
