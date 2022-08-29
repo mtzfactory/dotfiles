@@ -196,14 +196,19 @@ customize() {
     ln -s "$DOTFILES_SYMLINKS/_gitconfig-work" "$GITCONFIG_WORK_SYMLINK"
   fi
 
-  local NVIM_CONFIG_SYMLINK="$HOME/.config/nvim"
+  local HOME_CONFIG_DIRECTORY="$HOME/.config"
+  local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
   if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
+    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
   fi
 
-  local SSH_CONFIG_SYMLINK="$HOME/.ssh/config"
+  local HOME_SSH_DIRECTORY="$HOME/.ssh"
+  local SSH_CONFIG_SYMLINK="$HOME_SSH_DIRECTORY/config"
   if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
+    [ ! -d "$HOME_SSH_DIRECTORY" ] && mkdir -p "$HOME_SSH_DIRECTORY" && chmod 700 "$HOME_SSH_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/ssh/config" "$SSH_CONFIG_SYMLINK"
+    chmod 600 ~/.ssh/config
   fi
 }
 
