@@ -146,6 +146,7 @@ done
 declare -a yarn_apps=(
   'appcenter-cli'
   'ignite'
+  'ios-deploy'		# Required for installing your app on a physical device with the CLI. npx react-native doctor
   'npm-check-updates'
 )
 
