@@ -10,6 +10,10 @@ autoload -U zmv
 export HOMEBREW_NO_ANALYTICS=1
 
 customize() {
+
+  local USR_LOCAL_BIN="/usr/local/bin"
+  [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"
+
   ##
   # brew based apps
   #
@@ -149,6 +153,15 @@ customize() {
   # fontcustom
   local FONTCUSTOM="/Applications/FontForge.app"
   [ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
+
+  # idb (flipper)
+  if [ ! -x "$(command -v idb)" ]; then
+    if [ -x "$(command -v python3)" ]; then
+      local PYTHON_SITE_PACKAGES="$(python3 -m site --user-site)"
+      local IDB="${PYTHON_SITE_PACKAGES%%"/lib/python/site-packages"}/bin/idb"
+      sudo ln -s "$IDB" "$USR_LOCAL_BIN/idb"
+    fi
+  fi
 
   # ruby gems
   if [ -d "$HOME/.gem" ]; then

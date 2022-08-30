@@ -175,13 +175,14 @@ done
 ###############################################################################
 
 ## Flipper
-pip3 install fb-idb --user
+pip3 install --user fb-idb
 
 ## Python client to Neovim -- for vim-mundo plugin
 pip3 install pynvim
 
-## Fontcustom
 export GEM_HOME="$HOME/.gem"
+
+## Fontcustom
 gem install fontcustom
 
 ## Ruby development with Vim and CoC
