@@ -11,27 +11,8 @@ export HOMEBREW_NO_ANALYTICS=1
 
 customize() {
   ##
-  # apps
-  ##
-
-  # android
-  local ANDROID="$HOME/Library/Android"
-  if [ -d "$ANDROID" ]; then
-    export ANDROID_HOME="$ANDROID/sdk"
-    export ANDROID_SDK_ROOT="$ANDROID/sdk"
-    export PATH="$PATH:$ANDROID_HOME/emulator"
-    export PATH="$PATH:$ANDROID_HOME/platform-tools"
-    export PATH="$PATH:$ANDROID_HOME/tools"
-    export PATH="$PATH:$ANDROID_HOME/tools/bin"
-  fi
-
-  # java
-  # https://docs.gradle.org/current/userguide/compatibility.html#java
-  local JAVA_VERSION="jdk-14.0.2.jdk"
-  local JAVA="/Library/Java/JavaVirtualMachines/$JAVA_VERSION"
-  if [ -d "$JAVA" ]; then
-    export JAVA_HOME="$JAVA/Contents/Home"
-  fi
+  # brew based apps
+  #
 
   # base root directory for brew intalled apps
   local BREW_BIN_DIR="$(brew --prefix)/bin"
@@ -48,14 +29,6 @@ customize() {
     export LDFLAGS="$LDFLAGS -L$BINUTILS/lib"
     export CPPFLAGS="$CPPFLAGS -I$BINUTILS/include"
   fi
-
-  # esp-idf
-  local ESP_IDF="$HOME/esp/esp-idf"
-  [ -d "$ESP_IDF" ] && alias get_idf=". $ESP_IDF/export.sh"
-
-  # fontcustom
-  local FONTCUSTOM="/Applications/FontForge.app"
-  [ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
 
   # gnu-sed
   local GNU_SED="$BREW_OPT_DIR/gnu-sed"
@@ -111,13 +84,18 @@ customize() {
   fi
 
   # openjdk
-  # local OPENJDK="$BREW_OPT_DIR/openjdk"
-  # if [ -d "$OPENJDK" ]; then
-  #   local LIBRARY_JVM_OPENJDK="/Library/Java/JavaVirtualMachines/openjdk.jdk"
-  #   [ ! -f "$LIBRARY_JVM_OPENJDK" ] && sudo ln -sfn "$(brew --prefix)/opt/openjdk/libexec/openjdk.jdk" "$LIBRARY_JVM_OPENJDK"
-  #   export PATH="$OPENJDK/bin:$PATH"
-  #   export CPPFLAGS="$CPPFLAGS -I$OPENJDK/include"
-  # fi
+  local OPENJDK="$BREW_OPT_DIR/openjdk"
+  if [ -d "$OPENJDK" ]; then
+    export PATH="$OPENJDK/bin:$PATH"
+    export CPPFLAGS="$CPPFLAGS -I$OPENJDK/include"
+
+    local LIBRARY_JVM_OPENJDK="/Library/Java/JavaVirtualMachines/openjdk.jdk"
+    [ ! -d "$LIBRARY_JVM_OPENJDK" ] && sudo ln -sfn "$OPENJDK/libexec/openjdk.jdk" "$LIBRARY_JVM_OPENJDK"
+
+    # https://docs.gradle.org/current/userguide/compatibility.html#java
+    local OPENJDK_JVM="/Library/Java/JavaVirtualMachines/openjdk.jdk"
+    [ -d "$OPENJDK_JVM" ] && export JAVA_HOME="$OPENJDK_JVM/Contents/Home"
+  fi
 
   # openssl
   local OPENSSL="$BREW_OPT_DIR/openssl@1.1"
@@ -127,6 +105,13 @@ customize() {
     export CPPFLAGS="$CPPFLAGS -I$OPENSSL/include"
   fi
 
+  # python@3
+  local PYTHON3="$BREW_OPT_DIR/python@3"
+  if [ -d "$PYTHON3" ]; then
+    export PATH="$PATH:$PYTHON3/bin"
+    export LDFLAGS="$LDFLAGS -L$PYTHON3/lib"
+  fi
+
   # readline (required by sqlite)
   local READLINE="$BREW_OPT_DIR/readline"
   if [ -d "$READLINE" ]; then
@@ -134,12 +119,36 @@ customize() {
     export CPPFLAGS="$CPPFLAGS -I$READLINE/include"
   fi
 
-  # python@3
-  local PYTHON3="$BREW_OPT_DIR/python@3"
-  if [ -d "$PYTHON3" ]; then
-    export PATH="$PATH:$PYTHON3/bin"
-    export LDFLAGS="$LDFLAGS -L$PYTHON3/lib"
+  # sqlite
+  local SQLITE="$BREW_OPT_DIR/sqlite"
+  if [ -d "$SQLITE" ]; then
+    export PATH="$PATH:$SQLITE/bin"
+    export LDFLAGS="$LDFLAGS -L$SQLITE/lib"
+    export CPPFLAGS="$CPPFLAGS -I$SQLITE/include"
   fi
+
+  ##
+  # other apps
+  #
+
+  # android
+  local ANDROID="$HOME/Library/Android"
+  if [ -d "$ANDROID" ]; then
+    export ANDROID_HOME="$ANDROID/sdk"
+    export ANDROID_SDK_ROOT="$ANDROID/sdk"
+    export PATH="$PATH:$ANDROID_HOME/emulator"
+    export PATH="$PATH:$ANDROID_HOME/platform-tools"
+    export PATH="$PATH:$ANDROID_HOME/tools"
+    export PATH="$PATH:$ANDROID_HOME/tools/bin"
+  fi
+
+  # esp-idf
+  local ESP_IDF="$HOME/esp/esp-idf"
+  [ -d "$ESP_IDF" ] && alias get_idf=". $ESP_IDF/export.sh"
+
+  # fontcustom
+  local FONTCUSTOM="/Applications/FontForge.app"
+  [ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
 
   # ruby gems
   if [ -d "$HOME/.gem" ]; then
@@ -152,18 +161,11 @@ customize() {
     export ESP_HOME="$HOME/opt/esp-quick-toolchain"
     export SMING_HOME="$HOME/opt/Sming/Sming"
   fi
-
-  # sqlite
-  local SQLITE="$BREW_OPT_DIR/sqlite"
-  if [ -d "$SQLITE" ]; then
-    export PATH="$PATH:$SQLITE/bin"
-    export LDFLAGS="$LDFLAGS -L$SQLITE/lib"
-    export CPPFLAGS="$CPPFLAGS -I$SQLITE/include"
-  fi
   
   ##
-  # customization
-  ##
+  # symlinks
+  #
+
   local DOTFILES="$HOME/personal/dotfiles"
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
