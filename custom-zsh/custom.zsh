@@ -34,14 +34,15 @@ customize() {
   fi
 
   # base root directory for brew intalled apps
-  local USR_LOCAL_OPT="/usr/local/opt"
+  local BREW_BIN_DIR="$(brew --prefix)/bin"
+  local BREW_OPT_DIR="$(brew --prefix)/opt"
 
   # coreutils
-  local COREUTILS="$USR_LOCAL_OPT/coreutils"
+  local COREUTILS="$BREW_OPT_DIR/coreutils"
   [ -d "$COREUTILS" ] && export PATH="$PATH:$COREUTILS/libexec/gnubin"
 
   # binutils
-  local BINUTILS="$USR_LOCAL_OPT/binutils"
+  local BINUTILS="$BREW_OPT_DIR/binutils"
   if [ -d "$BINUTILS" ]; then
     export PATH="$PATH:$BINUTILS/bin"
     export LDFLAGS="$LDFLAGS -L$BINUTILS/lib"
@@ -57,19 +58,19 @@ customize() {
   [ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
 
   # gnu-sed
-  local GNU_SED="$USR_LOCAL_OPT/gnu-sed"
+  local GNU_SED="$BREW_OPT_DIR/gnu-sed"
   [ -d "$GNU_SED" ] && export PATH="$PATH:$GNU_SED/libexec/gnubin"
 
   # gnu-getopt
-  local GNU_GETOPT="$USR_LOCAL_OPT/gnu-getopt"
+  local GNU_GETOPT="$BREW_OPT_DIR/gnu-getopt"
   [ -d "$GNU_GETOPT" ] && export PATH="$PATH:$GNU_GETOPT/bin"
 
   # grep
-  local GREP="%USR_LOCAL_OPT/grep"
+  local GREP="%BREW_OPT_DIR/grep"
   [ -d "$GREP" ] && export PATH="$PATH:$GREP/libexec/gnubin"
 
   # gettext
-  local GETTEXT="$USR_LOCAL_OPT/gettext"
+  local GETTEXT="$BREW_OPT_DIR/gettext"
   if [ -d "$GETTEXT" ]; then
     export PATH="$PATH:$GETTEXT/bin"
     export LDFLAGS="$LDFLAGS -L$GETTEXT/lib"
@@ -77,77 +78,74 @@ customize() {
   fi
 
   # icu4c
-  local ICU4C="$USR_LOCAL_OPT/icu4c"
+  local ICU4C="$BREW_OPT_DIR/icu4c"
   if [ -d "$ICU4C" ]; then
-    export PATH="$PATH:$ICU4C/bin"
-    export PATH="$PATH:$ICU4C/sbin"
+    export PATH="$PATH:$ICU4C/bin:$ICU4C/sbin"
     export LDFLAGS="$LDFLAGS -L$ICU4C/lib"
     export CPPFLAGS="$CPPFLAGS -I$ICU4C/include"
   fi
 
   # libffi
-  local LIBFFI="$USR_LOCAL_OPT/libffi"
-  [ -d "$LIBFFI" ] && export LDFLAGS="$LDFLAGS -L$LIBFFI/lib"
+  local LIBFFI="$BREW_OPT_DIR/libffi"
+  if [ -d "$LIBFFI" ]; then
+    export LDFLAGS="$LDFLAGS -L$LIBFFI/lib"
+    export CPPFLAGS="$CPPFLAGS -I$LIBFFI/include"
+  fi
 
   # ncurses
-  local NCURSES="$USR_LOCAL_OPT/ncurses"
+  local NCURSES="$BREW_OPT_DIR/ncurses"
   if [ -d "$NCURSES" ]; then
     export PATH="$PATH:$NCURSES/bin"
     export LDFLAGS="$LDFLAGS -L$NCURSES/lib"
     export CPPFLAGS="$CPPFLAGS -I$NCURSES/include"
-    export PKG_CONFIG_PATH="$NCURSES/lib/pkgconfig"
   fi
 
   # nvm
-  export NVM_DIR="$HOME/.nvm"
-  local NVM="$USR_LOCAL_OPT/nvm"
-  # This loads nvm
-  [ -s "$NVM/nvm.sh" ] && . "$NVM/nvm.sh"
-  # This loads nvm bash_completion
-  [ -s "$NVM/etc/bash_completion.d/nvm" ] && . "$NVM/etc/bash_completion.d/nvm"
-
-  # openjdk
-  local OPENJDK="$USR_LOCAL_OPT/openjdk"
-  if [ -d "$OPENJDK" ]; then
-    # sudo ln -sfn /usr/local/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-    export PATH="$OPENJDK/bin:$PATH"
-    export CPPFLAGS="$CPPFLAGS -I$OPENJDK/include"
+  local NVM="$BREW_OPT_DIR/nvm"
+  if [ -d "$NVM" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    # This loads nvm
+    [ -s "$NVM/nvm.sh" ] && \. "$NVM/nvm.sh"
+    # This loads nvm bash_completion
+    [ -s "$NVM/etc/bash_completion.d/nvm" ] && \. "$NVM/etc/bash_completion.d/nvm"
   fi
 
+  # openjdk
+  # local OPENJDK="$BREW_OPT_DIR/openjdk"
+  # if [ -d "$OPENJDK" ]; then
+  #   local LIBRARY_JVM_OPENJDK="/Library/Java/JavaVirtualMachines/openjdk.jdk"
+  #   [ ! -f "$LIBRARY_JVM_OPENJDK" ] && sudo ln -sfn "$(brew --prefix)/opt/openjdk/libexec/openjdk.jdk" "$LIBRARY_JVM_OPENJDK"
+  #   export PATH="$OPENJDK/bin:$PATH"
+  #   export CPPFLAGS="$CPPFLAGS -I$OPENJDK/include"
+  # fi
+
   # openssl
-  local OPENSSL="$USR_LOCAL_OPT/openssl@1.1"
+  local OPENSSL="$BREW_OPT_DIR/openssl@1.1"
   if [ -d "$OPENSSL" ]; then
     export PATH="$PATH:$OPENSSL/bin"
     export LDFLAGS="$LDFLAGS -L$OPENSSL/lib"
     export CPPFLAGS="$CPPFLAGS -I$OPENSSL/include"
   fi
 
-  # readline
-  local READLINE="$USR_LOCAL_OPT/readline"
+  # readline (required by sqlite)
+  local READLINE="$BREW_OPT_DIR/readline"
   if [ -d "$READLINE" ]; then
     export LDFLAGS="$LDFLAGS -L$READLINE/lib"
     export CPPFLAGS="$CPPFLAGS -I$READLINE/include"
   fi
 
   # python@3
-  local PYTHON3="$USR_LOCAL_OPT/python@3"
+  local PYTHON3="$BREW_OPT_DIR/python@3"
   if [ -d "$PYTHON3" ]; then
     export PATH="$PATH:$PYTHON3/bin"
     export LDFLAGS="$LDFLAGS -L$PYTHON3/lib"
   fi
 
-  # python@2.7
-  #export PATH="$HOME/Library/Python/2.7/bin:$PATH"
-
-  # ruby
+  # ruby gems
   if [ -d "$HOME/.gem" ]; then
     export GEM_HOME="$HOME/.gem"
     export PATH="$PATH:$HOME/.gem/bin"
   fi
-  #RUBY="$USR_LOCAL_OPT/ruby"
-  #export PATH="$PATH:$RUBY/bin"
-  #export LDFLAGS="$LDFLAGS -L$RUBY/lib"
-  #export CPPFLAGS="$CPPFLAGS -I$RUBY/include"
 
   # sming - esp8266
   if [ -d "$HOME/opt" ]; then
@@ -156,13 +154,13 @@ customize() {
   fi
 
   # sqlite
-  local SQLITE="$USR_LOCAL_OPT/sqlite"
+  local SQLITE="$BREW_OPT_DIR/sqlite"
   if [ -d "$SQLITE" ]; then
     export PATH="$PATH:$SQLITE/bin"
     export LDFLAGS="$LDFLAGS -L$SQLITE/lib"
     export CPPFLAGS="$CPPFLAGS -I$SQLITE/include"
   fi
-
+  
   ##
   # customization
   ##
