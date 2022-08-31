@@ -148,6 +148,7 @@ declare -a yarn_apps=(
   'ignite'
   'ios-deploy'		# Required for installing your app on a physical device with the CLI. npx react-native doctor
   'npm-check-updates'
+  'react-devtools'
 )
 
 for app in "${yarn_apps[@]}"; do
@@ -161,8 +162,8 @@ done
 declare -a mas_apps=(
   '497799835'  # Xcode
   '939343785'  # Icon set creator
-  '1287239339' # Color Slurp
   '1037126344' # Apple configurator
+  '1287239339' # Color Slurp
   '1478821913' # Go links
 )
 
