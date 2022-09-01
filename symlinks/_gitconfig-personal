@@ -2,3 +2,6 @@
 [user]
   name = Ricardo Martinez
   email = ricardo.martinez.monje@gmail.com
+
+#[core]
+#  sshCommand = “ssh -i ~/.ssh/<personal_key>”
