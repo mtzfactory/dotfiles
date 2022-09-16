@@ -220,7 +220,7 @@ customize() {
   local SSH_CONFIG_SYMLINK="$HOME_SSH_DIRECTORY/config"
   if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
     [ ! -d "$HOME_SSH_DIRECTORY" ] && mkdir -p "$HOME_SSH_DIRECTORY" && chmod 700 "$HOME_SSH_DIRECTORY"
-    ln -s "$DOTFILES_SYMLINKS/ssh/config" "$SSH_CONFIG_SYMLINK"
+    ln -s "$DOTFILES_SYMLINKS/_ssh/config" "$SSH_CONFIG_SYMLINK"
     chmod 600 ~/.ssh/config
   fi
 }
