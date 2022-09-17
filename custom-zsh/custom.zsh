@@ -132,6 +132,14 @@ customize() {
   fi
 
   ##
+  # git
+  #
+  local GIT_EXTRAS="$BREW_OPT_DIR/git-extras"
+  if [ -d "$GIT_EXTRAS" ]; then
+    source /opt/homebrew/opt/git-extras/share/git-extras/git-extras-completion.zsh
+  fi
+
+  ##
   # other apps
   #
 

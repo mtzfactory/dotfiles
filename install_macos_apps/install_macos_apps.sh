@@ -93,6 +93,7 @@ declare -a brew_cli_tools=(
   'fzf'
   'gettext'
   'git'
+  'git-extras'	    # Git extra commands: https://github.com/tj/git-extras/blob/master/Commands.md
   'git-lfs'
   'gnu-getopt'
   'gnu-sed'
