@@ -45,6 +45,7 @@ call plug#begin('~/.vim/plugged')
 " Others
   Plug 'jiangmiao/auto-pairs'
   Plug 'ap/vim-css-color'
+  Plug 'tpope/vim-surround'
 
 " For Facts, Ruby functions, and custom providers
   Plug 'vim-ruby/vim-ruby'
