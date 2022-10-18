@@ -1,0 +1,8 @@
+#!/bin/sh
+
+REMOTE=$1
+REMOTE_REPO=${REMOTE:-"origin"}
+CURRENT_BRANCH=$(git symbolic-ref --short -q HEAD) # Getting the current branch
+
+git fetch $REMOTE_REPO
+git pull $REMOTE_REPO $CURRENT_BRANCH
