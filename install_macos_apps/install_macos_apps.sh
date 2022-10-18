@@ -88,7 +88,6 @@ declare -a brew_cli_tools=(
   'ffmpeg'
   'font-hasklig'
   'fontconfig'
-  'fontforge'
   'freetype'
   'fzf'
   'gettext'
@@ -131,7 +130,6 @@ declare -a brew_cli_tools=(
 ## Fontcustom
   'woff2'
   'sfnt2woff'
-  'fontforge'
   'eot-utils'
 ## -
 )

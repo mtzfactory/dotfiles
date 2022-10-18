@@ -159,8 +159,8 @@ customize() {
   [ -d "$ESP_IDF" ] && alias get_idf=". $ESP_IDF/export.sh"
 
   # fontcustom
-  local FONTCUSTOM="/Applications/FontForge.app"
-  [ -d "$FONTCUSTOM" ] && export PATH="$PATH:$FONTCUSTOM/Contents/Resources/opt/local/bin"
+  local FONTFORGE="/Applications/FontForge.app"
+  [ -d "$FONTFORGE" ] && export PATH="$PATH:$FONTFORGE/Contents/Resources/opt/local/bin"
 
   # idb (flipper)
   if [ ! -x "$(command -v idb)" ]; then
