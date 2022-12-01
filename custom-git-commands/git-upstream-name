@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+## git-upstream-name
+# Get upstream name
+#
+# Usage:
+#   git upstream-name
+
+git remote | egrep -o '(upstream|origin)' | tail -1

@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+## git-head-branch
+# Get the default/head branch name
+#
+# Usage:
+#   git head-branch
+
+git remote show $(git upstream-name) | awk '/HEAD branch/ {print $NF}'
