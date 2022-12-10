@@ -58,6 +58,7 @@ declare -a brew_cask_apps=(
   'slack'
   'the-unarchiver'
   'transmit'
+  'utm'			# Virtual machines UI using QEMU
   'visual-studio-code'
   'vysor'
   'whatsapp'
