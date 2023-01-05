@@ -39,6 +39,3 @@ set foldlevelstart=99 " Start file with all folds opened
   " zj — Cursor is moved to next fold
   " zk — Cursor is moved to previous fold
 
-" Highlight syntax inside Markdown
-let g:markdown_fenced_languages = ['bash=sh', 'html', 'javascript', 'python', 'ruby', 'vim']
-
