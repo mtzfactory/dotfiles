@@ -50,3 +50,5 @@ nnoremap x "_x
 nnoremap + <C-a>
 nnoremap - <C-x>
 
+" Select all
+nnoremap <C-a> gg<S-v>G
