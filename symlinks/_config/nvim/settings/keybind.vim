@@ -43,3 +43,6 @@ nnoremap <silent> <leader><leader> :source $MYVIMRC<CR>
 " Edit Vim config
 nnoremap <silent> <leader>v :e $MYVIMRC<CR>
 
+" Do not yank with x
+nnoremap x "_x
+
