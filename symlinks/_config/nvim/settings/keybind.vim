@@ -46,3 +46,7 @@ nnoremap <silent> <leader>v :e $MYVIMRC<CR>
 " Do not yank with x
 nnoremap x "_x
 
+" Increment / decrement
+nnoremap + <C-a>
+nnoremap - <C-x>
+
