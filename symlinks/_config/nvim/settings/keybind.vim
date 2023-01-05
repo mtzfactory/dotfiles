@@ -60,3 +60,8 @@ nnoremap te :tabedit<CR>
 nnoremap ss :split<CR><C-w>w<CR>
 nnoremap sv :vsplit<CR><C-w>w<CR>
 
+" Move window
+nnoremap sh <C-w>h
+nnoremap sj <C-w>j
+nnoremap sk <C-w>k
+nnoremap sl <C-w>l
