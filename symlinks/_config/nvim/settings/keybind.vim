@@ -21,9 +21,9 @@ map <leader><space> :let @/=''<CR>
 nnoremap <leader>bl :ls<CR>
 "  Go to previous buffer
 nmap <leader>rr :checktime<CR>
-"  Go to next buffer
-nmap <leader>bp :bp<CR>
 "  Go to previous buffer in use
+nmap <leader>bp :bp<CR>
+"  Go to next buffer
 nmap <leader>bn :bn<CR>
 "  Close current buffer
 nmap <leader>bg :e#<CR>
@@ -52,3 +52,11 @@ nnoremap - <C-x>
 
 " Select all
 nnoremap <C-a> gg<S-v>G
+
+" New tab
+nnoremap te :tabedit<CR>
+
+" Split window
+nnoremap ss :split<CR><C-w>w<CR>
+nnoremap sv :vsplit<CR><C-w>w<CR>
+
