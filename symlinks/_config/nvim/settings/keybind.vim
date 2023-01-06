@@ -1,7 +1,14 @@
+" Disable arrow keys
 noremap <Up> <Nop>
 noremap <Down> <Nop>
 noremap <Left> <Nop>
 noremap <Right> <Nop>
+
+" Edit Vim config
+nnoremap <silent> gev :e $MYVIMRC<CR>
+
+" Reload Vim config
+nnoremap <silent> gsv :so $MYVIMRC<CR>
 
 " Key mappings
 let mapleader="\<Space>"
@@ -36,12 +43,6 @@ nnoremap K :m .-2<CR>==
 nnoremap J :m .+1<CR>==
 vnoremap K :m '<-2<CR>gv=gv
 vnoremap J :m '>+1<CR>gv=gv
-
-" Reload Vim config
-nnoremap <silent> <leader><leader> :source $MYVIMRC<CR>
-
-" Edit Vim config
-nnoremap <silent> <leader>v :e $MYVIMRC<CR>
 
 " Do not yank with x
 nnoremap x "_x
