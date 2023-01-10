@@ -187,7 +187,7 @@ customize() {
   # symlinks
   #
 
-  local DOTFILES="$HOME/personal/dotfiles"
+  local DOTFILES="$HOME/dotfiles"
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
   local DOTFILES_SYMLINK="$HOME/dotfiles"
@@ -195,11 +195,7 @@ customize() {
     ln -s "$DOTFILES" "$DOTFILES_SYMLINK"
   fi
 
-  local CUSTOM_GIT_COMMANDS_SYMLINK="$HOME/custom-git-commands"
-  if [ ! -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ]; then
-    ln -s "$DOTFILES/custom-git-commands" "$CUSTOM_GIT_COMMANDS_SYMLINK"
-  fi
-
+  local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
   [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$PATH:$CUSTOM_GIT_COMMANDS_SYMLINK"
 
   local GITCONFIG_SYMLINK="$HOME/.gitconfig"
