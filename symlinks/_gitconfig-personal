@@ -3,5 +3,5 @@
   name = Ricardo Martinez
   email = ricardo.martinez.monje@gmail.com
 
-[core]
-  sshCommand = "$(command -v ssh) -i ~/.ssh/id_ed25519_c4p"
+#[core]
+#  sshCommand = "$(command -v ssh) -i ~/.ssh/id_ed25519_c4p"
