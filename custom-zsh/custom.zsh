@@ -136,7 +136,7 @@ customize() {
   #
   local GIT_EXTRAS="$BREW_OPT_DIR/git-extras"
   if [ -d "$GIT_EXTRAS" ]; then
-    source /opt/homebrew/opt/git-extras/share/git-extras/git-extras-completion.zsh
+    source "$GIT_EXTRAS/share/git-extras/git-extras-completion.zsh"
   fi
 
   ##
@@ -186,14 +186,12 @@ customize() {
   ##
   # symlinks
   #
-
-  local DOTFILES="$HOME/dotfiles"
-  local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
-
-  local DOTFILES_SYMLINK="$HOME/dotfiles"
-  if [ ! -d "$DOTFILES_SYMLINK" ]; then
-    ln -s "$DOTFILES" "$DOTFILES_SYMLINK"
+  if [ -z "${DOTFILES}" ]; then
+    echo "You have to define the DOTFILES env variable."
+    exit 1
   fi
+
+  local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
   local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
   [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$PATH:$CUSTOM_GIT_COMMANDS_SYMLINK"
@@ -213,6 +211,11 @@ customize() {
     ln -s "$DOTFILES_SYMLINKS/_gitconfig-work" "$GITCONFIG_WORK_SYMLINK"
   fi
 
+  local GITIGNORE_GLOBAL_SYMLINK="$HOME/.gitignore-global"
+  if [ ! -f "$GITIGNORE_GLOBAL_SYMLINK" ]; then
+    ln -s "$DOTFILES_SYMLINKS/_gitconfig-personal" "$GITIGNORE_GLOBAL_SYMLINK"
+  fi
+  
   local HOME_CONFIG_DIRECTORY="$HOME/.config"
   local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
   if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
@@ -232,10 +235,55 @@ customize() {
 customize
 unset -f customize
 
+# Detect which `ls` flavor is in use
+if ls --color > /dev/null 2>&1; then # GNU `ls`
+    colorflag="--color"
+else # OS X `ls`
+    colorflag="-G"
+fi
+
 ##
-# alias
+# Bindkeys
 #
-alias ls="ls -lisa"
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
+
+##
+# Alias
+#
+
+# list all files colorized in long format
+alias ls="ls -lisa ${colorflag}"
+
+# list all files colorized in long format, including dot files
+alias la="ls -lA ${colorflag}"
+
+# list only directories
+alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
+
+alias lisa="ls -Gisa"
+alias lis="ls -Gis"
+alias ll="ls -GalF"
+alias l="ls -GCF"
+
+# grep color
+alias grep="grep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias egrep="egrep --color=auto"
+
+# file size
+alias fs="stat -f \"%z bytes\""
+
+# trim new lines and copy to clipboard
+alias c="tr -d '\n' | pbcopy"
+
+# ip addresses
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias localip="ipconfig getifaddr en1"
+alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
 
 # npm package
 alias scripts="jq -r .scripts package.json"
