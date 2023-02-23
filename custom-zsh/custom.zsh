@@ -296,6 +296,9 @@ alias a:reverse="adb reverse tcp:8081 tcp:8081; adb reverse tcp:8097 tcp:8097"
 alias a:reload="adb shell input text 'RR'"
 alias a:shake="adb shell input keyevent 82"
 
+# ios
+alias i:simulator="xcrun simctl list devices"
+
 # react native - android
 alias a:task="cd ./android && ./gradlew -PversionCode=1 tasks && cd .."
 alias a:clean="cd ./android && ./gradlew -PversionCode=1 clean && cd .."
