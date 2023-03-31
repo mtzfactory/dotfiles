@@ -112,7 +112,6 @@ declare -a brew_cli_tools=(
   'jq'
   'jump'
   'mas'
-  'n'               # Node version manager
   'ncdu'            # NCurses disk usage
   'neovim'
   'node'
