@@ -123,6 +123,15 @@ customize() {
     export CPPFLAGS="$CPPFLAGS -I$READLINE/include"
   fi
 
+  # ruby
+  local RUBY="$BREW_OPT_DIR/ruby"
+  if [ -d "$RUBY" ]; then
+    export PATH="$RUBY/bin:$PATH"
+    export LDFLAGS="$LDFLAGS -L$RUBY/lib"
+    export CPPFLAGS="$CPPFLAGS -I$RUBY/include"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig"
+  fi
+
   # sqlite
   local SQLITE="$BREW_OPT_DIR/sqlite"
   if [ -d "$SQLITE" ]; then
