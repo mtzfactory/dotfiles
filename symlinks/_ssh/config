@@ -1,23 +1,23 @@
+Host *
+  UseKeychain yes
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_ed25519
+
 # Personal Github account
 Host github.com-mtzfactory
   HostName github.com
   User git
   AddKeysToAgent yes
   UseKeychain yes
-  IdentityFile ~/.ssh/id_ed25519_c4p
+  IdentityFile ~/.ssh/id_ed25519_w4p
 
 # Personal Bitbucket account
 Host bitbucket.org-mtzfactory
-  Hostname bitbucket.org
+  HostName bitbucket.org
   User git
   AddKeysToAgent yes
   UseKeychain yes
-  IdentityFile ~/.ssh/id_ed25519_c4p
-
-#Host *
-#  AddKeysToAgent yes
-#  UseKeychain yes
-#  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/id_ed25519_w4p
 
 # Github
 # https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
