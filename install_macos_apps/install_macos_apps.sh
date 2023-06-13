@@ -1,10 +1,35 @@
 #!/usr/bin/env bash
 
 ###############################################################################
+# Install Mac App Store apps                                                  #
+###############################################################################
+
+declare -a mas_apps=(
+  '497799835'  # Xcode
+  '939343785'  # Icon set creator
+  '1037126344' # Apple configurator
+  '1287239339' # Color Slurp
+  '1478821913' # Go links
+)
+
+for app in "${mas_apps[@]}"; do
+  mas install "$app"
+doneko
+
+## Missing scrun
+xcode-select --install
+
+## Ensure system content is up-to-date
+xcodebuild -runFirstLaunch
+
+###############################################################################
 # Install brew and brew cask apps                                             #
 ###############################################################################
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+## Add Homebrew to your PATH
+(echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.profile"
 
 # Prevent analytics from ever being sent
 brew analytics off
@@ -64,6 +89,7 @@ declare -a brew_cask_apps=(
   'vysor'
   'whatsapp'
   'wireshark'
+  'zulu11'  # https://reactnative.dev/docs/environment-setup?platform=android
 )
 
 ## xattr -r ~/Library/QuickLook/QL*
@@ -108,7 +134,6 @@ declare -a brew_cli_tools=(
   'hugo'
   'idb-companion'   # Flipper 
   'imagemagick'
-  'java'
   'jq'
   'jump'
   'mas'
@@ -116,9 +141,10 @@ declare -a brew_cli_tools=(
   'neovim'
   'node'
   'nvm'             # Node version manager
-  'openjdk'
   'pidcat'          # Colored logcat script to show entries only for specified app
   'readline'
+  'rbenv'           # Ruby version manager
+  'ruby-build'
   'tig'             # Text-mode interface for Git
   'tldr'            # Simplified and community-driven man pages
   'translate-shell'
@@ -156,22 +182,6 @@ for app in "${yarn_apps[@]}"; do
 done
 
 ###############################################################################
-# Install Mac App Store apps                                                  #
-###############################################################################
-
-declare -a mas_apps=(
-  '497799835'  # Xcode
-  '939343785'  # Icon set creator
-  '1037126344' # Apple configurator
-  '1287239339' # Color Slurp
-  '1478821913' # Go links
-)
-
-for app in "${mas_apps[@]}"; do
-  mas install "$app"
-done
-
-###############################################################################
 # Extras                                                                      #
 ###############################################################################
 
@@ -182,11 +192,14 @@ pip3 install --user fb-idb
 pip3 install pynvim
 
 export GEM_HOME="$HOME/.gem"
+# Ruby environment
+\curl -sSL https://get.rvm.io | bash -s stable
 
 ## Fontcustom
 gem install fontcustom
 
 ## Ruby development with Vim and CoC
+gem install rubocop -v 1.50.2
 gem install solargraph
 
 ###############################################################################
