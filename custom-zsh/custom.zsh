@@ -25,31 +25,36 @@ customize() {
   # coreutils
   local COREUTILS="$BREW_OPT_DIR/coreutils"
   [ -d "$COREUTILS" ] && export PATH="$PATH:$COREUTILS/libexec/gnubin"
+  # keep path order because of: https://github.com/facebook/react-native/issues/32432
 
   # binutils
   local BINUTILS="$BREW_OPT_DIR/binutils"
   if [ -d "$BINUTILS" ]; then
-    export PATH="$PATH:$BINUTILS/bin"
+    export PATH="$BINUTILS/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$BINUTILS/lib"
     export CPPFLAGS="$CPPFLAGS -I$BINUTILS/include"
   fi
 
   # gnu-sed
   local GNU_SED="$BREW_OPT_DIR/gnu-sed"
-  [ -d "$GNU_SED" ] && export PATH="$PATH:$GNU_SED/libexec/gnubin"
+  [ -d "$GNU_SED" ] && export PATH="$GNU_SED/libexec/gnubin:$PATH"
 
   # gnu-getopt
   local GNU_GETOPT="$BREW_OPT_DIR/gnu-getopt"
-  [ -d "$GNU_GETOPT" ] && export PATH="$PATH:$GNU_GETOPT/bin"
+  [ -d "$GNU_GETOPT" ] && export PATH="$GNU_GETOPT/bin:$PATH"
+
+  # gnu-tar
+  local GNU_TAR="$BREW_OPT_DIR/gnu-tar"
+  [ -d "$GNU_TAR" ] && export PATH="$GNU_TAR/libexec/gnubin:$PATH"
 
   # grep
   local GREP="%BREW_OPT_DIR/grep"
-  [ -d "$GREP" ] && export PATH="$PATH:$GREP/libexec/gnubin"
+  [ -d "$GREP" ] && export PATH="$GREP/libexec/gnubin:$PATH"
 
   # gettext
   local GETTEXT="$BREW_OPT_DIR/gettext"
   if [ -d "$GETTEXT" ]; then
-    export PATH="$PATH:$GETTEXT/bin"
+    export PATH="$GETTEXT/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$GETTEXT/lib"
     export CPPFLAGS="$CPPFLAGS -I$GETTEXT/include"
   fi
@@ -57,7 +62,7 @@ customize() {
   # icu4c
   local ICU4C="$BREW_OPT_DIR/icu4c"
   if [ -d "$ICU4C" ]; then
-    export PATH="$PATH:$ICU4C/bin:$ICU4C/sbin"
+    export PATH="$ICU4C/bin:$ICU4C/sbin:$PATH"
     export LDFLAGS="$LDFLAGS -L$ICU4C/lib"
     export CPPFLAGS="$CPPFLAGS -I$ICU4C/include"
   fi
@@ -72,7 +77,7 @@ customize() {
   # ncurses
   local NCURSES="$BREW_OPT_DIR/ncurses"
   if [ -d "$NCURSES" ]; then
-    export PATH="$PATH:$NCURSES/bin"
+    export PATH="$NCURSES/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$NCURSES/lib"
     export CPPFLAGS="$CPPFLAGS -I$NCURSES/include"
   fi
@@ -102,17 +107,18 @@ customize() {
   fi
 
   # openssl
-  local OPENSSL="$BREW_OPT_DIR/openssl@1.1"
+  local OPENSSL="$(brew --prefix openssl@1.1)"
   if [ -d "$OPENSSL" ]; then
-    export PATH="$PATH:$OPENSSL/bin"
+    export PATH="$OPENSSL/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$OPENSSL/lib"
     export CPPFLAGS="$CPPFLAGS -I$OPENSSL/include"
+    export PKG_CONFIG_PATH="$OPENSSL/lib/pkgconfig:$PATH"
   fi
 
   # python@3
   local PYTHON3="$BREW_OPT_DIR/python@3"
   if [ -d "$PYTHON3" ]; then
-    export PATH="$PATH:$PYTHON3/bin"
+    export PATH="$PYTHON3/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$PYTHON3/lib"
   fi
 
@@ -129,24 +135,37 @@ customize() {
     export PATH="$RUBY/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$RUBY/lib"
     export CPPFLAGS="$CPPFLAGS -I$RUBY/include"
-    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig"
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig:$PATH"
   fi
+
+  # rbenv
+  local RBENV="$BREW_OPT_DIR/rbenv"
+  [ -d "$RBENV" ] && eval "$(rbenv init - zsh)"
 
   # sqlite
   local SQLITE="$BREW_OPT_DIR/sqlite"
   if [ -d "$SQLITE" ]; then
-    export PATH="$PATH:$SQLITE/bin"
+    export PATH="$SQLITE/bin:$PATH"
     export LDFLAGS="$LDFLAGS -L$SQLITE/lib"
     export CPPFLAGS="$CPPFLAGS -I$SQLITE/include"
+  fi
+
+  # zulu
+  local ZULU_JDK="/Library/Java/JavaVirtualMachines/zulu-11.jdk"
+  if [ -d "$ZULU_JDK" ]; then
+    export JAVA_HOME="$ZULU_JDK/Contents/Home"
+    export PATH="$JAVA_HOME/bin:$PATH"
   fi
 
   ##
   # git
   #
   local GIT_EXTRAS="$BREW_OPT_DIR/git-extras"
-  if [ -d "$GIT_EXTRAS" ]; then
-    source "$GIT_EXTRAS/share/git-extras/git-extras-completion.zsh"
-  fi
+  [ -d "$GIT_EXTRAS" ] && source "$GIT_EXTRAS/share/git-extras/git-extras-completion.zsh"
+
+  # custom git scripts
+  local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
+  [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
 
   ##
   # other apps
@@ -157,10 +176,10 @@ customize() {
   if [ -d "$ANDROID" ]; then
     export ANDROID_HOME="$ANDROID/sdk"
     export ANDROID_SDK_ROOT="$ANDROID/sdk"
-    export PATH="$PATH:$ANDROID_HOME/emulator"
-    export PATH="$PATH:$ANDROID_HOME/platform-tools"
-    export PATH="$PATH:$ANDROID_HOME/tools"
-    export PATH="$PATH:$ANDROID_HOME/tools/bin"
+    export PATH="$ANDROID_HOME/emulator:$PATH"
+    export PATH="$ANDROID_HOME/platform-tools:$PATH"
+    export PATH="$ANDROID_HOME/tools:$PATH"
+    export PATH="$ANDROID_HOME/tools/bin:$PATH"
   fi
 
   # esp-idf
@@ -169,7 +188,7 @@ customize() {
 
   # fontcustom
   local FONTFORGE="/Applications/FontForge.app"
-  [ -d "$FONTFORGE" ] && export PATH="$PATH:$FONTFORGE/Contents/Resources/opt/local/bin"
+  [ -d "$FONTFORGE" ] && export PATH="$FONTFORGE/Contents/Resources/opt/local/bin:$PATH"
 
   # idb (flipper)
   if [ ! -x "$(command -v idb)" ]; then
@@ -183,7 +202,7 @@ customize() {
   # ruby gems
   if [ -d "$HOME/.gem" ]; then
     export GEM_HOME="$HOME/.gem"
-    export PATH="$PATH:$HOME/.gem/bin"
+    export PATH="$HOME/.gem/bin:$PATH"
   fi
 
   # sming - esp8266
@@ -201,9 +220,6 @@ customize() {
   fi
 
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
-
-  local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
-  [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$PATH:$CUSTOM_GIT_COMMANDS_SYMLINK"
 
   local GITCONFIG_SYMLINK="$HOME/.gitconfig"
   if [ ! -f "$GITCONFIG_SYMLINK" ]; then
