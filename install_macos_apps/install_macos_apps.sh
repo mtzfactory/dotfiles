@@ -14,7 +14,7 @@ declare -a mas_apps=(
 
 for app in "${mas_apps[@]}"; do
   mas install "$app"
-doneko
+done
 
 ## Missing scrun
 xcode-select --install
