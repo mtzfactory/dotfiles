@@ -2,6 +2,7 @@ source $HOME/.config/nvim/plugins/airline.vim
 source $HOME/.config/nvim/plugins/coc-config.vim
 source $HOME/.config/nvim/plugins/coc.vim
 source $HOME/.config/nvim/plugins/ctrl-p.vim
+source $HOME/.config/nvim/plugins/ctrl-sf.vim
 source $HOME/.config/nvim/plugins/fugitive.vim
 source $HOME/.config/nvim/plugins/gitgutter.vim
 source $HOME/.config/nvim/plugins/mundo.vim

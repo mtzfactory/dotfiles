@@ -18,6 +18,7 @@ call plug#begin('~/.vim/plugged')
   Plug 'scrooloose/nerdtree'
   Plug 'unkiwii/vim-nerdtree-sync'
   Plug 'ctrlpvim/ctrlp.vim'
+  Plug 'dyng/ctrlsf.vim'
   Plug 'universal-ctags/ctags'
   Plug 'majutsushi/tagbar'
   Plug 'ryanoasis/vim-devicons'

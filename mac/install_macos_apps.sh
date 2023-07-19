@@ -100,6 +100,7 @@ for app in "${brew_cask_apps[@]}"; do
 done
 
 declare -a brew_cli_tools=(
+  'ack'		    # CtrlSF vim
   'autoconf'
   'automake'
   'bat'
