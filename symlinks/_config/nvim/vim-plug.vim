@@ -17,6 +17,7 @@ call plug#begin('~/.vim/plugged')
 " Browse files
   Plug 'scrooloose/nerdtree'
   Plug 'unkiwii/vim-nerdtree-sync'
+  Plug 'jistr/vim-nerdtree-tabs'
   Plug 'ctrlpvim/ctrlp.vim'
   Plug 'dyng/ctrlsf.vim'
   Plug 'universal-ctags/ctags'

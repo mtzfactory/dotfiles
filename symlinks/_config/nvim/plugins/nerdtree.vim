@@ -7,6 +7,6 @@ if exists('g:plugs["nerdtree"]')
   let NERDTreeMinimalUI=1
   let g:NERDTreeWinPos='right'
   "  Toggle NERDTree on the right side by C-e
-  noremap <C-e> :NERDTreeToggle<CR>
+"  noremap <C-e> :NERDTreeToggle<CR>
   " autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 endif
