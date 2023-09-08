@@ -332,6 +332,7 @@ alias a:task="cd ./android && ./gradlew -PversionCode=1 tasks && cd .."
 alias a:clean="cd ./android && ./gradlew -PversionCode=1 clean && cd .."
 alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\" app:installDebug && cd .."
 
+alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn; }; fn'
 # neovim
 export EDITOR="nvim"
 alias v="nvim"
