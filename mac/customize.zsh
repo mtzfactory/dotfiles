@@ -250,10 +250,17 @@ customize() {
   fi
   
   local HOME_CONFIG_DIRECTORY="$HOME/.config"
+
   local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
   if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
     [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
+  fi
+
+  local LVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/lvim"
+  if [ ! -d "$LVIM_CONFIG_SYMLINK" ]; then
+    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
+    ln -s "$DOTFILES_SYMLINKS/_config/lvim" "$LVIM_CONFIG_SYMLINK"
   fi
 
   local HOME_SSH_DIRECTORY="$HOME/.ssh"
