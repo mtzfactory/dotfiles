@@ -1,1 +1,4 @@
 .DS_Store
+
+# Lunar Vim
+**/lvim/lazy-lock.json
