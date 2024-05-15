@@ -102,6 +102,7 @@ done
 
 declare -a brew_cli_tools=(
   'ack'		    # CtrlSF vim
+  'asdf'
   'autoconf'
   'automake'
   'bat'
