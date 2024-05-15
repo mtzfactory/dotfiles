@@ -14,6 +14,9 @@ customize() {
   local USR_LOCAL_BIN="/usr/local/bin"
   [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"
 
+  local LOCAL_BIN="$HOME/.local/bin"
+  [[ -d $LOCAL_BIN ]] && export PATH="$PATH:$LOCAL_BIN"
+
   ##
   # brew based apps
   #
@@ -21,6 +24,10 @@ customize() {
   # base root directory for brew intalled apps
   local BREW_BIN_DIR="$(brew --prefix)/bin"
   local BREW_OPT_DIR="$(brew --prefix)/opt"
+
+  # asdf
+  local ASDF="$BREW_OPT_DIR/asdf"
+  [ -d $ASDF ] && source /opt/homebrew/opt/asdf/libexec/asdf.sh
 
   # coreutils
   local COREUTILS="$BREW_OPT_DIR/coreutils"
@@ -151,7 +158,8 @@ customize() {
   fi
 
   # zulu
-  local ZULU_JDK="/Library/Java/JavaVirtualMachines/zulu-11.jdk"
+  local ZULU_VERSION="17"
+  local ZULU_JDK="/Library/Java/JavaVirtualMachines/zulu-$ZULU_VERSION.jdk"
   if [ -d "$ZULU_JDK" ]; then
     export JAVA_HOME="$ZULU_JDK/Contents/Home"
     export PATH="$JAVA_HOME/bin:$PATH"
@@ -334,6 +342,6 @@ alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\"
 
 alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn; }; fn'
 # neovim
-export EDITOR="nvim"
+export EDITOR="lvim"
 alias v="nvim"
-
+alias lv="lvim"
