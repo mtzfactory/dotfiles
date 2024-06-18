@@ -36,6 +36,7 @@ declare -a brew_cask_apps=(
   'charles'
   'colorpicker-skalacolor'
   'db-browser-for-sqlite'
+  'expo-orbit'
   'flipper'
   'fontforge'		# Fontcustom
   'fork'		# Git client
