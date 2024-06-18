@@ -19,10 +19,10 @@ local CUSTOM_ZSH="$DOTFILES/{platform}/customize.zsh"
 To generate a new SSSH key use this command:
 
 ```bash
-$ ssh-keygen -t ed25519 -C "your-email-address@email.com"
+$ ssh-keygen -t [ed25519 | rsa] [-b 4096] -C "your-email-address@email.com" -f ~/.ssh/id_[ed25519 | rsa]
 ```
 
-Add the new generated SSH key to the SSH agent:
+Add the new generated SSH key to the local SSH agent:
 
 ```bash
 $ eval "$(ssh-agent -s)"
@@ -30,19 +30,25 @@ $ eval "$(ssh-agent -s)"
 $ ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ```
 
-Now you can test if you can connect to your repository provider:
+At this point, you can test if you can connect to your repository provider:
 
 ```bash
-ssh -T git@github.com
-
-ssh -T git@bitbucket.org
+ssh -T git@[github.com | bitbucket.org | gitlab.com]
 ```
 
 You can read more about it [here][generating-a-new-ssh-key]
 
-## Neovim
+Now, you can clone this repo using the new SSH key:
 
-### Check dependencies
+```bash
+GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_w4p" git clone git@github.com:mtzfactory/dotfiles.git
+```
+
+## Vim
+
+### Neovim
+
+#### Check dependencies
 
 ```bash
 :checkhealth
