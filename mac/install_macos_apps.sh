@@ -1,28 +1,6 @@
 #!/usr/bin/env bash
 
 ###############################################################################
-# Install Mac App Store apps                                                  #
-###############################################################################
-
-declare -a mas_apps=(
-  '497799835'  # Xcode
-  '939343785'  # Icon set creator
-  '1037126344' # Apple configurator
-  '1287239339' # Color Slurp
-  '1478821913' # Go links
-)
-
-for app in "${mas_apps[@]}"; do
-  mas install "$app"
-done
-
-## Missing scrun
-xcode-select --install
-
-## Ensure system content is up-to-date
-xcodebuild -runFirstLaunch
-
-###############################################################################
 # Install brew and brew cask apps                                             #
 ###############################################################################
 
@@ -54,7 +32,6 @@ declare -a brew_cask_apps=(
   'caffeine'
   'ccleaner'
   'charles'
-  'clock-bar'
   'colorpicker-skalacolor'
   'db-browser-for-sqlite'
   'flipper'
@@ -64,8 +41,6 @@ declare -a brew_cask_apps=(
   'gpg-suite'
   'http-toolkit'	# HTTP(S) debugging proxy, analyzer, and client
   'iterm2'
-  'jumpcut'
-  'keybase'
   'minisim'
   'macdown',
   'notion'
@@ -82,7 +57,6 @@ declare -a brew_cask_apps=(
   'rowanj-gitx'
   'runjs'
   'sf-symbols'
-  'slack'
   'the-unarchiver'
   'transmit'
   'utm'			# Virtual machines UI using QEMU
@@ -102,7 +76,6 @@ done
 
 declare -a brew_cli_tools=(
   'ack'		    # CtrlSF vim
-  'asdf'
   'autoconf'
   'automake'
   'bat'
@@ -138,8 +111,8 @@ declare -a brew_cli_tools=(
   'idb-companion'   # Flipper 
   'imagemagick'
   'jq'
-  'jump'
-  'mas'
+  'jump'            # Navigate faster by learning your habits. https://github.com/gsamokovarov/jump
+  'mas'             # Mac App Store command line interface. https://github.com/mas-cli/mas
   'ncdu'            # NCurses disk usage
   'neovim'
   'node'
@@ -169,12 +142,32 @@ for tool in "${brew_cli_tools[@]}"; do
 done
 
 ###############################################################################
+# Install Mac App Store apps                                                  #
+###############################################################################
+
+declare -a mas_apps=(
+  '497799835'  # Xcode
+  '939343785'  # Icon set creator
+  '1037126344' # Apple configurator
+  '1287239339' # Color Slurp
+  '1478821913' # Go links
+)
+
+for app in "${mas_apps[@]}"; do
+  mas install "$app"
+done
+
+## Missing scrun
+xcode-select --install
+
+## Ensure system content is up-to-date
+xcodebuild -runFirstLaunch
+
+###############################################################################
 # Install yarn cli                                                            #
 ###############################################################################
 
 declare -a yarn_apps=(
-  'appcenter-cli'
-  'ignite'
   'ios-deploy'		# Required for installing your app on a physical device with the CLI. npx react-native doctor
   'npm-check-updates'
   'react-devtools'
