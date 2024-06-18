@@ -9,6 +9,7 @@
 ## Add Homebrew to your PATH
 (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.profile"
 (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.zprofile"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Prevent analytics from ever being sent
 brew analytics off
