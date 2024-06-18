@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ###############################################################################
-# Install brew and brew cask apps                                             #
+# Install Homebrew                                                            #
 ###############################################################################
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -25,6 +25,10 @@ brew tap facebook/fb
 
 ## Fontcustom
 brew tap bramstein/webfonttools
+
+###############################################################################
+# Install Homebrew cask apps                                                  #
+###############################################################################
 
 declare -a brew_cask_apps=(
   'android-platform-tools'
@@ -76,6 +80,32 @@ declare -a brew_cask_apps=(
 for app in "${brew_cask_apps[@]}"; do
   brew install --cask "$app"
 done
+
+###############################################################################
+# Install Mac App Store apps                                                  #
+###############################################################################
+
+declare -a mas_apps=(
+  '497799835'  # Xcode
+  '939343785'  # Icon set creator
+  '1037126344' # Apple configurator
+  '1287239339' # Color Slurp
+  '1478821913' # Go links
+)
+
+for app in "${mas_apps[@]}"; do
+  mas install "$app"
+done
+
+## Missing scrun
+xcode-select --install
+
+## Ensure system content is up-to-date
+xcodebuild -runFirstLaunch
+
+###############################################################################
+# Install Homebrew cli apps                                                   #
+###############################################################################
 
 declare -a brew_cli_tools=(
   'ack'             # CtrlSF vim
@@ -143,28 +173,6 @@ declare -a brew_cli_tools=(
 for tool in "${brew_cli_tools[@]}"; do
   brew install "$tool"
 done
-
-###############################################################################
-# Install Mac App Store apps                                                  #
-###############################################################################
-
-declare -a mas_apps=(
-  '497799835'  # Xcode
-  '939343785'  # Icon set creator
-  '1037126344' # Apple configurator
-  '1287239339' # Color Slurp
-  '1478821913' # Go links
-)
-
-for app in "${mas_apps[@]}"; do
-  mas install "$app"
-done
-
-## Missing scrun
-xcode-select --install
-
-## Ensure system content is up-to-date
-xcodebuild -runFirstLaunch
 
 ###############################################################################
 # Install yarn cli                                                            #
