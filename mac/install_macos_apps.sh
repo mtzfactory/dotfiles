@@ -49,7 +49,7 @@ declare -a brew_cask_apps=(
   'http-toolkit'     # HTTP(S) debugging proxy, analyzer, and client
   'iterm2'
   'minisim'
-  'macdown',
+  'macdown'
   'notion'
   'packetsender'
   'postman'
