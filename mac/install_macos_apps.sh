@@ -38,11 +38,11 @@ declare -a brew_cask_apps=(
   'db-browser-for-sqlite'
   'expo-orbit'
   'flipper'
-  'fontforge'		# Fontcustom
-  'fork'		# Git client
+  'fontforge'        # Fontcustom
+  'fork'             # Git client
   'google-chrome'
   'gpg-suite'
-  'http-toolkit'	# HTTP(S) debugging proxy, analyzer, and client
+  'http-toolkit'     # HTTP(S) debugging proxy, analyzer, and client
   'iterm2'
   'minisim'
   'macdown',
@@ -62,12 +62,12 @@ declare -a brew_cask_apps=(
   'sf-symbols'
   'the-unarchiver'
   'transmit'
-  'utm'			# Virtual machines UI using QEMU
+  'utm'              # Virtual machines UI using QEMU
   'visual-studio-code'
   'vysor'
   'whatsapp'
   'wireshark'
-  'zulu11'  # https://reactnative.dev/docs/environment-setup?platform=android
+  'zulu@17'          # https://reactnative.dev/docs/environment-setup?platform=android
 )
 
 ## xattr -r ~/Library/QuickLook/QL*
@@ -78,7 +78,7 @@ for app in "${brew_cask_apps[@]}"; do
 done
 
 declare -a brew_cli_tools=(
-  'ack'		    # CtrlSF vim
+  'ack'             # CtrlSF vim
   'autoconf'
   'automake'
   'bat'
