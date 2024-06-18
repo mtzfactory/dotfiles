@@ -90,7 +90,6 @@ declare -a mas_apps=(
   '939343785'  # Icon set creator
   '1037126344' # Apple configurator
   '1287239339' # Color Slurp
-  '1478821913' # Go links
 )
 
 for app in "${mas_apps[@]}"; do
