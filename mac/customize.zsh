@@ -268,6 +268,12 @@ customize() {
     ln -s "$DOTFILES_SYMLINKS/_config/lvim" "$LVIM_CONFIG_SYMLINK"
   fi
 
+  local PIP_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/pip"
+  if [ ! -d "$PIP_CONFIG_SYMLINK" ]; then
+    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
+    ln -s "$DOTFILES_SYMLINKS/_config/pip" "$PIP_CONFIG_SYMLINK"
+  fi
+
   local HOME_SSH_DIRECTORY="$HOME/.ssh"
   local SSH_CONFIG_SYMLINK="$HOME_SSH_DIRECTORY/config"
   if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
