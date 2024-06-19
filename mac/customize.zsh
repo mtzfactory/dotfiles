@@ -15,7 +15,7 @@ customize() {
   [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"
 
   local LOCAL_BIN="$HOME/.local/bin"
-  [[ -d $LOCAL_BIN ]] && export PATH="$PATH:$LOCAL_BIN"
+  [[ -d $LOCAL_BIN ]] && export PATH="$LOCAL_BIN:$PATH"
 
   ##
   # brew based apps
@@ -211,6 +211,11 @@ customize() {
   if [ -d "$HOME/.gem" ]; then
     export GEM_HOME="$HOME/.gem"
     export PATH="$HOME/.gem/bin:$PATH"
+  fi
+
+  # rust
+  if [ -d "$HOME/.cargo" ]; then
+    source "$HOME/.cargo/env"
   fi
 
   # sming - esp8266

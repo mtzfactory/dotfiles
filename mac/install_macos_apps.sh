@@ -191,6 +191,9 @@ done
 # Extras                                                                      #
 ###############################################################################
 
+# Rust
+\curl https://sh.rustup.rs -sSf | bash -s stable
+
 ## Flipper
 pip3 install --user fb-idb
 
