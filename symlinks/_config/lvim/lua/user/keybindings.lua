@@ -46,6 +46,9 @@ M.config = function()
   lvim.keys.normal_mode["]d"] = "<cmd>lua vim.diagnostic.goto_next()<cr>"
   lvim.keys.normal_mode["[d"] = "<cmd>lua vim.diagnostic.goto_prev()<cr>"
 
+  -- Jump back from go to definition
+  lvim.keys.normal_mode["<C-t>"] = ":pop<cr>"
+
   -- F12 toggles relativenumber
   vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<CR>", { noremap = true, silent = true })
 
