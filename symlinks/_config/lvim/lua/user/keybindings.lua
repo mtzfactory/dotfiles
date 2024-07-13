@@ -4,8 +4,8 @@ local function set_bufferline_keymaps()
   lvim.keys.normal_mode["<S-x>"] = "<Cmd>lua require('user.bufferline').delete_buffer()<CR>"
   lvim.keys.normal_mode["<S-l>"] = "<Cmd>BufferLineCycleNext<CR>"
   lvim.keys.normal_mode["<S-h>"] = "<Cmd>BufferLineCyclePrev<CR>"
-  lvim.keys.normal_mode["[b"] = "<Cmd>BufferLineMoveNext<CR>"
-  lvim.keys.normal_mode["]b"] = "<Cmd>BufferLineMovePrev<CR>"
+  lvim.keys.normal_mode["]b"] = "<Cmd>BufferLineMoveNext<CR>"
+  lvim.keys.normal_mode["[b"] = "<Cmd>BufferLineMovePrev<CR>"
   -- lvim.builtin.which_key.mappings["c"] = {}
   -- lvim.builtin.which_key.mappings.b = {
   --   name = " Buffer",
@@ -48,6 +48,9 @@ M.config = function()
 
   -- Jump back from go to definition
   lvim.keys.normal_mode["<C-t>"] = ":pop<cr>"
+
+  -- Unsets the 'last search pattern' register by hitting return
+  vim.api.nvim_set_keymap("n", "<CR>", ":noh<CR>", { noremap = true, silent = true })
 
   -- F12 toggles relativenumber
   vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<CR>", { noremap = true, silent = true })
