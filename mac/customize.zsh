@@ -149,6 +149,9 @@ customize() {
   local RBENV="$BREW_OPT_DIR/rbenv"
   [ -d "$RBENV" ] && eval "$(rbenv init - zsh)"
 
+  # rvm
+  [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
   # sqlite
   local SQLITE="$BREW_OPT_DIR/sqlite"
   if [ -d "$SQLITE" ]; then
@@ -185,6 +188,8 @@ customize() {
     export ANDROID_HOME="$ANDROID/sdk"
     export ANDROID_SDK_ROOT="$ANDROID/sdk"
     export PATH="$ANDROID_HOME/emulator:$PATH"
+    export PATH="$ANDROID_HOME/build-tools/34.00:$PATH"
+    export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
     export PATH="$ANDROID_HOME/platform-tools:$PATH"
     export PATH="$ANDROID_HOME/tools:$PATH"
     export PATH="$ANDROID_HOME/tools/bin:$PATH"
