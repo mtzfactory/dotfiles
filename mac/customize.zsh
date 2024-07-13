@@ -185,13 +185,13 @@ customize() {
   # android
   local ANDROID="$HOME/Library/Android"
   if [ -d "$ANDROID" ]; then
+    local ANDROID_SDK_VERSION="34.00"
     export ANDROID_HOME="$ANDROID/sdk"
     export ANDROID_SDK_ROOT="$ANDROID/sdk"
-    export PATH="$ANDROID_HOME/emulator:$PATH"
-    export PATH="$ANDROID_HOME/build-tools/34.00:$PATH"
+    export PATH="$ANDROID_HOME/build-tools/$ANDROID_SDK_VERSION:$PATH"
     export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+    export PATH="$ANDROID_HOME/emulator:$PATH"
     export PATH="$ANDROID_HOME/platform-tools:$PATH"
-    export PATH="$ANDROID_HOME/tools:$PATH"
     export PATH="$ANDROID_HOME/tools/bin:$PATH"
   fi
 
