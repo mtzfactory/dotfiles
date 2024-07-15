@@ -162,7 +162,12 @@ M.config = function()
           }
         })
       end
-    }
+    },
+    {
+      "folke/trouble.nvim",
+      opts = {},
+      cmd = "Trouble",
+    },
   }
 end
 

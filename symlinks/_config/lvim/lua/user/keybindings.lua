@@ -52,6 +52,18 @@ local function set_neotest_keymaps()
   }
 end
 
+local function set_trouble_keymaps()
+  lvim.builtin.which_key.mappings["c"] = {
+    name = "Diagnostics",
+    d = { "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", "Document" },
+    l = { "<cmd>Trouble loclist toggle<cr>", "Location list" },
+    q = { "<cmd>Trouble qflist toggle<cr>", "Quickfix list" },
+    r = { "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", "References" },
+    s = { "<cmd>Trouble symbols toggle focus=false<cr>", "Symbols" },
+    t = { "<cmd>Trouble diagnostics toggle<cr>", "Trouble" },
+  }
+end
+
 M.config = function()
   -- Additional keybindings
   -- =========================================
@@ -72,6 +84,7 @@ M.config = function()
   end
 
   set_neotest_keymaps()
+  set_trouble_keymaps()
 end
 
 return M
