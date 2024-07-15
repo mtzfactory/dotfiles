@@ -40,6 +40,18 @@ local function set_bufferline_keymaps()
   -- }
 end
 
+local function set_neotest_keymaps()
+  lvim.builtin.which_key.mappings["t"] = {
+    name = "Test",
+    f = { "<cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>", "File" },
+    n = { "<cmd>lua require('neotest').run.run()<cr>", "Nearest" },
+    o = { "<cmd>lua require('neotest').output_panel.open({enter=true})<cr>", "Output" },
+    s = { "<cmd>lua require('neotest').summary.open()<cr>", "Summary" },
+    w = { "<cmd>lua require('neotest').watch.open(vim.fn.expand('%'))<cr>", "Watch" }
+    --w = { "<cmd>lua require('neotest').run.run({ jestCommand = 'jest --watch ' })<cr>", "Watch" }
+  }
+end
+
 M.config = function()
   -- Additional keybindings
   -- =========================================
@@ -58,6 +70,8 @@ M.config = function()
   if lvim.builtin.bufferline.active then
     set_bufferline_keymaps()
   end
+
+  set_neotest_keymaps()
 end
 
 return M

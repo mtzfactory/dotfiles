@@ -130,6 +130,39 @@ M.config = function()
         require("todo-comments").setup()
       end,
       event = "BufRead"
+    },
+    {
+      "nvim-neotest/neotest",
+      dependencies = {
+        "nvim-neotest/nvim-nio",
+        "nvim-lua/plenary.nvim",
+        "antoinemadec/FixCursorHold.nvim",
+        "nvim-treesitter/nvim-treesitter",
+        "nvim-neotest/neotest-jest",
+      },
+      config = function()
+        require('neotest').setup({
+          adapters = {
+            require('neotest-jest')({
+              jestCommand = "yarn test",
+              jestConfigFile = function(file)
+                if string.find(file, "/packages/") then
+                  return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
+                end
+
+                return vim.fn.getcwd() .. "/jest.config.ts"
+              end,
+              env = { CI = true },
+              cwd = function(path)
+                if string.find(path, "/packages/") then
+                  return string.match(path, "(.-/[^/]+/)src")
+                end
+                return vim.fn.getcwd()
+              end,
+            }),
+          }
+        })
+      end
     }
   }
 end
