@@ -46,6 +46,17 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_w4p" git clone git@github.com:mtzfactory/d
 
 ## Vim
 
+### LunarVim custom keys
+
+- `F12`: toggles relative row number.
+
+- `<C-t>`: jump back from _go to definition_.
+
+- `]b`: go to next buffer.
+- `[b`: go to previous buffer.
+- `]d`: go to next diagnostic.
+- `[d`: go to previous diagnostic.
+
 ### Neovim
 
 #### Check dependencies
