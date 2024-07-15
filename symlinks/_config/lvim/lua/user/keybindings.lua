@@ -48,7 +48,7 @@ local function set_neotest_keymaps()
     o = { "<cmd>lua require('neotest').output_panel.open({enter=true})<cr>", "Output" },
     s = { "<cmd>lua require('neotest').summary.open()<cr>", "Summary" },
     w = { "<cmd>lua require('neotest').watch.open(vim.fn.expand('%'))<cr>", "Watch" }
-    --w = { "<cmd>lua require('neotest').run.run({ jestCommand = 'jest --watch ' })<cr>", "Watch" }
+    -- w = { "<cmd>lua require('neotest').run.run({ jestCommand = 'jest --watch ' })<cr>", "Watch" }
   }
 end
 

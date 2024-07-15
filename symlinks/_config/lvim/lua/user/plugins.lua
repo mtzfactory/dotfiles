@@ -143,8 +143,8 @@ M.config = function()
       config = function()
         require('neotest').setup({
           adapters = {
-            require('neotest-jest')({
-              jestCommand = require('neotest-jest.jest-util').getJestCommand(vim.fn.expand '%:p:h'),
+            require("neotest-jest")({
+              -- jestCommand = require("neotest-jest.jest-util").getJestCommand(vim.fn.expand "%:p:h"),
               jestConfigFile = function(file)
                 if string.find(file, "/packages/") then
                   return string.match(file, "(.-/[^/]+/)src") .. "jest.config.ts"
