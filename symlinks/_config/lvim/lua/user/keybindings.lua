@@ -77,7 +77,10 @@ M.config = function()
   --vim.api.nvim_set_keymap("n", "<CR>", ":noh<CR>", { noremap = true, silent = true })
 
   -- F12 toggles relativenumber
-  vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<CR>", { noremap = true, silent = true })
+  vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<cr>", { noremap = true, silent = true })
+
+  --
+  vim.api.nvim_set_keymap("n", "<C-o>", "<cmd>Telescope oldfiles<cr>", { noremap = true, silent = true })
 
   -- Show diagnostics on hover
   vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
