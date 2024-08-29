@@ -74,10 +74,13 @@ M.config = function()
   lvim.keys.normal_mode["<C-t>"] = ":pop<cr>"
 
   -- Unsets the 'last search pattern' register by hitting return
-  vim.api.nvim_set_keymap("n", "<CR>", ":noh<CR>", { noremap = true, silent = true })
+  --vim.api.nvim_set_keymap("n", "<CR>", ":noh<CR>", { noremap = true, silent = true })
 
   -- F12 toggles relativenumber
   vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<CR>", { noremap = true, silent = true })
+
+  -- Show diagnostics on hover
+  vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
 
   if lvim.builtin.bufferline.active then
     set_bufferline_keymaps()
