@@ -312,18 +312,22 @@ bindkey -M vicmd 'j' history-substring-search-down
 #
 
 # list all files colorized in long format
-alias ls="ls -lisa ${colorflag}"
+if [ -x "$(command -v eza)" ]; then
+  alias ls="eza --long --octal-permissions --git --icons" 
+else
+  alias ls="ls -lisa ${colorflag}"
 
-# list all files colorized in long format, including dot files
-alias la="ls -lA ${colorflag}"
+  # list all files colorized in long format, including dot files
+  alias la="ls -lA ${colorflag}"
 
-# list only directories
-alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
+  # list only directories
+  alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
 
-alias lisa="ls -Gisa"
-alias lis="ls -Gis"
-alias ll="ls -GalF"
-alias l="ls -GCF"
+  alias lisa="ls -Gisa"
+  alias lis="ls -Gis"
+  alias ll="ls -GalF"
+  alias l="ls -GCF"
+fi
 
 # grep color
 alias grep="grep --color=auto"
@@ -363,8 +367,10 @@ alias a:task="cd ./android && ./gradlew -PversionCode=1 tasks && cd .."
 alias a:clean="cd ./android && ./gradlew -PversionCode=1 clean && cd .."
 alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\" app:installDebug && cd .."
 
+# time
 alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn; }; fn'
+
 # neovim
 export EDITOR="lvim"
-alias v="nvim"
+# alias v="nvim"
 alias lv="lvim"
