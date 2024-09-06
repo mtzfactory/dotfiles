@@ -65,22 +65,22 @@ local function set_trouble_keymaps()
 end
 
 M.config = function()
-  -- Additional keybindings
-  -- =========================================
+  -- Navigate next or previous diagnostic
   lvim.keys.normal_mode["]d"] = "<cmd>lua vim.diagnostic.goto_next()<cr>"
   lvim.keys.normal_mode["[d"] = "<cmd>lua vim.diagnostic.goto_prev()<cr>"
+
+  -- Navigate next or previous change
+  lvim.keys.normal_mode["]c"] = "<cmd>Gitsigns next_hunk<cr>"
+  lvim.keys.normal_mode["[c"] = "<cmd>Gitsigns prev_hunk<cr>"
 
   -- Jump back from go to definition
   lvim.keys.normal_mode["<C-t>"] = ":pop<cr>"
 
-  -- Unsets the 'last search pattern' register by hitting return
-  --vim.api.nvim_set_keymap("n", "<CR>", ":noh<CR>", { noremap = true, silent = true })
-
   -- F12 toggles relativenumber
-  vim.api.nvim_set_keymap("n", "<F12>", ":set relativenumber!<cr>", { noremap = true, silent = true })
+  lvim.keys.normal_mode["<F12>"] = ":set relativenumber!<cr>"
 
-  --
-  vim.api.nvim_set_keymap("n", "<C-o>", "<cmd>Telescope oldfiles<cr>", { noremap = true, silent = true })
+  -- Open recent files
+  lvim.keys.normal_mode["<C-o>"] = "<cmd>Telescope oldfiles<cr>"
 
   -- Show diagnostics on hover
   vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
