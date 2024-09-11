@@ -1,6 +1,6 @@
 # This is Git's per-user configuration file.
 [user]
-  name = Ricardo Martinez
+  name = Ricardo Martínez
   email = ricardo.martinez.monje@gmail.com
 
 #[core]
