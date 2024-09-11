@@ -56,3 +56,6 @@
 
   # Conflicts
   conflicts = "diff --name-only --diff-filter=U"
+
+  # Undo last commit
+  undo = "reset --mixed HEAD"
