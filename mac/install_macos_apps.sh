@@ -128,6 +128,7 @@ declare -a brew_cli_tools=(
   'fzf'
   'gettext'
   'git'
+  'git-delta'       # A syntax-highlighting pager for git: https://dandavison.github.io/delta/introduction.html
   'git-extras'	    # Git extra commands: https://github.com/tj/git-extras/blob/master/Commands.md
   'git-lfs'
   'gnu-getopt'
