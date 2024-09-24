@@ -145,6 +145,7 @@ declare -a brew_cli_tools=(
   'imagemagick'
   'jq'
   'jump'            # Navigate faster by learning your habits. https://github.com/gsamokovarov/jump
+  'lazygit'         # This enables <leader>gg to launch lazygit for integrated and enhanced Git experience while in LunarVim
   'mas'             # Mac App Store command line interface. https://github.com/mas-cli/mas
   'ncdu'            # NCurses disk usage
   'neovim'
