@@ -15,6 +15,10 @@ require("user.nvim-tree").config()
 -- =========================================
 require("user.plugins").config()
 
+-- Nvim Lsp config
+-- =========================================
+require("user.nvim-lspconfig").config()
+
 -- Keybindings
 -- =========================================
 require("user.keybindings").config()
