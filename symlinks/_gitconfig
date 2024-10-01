@@ -85,7 +85,7 @@
   dmoo = delete-merged-on-origin
 
   # Conflicts
-  conflicts = "diff --name-only --diff-filter=U"
+  conflicts = diff --name-only --diff-filter=U
 
   # Undo last commit
-  undo = "reset --mixed HEAD"
+  undo = reset --mixed HEAD
