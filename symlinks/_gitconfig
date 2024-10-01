@@ -75,6 +75,9 @@
   
   # Get head branch
   head-branch = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
+
+  # Get current branch
+  current-branch = "rev-parse --abbrev-ref HEAD"
   
   # Delete all branches on remote `origin` that have been merged into `origin/master`
   # link https://salferrarello.com/git-delete-merged-branches-from-remote/
