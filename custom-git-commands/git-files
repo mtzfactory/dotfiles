@@ -25,4 +25,5 @@
 # Usage:
 #   git files
 
-git show --pretty="" --name-only
+HEAD_BRANCH=$(git remote show origin | grep "HEAD branch" | cut -d" " -f5)
+git diff --diff-filter=ACDMRTUXB --name-status $HEAD_BRANCH...
