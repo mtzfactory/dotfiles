@@ -89,3 +89,6 @@
 
   # Undo last commit
   undo = reset --mixed HEAD
+
+  # Local commits Local commits
+  lg-local-commits = !git log --oneline $(git head-branch)..$(git current-branch)
