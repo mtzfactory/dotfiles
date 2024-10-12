@@ -58,10 +58,6 @@
   rebase = true
 
 [alias]
-  # Get commit history with style.
-  # Example: git ch v1.1.0 v1.0.0
-  ch = log --pretty=format:"*\\ (%h)\\ %s" --no-merges
-  
   # Clone repo using worktree
   # Example: git c4wt git@your-repo.git
   c4wt = clone-for-worktrees
@@ -74,21 +70,31 @@
   path-hooks = rev-parse --git-path hooks
   
   # Get head branch
-  head-branch = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
+  branch-head = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
 
   # Get current branch
-  current-branch = "rev-parse --abbrev-ref HEAD"
-  
+  branch-current = rev-parse --abbrev-ref HEAD
   # Delete all branches on remote `origin` that have been merged into `origin/master`
   # link https://salferrarello.com/git-delete-merged-branches-from-remote/
-  delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git head-branch)  | grep --invert-match $(git head-branch) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
+  delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git branch-head)  | grep --invert-match $(git branch-head) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
   dmoo = delete-merged-on-origin
 
   # Conflicts
   conflicts = diff --name-only --diff-filter=U
 
-  # Undo last commit
-  undo = reset --mixed HEAD
+  # Current commit hash
+  commit-hash = "!f() { if [ ! -z "$1" ]; then ID="~$1"; fi; git rev-parse --short HEAD$ID; }; f"
 
-  # Local commits Local commits
-  lg-local-commits = !git log --oneline $(git head-branch)..$(git current-branch)
+  # Get commit history with style.
+  # Example: git commit-history v1.1.0 v1.0.0
+  commit-history = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+
+  # Last commit
+  commit-last = log -1 HEAD
+
+  # List commits from current branch
+  commit-list = !git log --oneline $(git branch-head)..$(git branch-current)
+
+  # Undo last commit
+  commit-undo = reset --mixed HEAD
+
