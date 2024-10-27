@@ -6,6 +6,9 @@ local function set_bufferline_keymaps()
   lvim.keys.normal_mode["<S-h>"] = "<Cmd>BufferLineCyclePrev<CR>"
   lvim.keys.normal_mode["]b"] = "<Cmd>BufferLineMoveNext<CR>"
   lvim.keys.normal_mode["[b"] = "<Cmd>BufferLineMovePrev<CR>"
+
+  lvim.builtin.which_key.mappings[" "] = { "<cmd>Telescope buffers<cr>", "Buffers" }
+
   -- lvim.builtin.which_key.mappings["c"] = {}
   -- lvim.builtin.which_key.mappings.b = {
   --   name = " Buffer",
