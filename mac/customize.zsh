@@ -145,11 +145,11 @@ customize() {
     export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig:$PATH"
   fi
 
-  # rbenv
+  # rbenv - ruby environment
   local RBENV="$BREW_OPT_DIR/rbenv"
   [ -d "$RBENV" ] && eval "$(rbenv init - zsh)"
 
-  # rvm
+  # rvm - ruby version manager
   [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
   # sqlite
@@ -313,7 +313,7 @@ bindkey -M vicmd 'j' history-substring-search-down
 
 # list all files colorized in long format
 if [ -x "$(command -v eza)" ]; then
-  alias ls="eza --long --octal-permissions --git --icons" 
+  alias ls="eza --long --octal-permissions --git --icons=always --show-symlinks" 
 else
   alias ls="ls -lisa ${colorflag}"
 
