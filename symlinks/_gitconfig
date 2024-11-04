@@ -69,6 +69,10 @@
   # Get git hooks path
   path-hooks = rev-parse --git-path hooks
   
+  # Apply changes from branch without creating a new commit
+  apply-changes-from-branch = merge --no-ff --no-commit
+  acfb = apply-changes-from-branch
+
   # List commits from current branch
   branch-commits = !git log --oneline $(git branch-head)..$(git branch-current)
 
