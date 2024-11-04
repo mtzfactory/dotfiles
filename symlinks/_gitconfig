@@ -1,4 +1,4 @@
-[includeIf "gitdir:~/development/work/"]
+[includeIf "gitdir:~/development/trainline/"]
   path = ~/.gitconfig-work
 
 [includeIf "gitdir:~/development/personal/"]
@@ -69,15 +69,20 @@
   # Get git hooks path
   path-hooks = rev-parse --git-path hooks
   
-  # Get head branch
-  branch-head = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
+  # List commits from current branch
+  branch-commits = !git log --oneline $(git branch-head)..$(git branch-current)
 
   # Get current branch
   branch-current = rev-parse --abbrev-ref HEAD
-  # Delete all branches on remote `origin` that have been merged into `origin/master`
-  # link https://salferrarello.com/git-delete-merged-branches-from-remote/
-  delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git branch-head)  | grep --invert-match $(git branch-head) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
-  dmoo = delete-merged-on-origin
+
+  # Get branch files
+  branch-files = !git diff --name-only $(git branch-head)
+
+  # Get head branch
+  branch-head = !git remote show origin | grep \"HEAD branch\" | cut -d\" \" -f5
+
+  # List stale branches
+  branch-stale = "!f() { git branch --sort=-committerdate | while read branch; do if [[ -z "$(git log -1 --since='90 days ago' -s $branch)" ]]; then echo $branch; fi; done; }; f"
 
   # Conflicts
   conflicts = diff --name-only --diff-filter=U
@@ -92,9 +97,11 @@
   # Last commit
   commit-last = log -1 HEAD
 
-  # List commits from current branch
-  commit-list = !git log --oneline $(git branch-head)..$(git branch-current)
-
   # Undo last commit
   commit-undo = reset --mixed HEAD
+
+  # Delete all branches on remote `origin` that have been merged into `origin/master`
+  # link https://salferrarello.com/git-delete-merged-branches-from-remote/
+  delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git branch-head)  | grep --invert-match $(git branch-head) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
+  dmoo = delete-merged-on-origin
 
