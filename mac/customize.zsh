@@ -247,6 +247,7 @@ customize() {
 
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
+  # git config
   local GITCONFIG_SYMLINK="$HOME/.gitconfig"
   if [ ! -f "$GITCONFIG_SYMLINK" ]; then
     ln -s "$DOTFILES_SYMLINKS/_gitconfig" "$GITCONFIG_SYMLINK"
@@ -267,26 +268,26 @@ customize() {
     ln -s "$DOTFILES_SYMLINKS/_gitignore-global" "$GITIGNORE_GLOBAL_SYMLINK"
   fi
   
+  # common config
   local HOME_CONFIG_DIRECTORY="$HOME/.config"
 
+  [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
   local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
   if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
-    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
   fi
 
   local LVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/lvim"
   if [ ! -d "$LVIM_CONFIG_SYMLINK" ]; then
-    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/_config/lvim" "$LVIM_CONFIG_SYMLINK"
   fi
 
   local PIP_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/pip"
   if [ ! -d "$PIP_CONFIG_SYMLINK" ]; then
-    [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
     ln -s "$DOTFILES_SYMLINKS/_config/pip" "$PIP_CONFIG_SYMLINK"
   fi
 
+  # ssh config
   local HOME_SSH_DIRECTORY="$HOME/.ssh"
   local SSH_CONFIG_SYMLINK="$HOME_SSH_DIRECTORY/config"
   if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
@@ -380,5 +381,6 @@ alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn
 
 # neovim
 export EDITOR="lvim"
-# alias v="nvim"
+
+alias v="nvim"
 alias lv="lvim"
