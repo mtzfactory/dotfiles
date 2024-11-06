@@ -1,7 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
   name = Ricardo Martínez
-  email = ricardo.martinez.monje@gmail.com
+  email = 200234+mtzfactory@users.noreply.github.com
 
 #[core]
 #  sshCommand = "$(command -v ssh) -i ~/.ssh/id_ed25519_c4p"
