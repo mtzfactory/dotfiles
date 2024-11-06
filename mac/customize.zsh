@@ -264,7 +264,7 @@ customize() {
 
   local GITIGNORE_GLOBAL_SYMLINK="$HOME/.gitignore-global"
   if [ ! -f "$GITIGNORE_GLOBAL_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_gitconfig-personal" "$GITIGNORE_GLOBAL_SYMLINK"
+    ln -s "$DOTFILES_SYMLINKS/_gitignore-global" "$GITIGNORE_GLOBAL_SYMLINK"
   fi
   
   local HOME_CONFIG_DIRECTORY="$HOME/.config"
