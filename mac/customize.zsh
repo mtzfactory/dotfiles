@@ -321,7 +321,7 @@ bindkey -M vicmd 'j' history-substring-search-down
 
 # list all files colorized in long format
 if [ -x "$(command -v eza)" ]; then
-  alias ls="eza --long --octal-permissions --git --icons=always --show-symlinks" 
+  alias ls="eza --all --header --long --octal-permissions --git --icons=always --show-symlinks" 
 else
   alias ls="ls -lisa ${colorflag}"
 
