@@ -272,6 +272,16 @@ customize() {
   local HOME_CONFIG_DIRECTORY="$HOME/.config"
 
   [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
+
+  if [ -x "$(command -v lazygit)" ]; then
+    local LAZYGIT_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/lazygit"
+    if [ ! -d "$LAZYGIT_CONFIG_SYMLINK" ]; then
+      ln -s "$DOTFILES_SYMLINKS/_config/lazygit" "$LAZYGIT_CONFIG_SYMLINK"
+    fi
+
+    export XDG_CONFIG_HOME="$HOME/.config"
+  fi
+
   local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
   if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
     ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
