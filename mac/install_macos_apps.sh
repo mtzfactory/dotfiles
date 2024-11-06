@@ -152,6 +152,7 @@ declare -a brew_cli_tools=(
   'node'
   'nvm'             # Node version manager
   'pidcat'          # Colored logcat script to show entries only for specified app
+  'pinentry-mac'    # Pinentry for GPG on Mac
   'readline'
   'rbenv'           # Ruby version manager
   'ruby-build'

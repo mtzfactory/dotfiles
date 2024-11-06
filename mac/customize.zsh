@@ -122,6 +122,14 @@ customize() {
     export PKG_CONFIG_PATH="$OPENSSL/lib/pkgconfig:$PATH"
   fi
 
+  # pinentry for gpg
+  local GPG_AGENT_FILE="$HOME/.gnupg/gpg-agent.conf"
+  if [[ -f "$GPG_AGENT_FILE" ]]; then
+    if ! grep -q -E '^pinentry-program.*$' "$GPG_AGENT_FILE"; then
+      echo "pinentry-program $(brew --prefix)/bin/pinentry-mac" | tee -a "$GPG_AGENT_FILE" >/dev/null
+    fi
+  fi
+
   # python@3
   local PYTHON3="$BREW_OPT_DIR/python@3"
   if [ -d "$PYTHON3" ]; then
