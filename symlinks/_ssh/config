@@ -35,6 +35,8 @@ Host github.com-2amigos
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
 
+
+##
 # Github
 # https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
 #
@@ -46,4 +48,9 @@ Host github.com-2amigos
 #
 # Add ssh key to Mac SSH Agent with passphrase
 # ssh-add --apple-use-keychain ~/.ssh/your_ssh_file
-# ssh-l
+#
+# List ssh keys
+# ssh-add -l
+#
+# Get SHA256
+# ssh-keygen -lE sha256 -f ~/.ssh/your_ssh_file.pub
