@@ -4,6 +4,8 @@
 export XDG_CONFIG_HOME="$HOME/.config"
 [ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
 
+source ../env.zsh
+
 ###############################################################################
 # Install Homebrew                                                            #
 ###############################################################################
@@ -227,7 +229,7 @@ if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
   # Install Oh My Zsh
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-  if [[ -x $(command -v omz) ]]; then
+  if [ -x $(command -v omz) ]; then
     # Plugin customization
     declare -A ZSH_INSTALL_PLUGINS
 
@@ -263,5 +265,8 @@ if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
 fi
 
 ## Vim plug install
-# sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+if [ "$EDITOR" == "nvim" ]; then
+  sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
+    --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+fi
 

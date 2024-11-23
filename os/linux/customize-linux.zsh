@@ -8,6 +8,8 @@ setopt extended_glob
 # zsh etenxions
 autoload -U zmv
 
+source ../env.zsh
+
 local LOCAL_BIN="$HOME/.local/bin"
 [[ ! -d $LOCAL_BIN ]] && mkdir -p "$LOCAL_BIN"
 [[ ! -d $LOCAL_BIN ]] || export PATH="$PATH:$LOCAL_BIN"
@@ -44,5 +46,4 @@ local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
 alias ls="ls -lisa"
 
 # neovim
-export EDITOR="nvim"
 alias v="nvim"

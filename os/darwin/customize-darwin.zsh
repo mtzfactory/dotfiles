@@ -17,6 +17,8 @@ if [ -z "${DOTFILES}" ]; then
   exit 1
 fi
 
+source ../env.zsh
+
 # Set user-specific configuration directory
 export XDG_CONFIG_HOME="$HOME/.config"
 [ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
@@ -190,11 +192,12 @@ customize() {
   ##
   # git
   #
+  #
   local GIT_EXTRAS="$BREW_OPT_DIR/git-extras"
   [ -d "$GIT_EXTRAS" ] && source "$GIT_EXTRAS/share/git-extras/git-extras-completion.zsh"
 
   # custom git scripts
-  local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
+  local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
   [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
 
   ##
@@ -348,7 +351,7 @@ alias egrep="egrep --color=auto"
 alias fs="stat -f \"%z bytes\""
 
 # trim new lines and copy to clipboard
-alias c="tr -d '\n' | pbcopy"
+alias cp="tr -d '\n' | pbcopy"
 
 # ip addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
@@ -380,8 +383,6 @@ alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\"
 # time
 alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn; }; fn'
 
-# neovim
-export EDITOR="lvim"
-
+# vim
 alias v="nvim"
 alias lv="lvim"
