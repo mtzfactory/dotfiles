@@ -223,11 +223,11 @@ gem install fontcustom
 ###############################################################################
 
 ## Zsh
-if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
+if [ "$SHELL" = "/bin/zsh" ]; then
   # Install Oh My Zsh
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-  if [ -x $(command -v omz) ]; then
+  if [ -x "$(command -v omz)" ]; then
     # Plugin customization
     declare -A ZSH_INSTALL_PLUGINS
 
@@ -259,7 +259,7 @@ if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
 
     local ZSH_APP_PLUGIN
     for ZSH_APP_PLUGIN in "${!ZSH_APP_PLUGINS[@]}"; do
-      omz plugin enable "$ZSH_APP_PLUGIN"
+      [ -x "$(command -v $ZSH_APP_PLUGIN)" ] && omz plugin enable "$ZSH_APP_PLUGIN"
     done
 
     ## Theme customization

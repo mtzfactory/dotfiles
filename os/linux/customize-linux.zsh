@@ -9,11 +9,11 @@ setopt extended_glob
 autoload -U zmv
 
 local LOCAL_BIN="$HOME/.local/bin"
-[[ ! -d $LOCAL_BIN ]] && mkdir -p "$LOCAL_BIN"
-[[ ! -d $LOCAL_BIN ]] || export PATH="$PATH:$LOCAL_BIN"
+[ ! -d $LOCAL_BIN ] && mkdir -p "$LOCAL_BIN"
+[ ! -d $LOCAL_BIN ] || export PATH="$PATH:$LOCAL_BIN"
 
 # bat
-if [[ ! -x $(command -v bat) ]]; then
+if [ ! -x "$(command -v bat)" ]; then
   local BATCAT="/usr/bin/batcat"
   if [[ -f $BATCAT ]]; then
     ln -s $BATCAT $LOCAL_BIN/bat
@@ -25,7 +25,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-if [[ ! -x $(command -v node) ]]; then
+if [ ! -x "$(command -v node)" ]; then
   nvm install --lts
 fi
 
@@ -34,11 +34,11 @@ fi
 #
 # git-extras
 local GIT_EXTRAS="/usr/share/zsh/vendor-completions/_git-extras"
-[[ -d $GIT_EXTRAS ]] && source "/usr/share/zsh/vendor-completions/_git-extras"
+[ -d $GIT_EXTRAS ] && source "/usr/share/zsh/vendor-completions/_git-extras"
 
 # custom git scripts
 local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
-[[ -d $CUSTOM_GIT_COMMANDS_SYMLINK ]] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
+[ -d $CUSTOM_GIT_COMMANDS_SYMLINK ] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
 
 # alias
 alias ls="ls -lisa"
