@@ -37,12 +37,19 @@ Host github.com-2amigos
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
 
-# mini-home
 Host mini-home.local
+  HostName 192.168.0.24
+  # RemoteCommand "dietpi-login"
   IdentityFile ~/.ssh/id_ed25519_w4p
   IdentitiesOnly yes
   User dietpi
-  Port 22
+
+Host tamarit101.mooo.com
+  HostName 192.168.0.24
+  # RemoteCommand "dietpi-login"
+  IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
+  User dietpi
 
 ##
 # Github

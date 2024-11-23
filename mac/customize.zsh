@@ -11,8 +11,17 @@ autoload -U zmv
 # opting out homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
 
-customize() {
+# Check if DOTFILES variable is set
+if [ -z "${DOTFILES}" ]; then
+  echo "You have to define the DOTFILES env variable."
+  exit 1
+fi
 
+# Set user-specific configuration directory
+export XDG_CONFIG_HOME="$HOME/.config"
+[ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
+
+customize() {
   local USR_LOCAL_BIN="/usr/local/bin"
   [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"
 
@@ -242,70 +251,47 @@ customize() {
   ##
   # symlinks
   #
-  if [ -z "${DOTFILES}" ]; then
-    echo "You have to define the DOTFILES env variable."
-    exit 1
-  fi
-
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
-  # git config
-  local GITCONFIG_SYMLINK="$HOME/.gitconfig"
-  if [ ! -f "$GITCONFIG_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_gitconfig" "$GITCONFIG_SYMLINK"
-  fi
+  # file configs
+  declare -a FILE_CONFIGS=(
+    "gitconfig"
+    "gitconfig-personal"
+    "gitconfig-work"
+    "gitignore-global"
+  )
 
-  local GITCONFIG_PERSONAL_SYMLINK="$HOME/.gitconfig-personal"
-  if [ ! -f "$GITCONFIG_PERSONAL_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_gitconfig-personal" "$GITCONFIG_PERSONAL_SYMLINK"
-  fi
-
-  local GITCONFIG_WORK_SYMLINK="$HOME/.gitconfig-work"
-  if [ ! -f "$GITCONFIG_WORK_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_gitconfig-work" "$GITCONFIG_WORK_SYMLINK"
-  fi
-
-  local GITIGNORE_GLOBAL_SYMLINK="$HOME/.gitignore-global"
-  if [ ! -f "$GITIGNORE_GLOBAL_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_gitignore-global" "$GITIGNORE_GLOBAL_SYMLINK"
-  fi
-  
-  # common config
-  local HOME_CONFIG_DIRECTORY="$HOME/.config"
-
-  [ ! -d "$HOME_CONFIG_DIRECTORY" ] && mkdir -p "$HOME_CONFIG_DIRECTORY"
-
-  if [ -x "$(command -v lazygit)" ]; then
-    local LAZYGIT_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/lazygit"
-    if [ ! -d "$LAZYGIT_CONFIG_SYMLINK" ]; then
-      ln -s "$DOTFILES_SYMLINKS/_config/lazygit" "$LAZYGIT_CONFIG_SYMLINK"
+  for file_config in "${FILE_CONFIGS[@]}"; do
+    local FILE_CONFIG_SYMLINK="$HOME/.$file_config"
+    if [ ! -f "$FILE_CONFIG_SYMLINK" ]; then
+      ln -s "$DOTFILES_SYMLINKS/$file_config" "$FILE_CONFIG_SYMLINK"
     fi
+  done
+   
+  # app configs
+  declare -a APP_CONFIGS=(
+    "lazygit"
+    "lvim"
+    "pip"
+  )
 
-    export XDG_CONFIG_HOME="$HOME/.config"
-  fi
-
-  local NVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/nvim"
-  if [ ! -d "$NVIM_CONFIG_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_config/nvim" "$NVIM_CONFIG_SYMLINK"
-  fi
-
-  local LVIM_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/lvim"
-  if [ ! -d "$LVIM_CONFIG_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_config/lvim" "$LVIM_CONFIG_SYMLINK"
-  fi
-
-  local PIP_CONFIG_SYMLINK="$HOME_CONFIG_DIRECTORY/pip"
-  if [ ! -d "$PIP_CONFIG_SYMLINK" ]; then
-    ln -s "$DOTFILES_SYMLINKS/_config/pip" "$PIP_CONFIG_SYMLINK"
-  fi
+  local DOTFILES_SYMLINKS_CONFIG="$DOTFILES_SYMLINKS/config"
+  for app_config in "${APP_CONFIGS[@]}"; do
+    if [ -x "$(command -v $app_config)" ]; then
+      local XDG_CONFIG_HOME_APP="$XDG_CONFIG_HOME/$app_config"
+      if [ ! -d "$XDG_CONFIG_HOME_APP" ]; then
+        ln -s "$DOTFILES_SYMLINKS_CONFIG/$app_config" "$XDG_CONFIG_HOME_APP"
+      fi
+    fi
+  done
 
   # ssh config
-  local HOME_SSH_DIRECTORY="$HOME/.ssh"
-  local SSH_CONFIG_SYMLINK="$HOME_SSH_DIRECTORY/config"
-  if [ ! -f "$SSH_CONFIG_SYMLINK" ]; then
-    [ ! -d "$HOME_SSH_DIRECTORY" ] && mkdir -p "$HOME_SSH_DIRECTORY" && chmod 700 "$HOME_SSH_DIRECTORY"
-    ln -s "$DOTFILES_SYMLINKS/_ssh/config" "$SSH_CONFIG_SYMLINK"
-    chmod 600 ~/.ssh/config
+  local HOME_SSH="$HOME/.ssh"
+  local HOME_SSH_CONFIG="$HOME_SSH/config"
+  if [ ! -f "$HOME_SSH_CONFIG" ]; then
+    [ ! -d "$HOME_SSH" ] && mkdir -p "$HOME_SSH" && chmod 700 "$HOME_SSH"
+    ln -s "$DOTFILES_SYMLINKS/ssh/config" "$HOME_SSH_CONFIG"
+    chmod 600 "$HOME_SSH_CONFIG"
   fi
 }
 

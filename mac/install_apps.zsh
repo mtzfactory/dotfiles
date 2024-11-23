@@ -1,5 +1,9 @@
 #!/usr/bin/env zsh
 
+# Set user-specific configuration directory
+export XDG_CONFIG_HOME="$HOME/.config"
+[ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
+
 ###############################################################################
 # Install Homebrew                                                            #
 ###############################################################################
