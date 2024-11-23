@@ -2,15 +2,13 @@
 
 ## Installation
 
-Set `ZSH_THEME="powerlevel10k/powerlevel10k"` in your `~/.zshrc` file.
-
 Add the following lines at the bottom of your `~/.zshrc` file.
 
 ```bash
 # Custom ZSH
-local DOTFILES="$HOME/{path-to}/dotfiles"
+export DOTFILES="$HOME/{path-to}/dotfiles"
 
-local CUSTOM_ZSH="$DOTFILES/{platform}/customize.zsh"
+local CUSTOM_ZSH="$DOTFILES/os/customize.zsh"
 [[ ! -f $CUSTOM_ZSH ]] || source $CUSTOM_ZSH
 ```
 
@@ -46,12 +44,18 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_w4p" git clone git@github.com:mtzfactory/d
 
 ## Vim
 
-### LunarVim custom keys
+### LunarVim 
+
+Fix [errors after an update][lvim-troubleshooting], run command:
+
+```bash
+:LvimCacheReset
+```
+
+#### Custom keys
 
 - `F12`: toggles relative row number.
-
 - `<C-t>`: jump back from _go to definition_.
-
 - `]b`: go to next buffer.
 - `[b`: go to previous buffer.
 - `]d`: go to next diagnostic.
@@ -65,4 +69,6 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_w4p" git clone git@github.com:mtzfactory/d
 :checkhealth
 ```
 
+<!-- Links -->
 [generating-a-new-ssh-key]: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+[lvim-troubleshooting]: https://www.lunarvim.org/es/docs/troubleshooting#getting-errors-after-an-update
