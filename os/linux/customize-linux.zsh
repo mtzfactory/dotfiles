@@ -37,7 +37,7 @@ local GIT_EXTRAS="/usr/share/zsh/vendor-completions/_git-extras"
 [[ -d $GIT_EXTRAS ]] && source "/usr/share/zsh/vendor-completions/_git-extras"
 
 # custom git scripts
-local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/custom-git-commands"
+local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
 [[ -d $CUSTOM_GIT_COMMANDS_SYMLINK ]] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
 
 # alias

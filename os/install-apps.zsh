@@ -2,4 +2,4 @@
 
 local OS=$(uname | tr '[:upper:]' '[:lower:]')
 
-/bin/zsh -c "./$OS/install_apps.zsh"
+/bin/zsh -c "./$OS/install-$OS-apps.zsh"
