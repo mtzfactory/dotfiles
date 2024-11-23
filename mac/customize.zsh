@@ -261,26 +261,29 @@ customize() {
     "gitignore-global"
   )
 
-  for file_config in "${FILE_CONFIGS[@]}"; do
-    local FILE_CONFIG_SYMLINK="$HOME/.$file_config"
+  local FILE_CONFIG
+  for FILE_CONFIG in "${FILE_CONFIGS[@]}"; do
+    local FILE_CONFIG_SYMLINK="$HOME/.$FILE_CONFIG"
     if [ ! -f "$FILE_CONFIG_SYMLINK" ]; then
-      ln -s "$DOTFILES_SYMLINKS/$file_config" "$FILE_CONFIG_SYMLINK"
+      ln -s "$DOTFILES_SYMLINKS/$FILE_CONFIG" "$FILE_CONFIG_SYMLINK"
     fi
   done
-   
+
   # app configs
+  local DOTFILES_SYMLINKS_CONFIG="$DOTFILES_SYMLINKS/config"
+
   declare -a APP_CONFIGS=(
     "lazygit"
     "lvim"
     "pip"
   )
 
-  local DOTFILES_SYMLINKS_CONFIG="$DOTFILES_SYMLINKS/config"
-  for app_config in "${APP_CONFIGS[@]}"; do
-    if [ -x "$(command -v $app_config)" ]; then
-      local XDG_CONFIG_HOME_APP="$XDG_CONFIG_HOME/$app_config"
+  local APP_CONFIG
+  for APP_CONFIG in "${APP_CONFIGS[@]}"; do
+    if [ -x "$(command -v $APP_CONFIG)" ]; then
+      local XDG_CONFIG_HOME_APP="$XDG_CONFIG_HOME/$APP_CONFIG"
       if [ ! -d "$XDG_CONFIG_HOME_APP" ]; then
-        ln -s "$DOTFILES_SYMLINKS_CONFIG/$app_config" "$XDG_CONFIG_HOME_APP"
+        ln -s "$DOTFILES_SYMLINKS_CONFIG/$APP_CONFIG" "$XDG_CONFIG_HOME_APP"
       fi
     fi
   done

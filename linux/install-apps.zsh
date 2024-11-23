@@ -13,6 +13,7 @@ declare -a APT_APPS=(
   "zsh"
 )
 
+local APP
 for APP in "${APT_APPS[@]}"; do
   echo -e "\n-- Installing $APP"
   sudo apt-get install "$APP"
