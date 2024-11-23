@@ -7,14 +7,14 @@ fi
 
 local BASH_PROFILE="$HOME/.bash_profile"
 if [ ! -f "$BASH_PROFILE" ]; then
-  sudo -u vibia sh -c 'touch "$HOME/.bash_profile"'
-  sudo -u vibia sh -c 'echo "export SHELL=/bin/zsh" >> "$HOME/.bash_profile"'
-  sudo -u vibia sh -c 'echo "exec /bin/zsh -l" >> "$HOME/.bash_profile"'
+  sudo -u $USER sh -c 'touch "$HOME/.bash_profile"'
+  sudo -u $USER sh -c 'echo "export SHELL=/bin/zsh" >> "$HOME/.bash_profile"'
+  sudo -u $USER sh -c 'echo "exec /bin/zsh -l" >> "$HOME/.bash_profile"'
 fi
 
 local BASH_RC="$HOME/.bashrc"
 if [ -f "$BASH_RC" ]; then
-  sudo -u vibia sh -c 'mv "$HOME/.bashrc" "$HOME/.bashrc"__temp'
+  sudo -u $USER sh -c 'mv "$HOME/.bashrc" "$HOME/.bashrc"__temp'
 fi
 
 # Zsh plugins

@@ -18,5 +18,9 @@ for APP in "${APT_APPS[@]}"; do
   sudo apt-get install "$APP"
 done
 
-sudo -u vibia sh -c '$HOME/.dotfiles/linux/install-user-apps.zsh'
+# Change shell to Zsh
+chsh -s $(which zsh)
+
+# Install user apps
+sudo -u $USER sh -c '$HOME/.dotfiles/linux/install-user-apps.zsh'
 
