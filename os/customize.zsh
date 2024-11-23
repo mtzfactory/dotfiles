@@ -6,8 +6,9 @@ if [ -z "${DOTFILES}" ]; then
   exit 1
 fi
 
-source $DOTFILES/os/env.zsh
+source "$DOTFILES/os/env.zsh"
+source "$DOTFILES/os/alias.zsh"
 
 local OS=$(uname | tr '[:upper:]' '[:lower:]')
 
-source $DOTFILES/os/$OS/customize-$OS.zsh
+source "$DOTFILES/os/$OS/customize-$OS.zsh"
