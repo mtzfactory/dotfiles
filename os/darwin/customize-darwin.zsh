@@ -5,7 +5,7 @@
 # https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Operators
 setopt extended_glob
 
-# zsh etenxions
+# zsh extensions
 autoload -U zmv
 
 # opting out homebrew analytics
@@ -17,8 +17,6 @@ if [ -z "${DOTFILES}" ]; then
   exit 1
 fi
 
-source ../env.zsh
-
 # Set user-specific configuration directory
 export XDG_CONFIG_HOME="$HOME/.config"
 [ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
@@ -28,7 +26,8 @@ customize() {
   [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"
 
   local LOCAL_BIN="$HOME/.local/bin"
-  [[ -d $LOCAL_BIN ]] && export PATH="$LOCAL_BIN:$PATH"
+  [ ! -d "$LOCAL_BIN" ] && sudo mkdir -p "$LOCAL_BIN"
+  [ -d "$LOCAL_BIN" ] && export PATH="$LOCAL_BIN:$PATH"
 
   ##
   # brew based apps
@@ -256,19 +255,19 @@ customize() {
   #
   local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 
-  # file configs
-  declare -a FILE_CONFIGS=(
+  # git configs
+  declare -a GIT_CONFIGS=(
     "gitconfig"
     "gitconfig-personal"
     "gitconfig-work"
     "gitignore-global"
   )
 
-  local FILE_CONFIG
-  for FILE_CONFIG in "${FILE_CONFIGS[@]}"; do
-    local FILE_CONFIG_SYMLINK="$HOME/.$FILE_CONFIG"
-    if [ ! -f "$FILE_CONFIG_SYMLINK" ]; then
-      ln -s "$DOTFILES_SYMLINKS/$FILE_CONFIG" "$FILE_CONFIG_SYMLINK"
+  local GIT_CONFIG
+  for GIT_CONFIG in "${GIT_CONFIGS[@]}"; do
+    local GIT_CONFIG_SYMLINK="$HOME/.$GIT_CONFIG"
+    if [ ! -f "$GIT_CONFIG_SYMLINK" ]; then
+      ln -s "$DOTFILES_SYMLINKS/git/$GIT_CONFIG" "$GIT_CONFIG_SYMLINK"
     fi
   done
 

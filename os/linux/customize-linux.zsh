@@ -5,10 +5,8 @@
 # https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Operators
 setopt extended_glob
 
-# zsh etenxions
+# zsh extensions
 autoload -U zmv
-
-source ../env.zsh
 
 local LOCAL_BIN="$HOME/.local/bin"
 [[ ! -d $LOCAL_BIN ]] && mkdir -p "$LOCAL_BIN"

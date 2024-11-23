@@ -5,8 +5,6 @@ if [[ $(id -u) -ne 0 ]]; then
   exit 1;
 fi
 
-source ../env.zsh
-
 declare -a APT_APPS=(
   "bat"
   "git-extras"

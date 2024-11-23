@@ -4,8 +4,6 @@
 export XDG_CONFIG_HOME="$HOME/.config"
 [ ! -d "$XDG_CONFIG_HOME" ] && mkdir -p "$XDG_CONFIG_HOME"
 
-source ../env.zsh
-
 ###############################################################################
 # Install Homebrew                                                            #
 ###############################################################################
@@ -233,11 +231,11 @@ if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
     # Plugin customization
     declare -A ZSH_INSTALL_PLUGINS
 
-    ZSH_INSTALL_PLUGINS[zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions"
+    ZSH_INSTALL_PLUGINS[zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions.git"
     ZSH_INSTALL_PLUGINS[zsh-bat]="https://github.com/fdellwing/zsh-bat.git"
-    ZSH_INSTALL_PLUGINS[zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search"
+    ZSH_INSTALL_PLUGINS[zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search.git"
     ZSH_INSTALL_PLUGINS[zsh-syntax-highlighting]="https://github.com/zsh-users/zsh-syntax-highlighting.git "
-    ZSH_INSTALL_PLUGINS[zsh-z]="https://github.com/agkozak/zsh-z"
+    ZSH_INSTALL_PLUGINS[zsh-z]="https://github.com/agkozak/zsh-z.git"
 
     local ZSH_INSTALL_PLUGIN
     for ZSH_INSTALL_PLUGIN in "${!ZSH_INSTALL_PLUGINS[@]}"; do
@@ -255,7 +253,14 @@ if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
       omz plugin enable "$ZSH_ENABLE_PLUGIN"
     done
 
-    omz plugin enable eza
+    declare -a ZSH_APP_PLUGINS=(
+      eza
+    )
+
+    local ZSH_APP_PLUGIN
+    for ZSH_APP_PLUGIN in "${!ZSH_APP_PLUGINS[@]}"; do
+      omz plugin enable "$ZSH_APP_PLUGIN"
+    done
 
     ## Theme customization
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
