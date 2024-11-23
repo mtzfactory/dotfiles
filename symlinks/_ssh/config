@@ -1,7 +1,9 @@
+Include /Users/ricardo.martinez/.colima/ssh_config
+
 Host *
   UseKeychain yes
   AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_ed25519
+  IdentityFile ~/.ssh/ttl-key
 
 # Personal Bitbucket account
 Host bitbucket.org-mtzfactory
@@ -35,6 +37,12 @@ Host github.com-2amigos
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
 
+# mini-home
+Host mini-home.local
+  IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
+  User dietpi
+  Port 22
 
 ##
 # Github

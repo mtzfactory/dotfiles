@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 ###############################################################################
 # Install Homebrew                                                            #
@@ -30,7 +30,7 @@ brew tap bramstein/webfonttools
 # Install Homebrew cask apps                                                  #
 ###############################################################################
 
-declare -a brew_cask_apps=(
+declare -a BREW_CASK_APPS=(
   'android-platform-tools'
   'android-studio'
   'appcleaner'
@@ -61,7 +61,7 @@ declare -a brew_cask_apps=(
   'quicklook-json'
   'raycast'
   'react-native-debugger'
-  'rowanj-gitx'
+  'rowanj-gitx'      # Git client
   'runjs'
   'sf-symbols'
   'the-unarchiver'
@@ -77,7 +77,7 @@ declare -a brew_cask_apps=(
 ## xattr -r ~/Library/QuickLook/QL*
 ## xattr -d -r com.apple.quarantine ~/Library/QuickLook/QL*
 
-for app in "${brew_cask_apps[@]}"; do
+for app in "${BREW_CASK_APPS[@]}"; do
   brew install --cask "$app"
 done
 
@@ -85,14 +85,14 @@ done
 # Install Mac App Store apps                                                  #
 ###############################################################################
 
-declare -a mas_apps=(
+declare -a MAS_APPS=(
   '497799835'  # Xcode
   '939343785'  # Icon set creator
   '1037126344' # Apple configurator
   '1287239339' # Color Slurp
 )
 
-for app in "${mas_apps[@]}"; do
+for app in "${MAS_APPS[@]}"; do
   mas install "$app"
 done
 
@@ -106,7 +106,7 @@ xcodebuild -runFirstLaunch
 # Install Homebrew cli apps                                                   #
 ###############################################################################
 
-declare -a brew_cli_tools=(
+declare -a BREW_CLI_APPS=(
   'ack'             # CtrlSF vim
   'autoconf'
   'automake'
@@ -120,6 +120,7 @@ declare -a brew_cli_tools=(
   'ctags'
   'diff-so-fancy'
   'dos2unix'
+  "eza"             # A modern alternative to ls
   'fastlane'
   'ffmpeg'
   'font-hasklig'
@@ -164,7 +165,6 @@ declare -a brew_cli_tools=(
   'watchman'
   'wget'
   'yarn'
-  'zsh'
 ## Fontcustom
   'woff2'
   'sfnt2woff'
@@ -172,7 +172,7 @@ declare -a brew_cli_tools=(
 ## -
 )
 
-for tool in "${brew_cli_tools[@]}"; do
+for tool in "${BREW_CLI_APPS[@]}"; do
   brew install "$tool"
 done
 
@@ -180,13 +180,13 @@ done
 # Install yarn cli                                                            #
 ###############################################################################
 
-declare -a yarn_apps=(
+declare -a YARN_APPS=(
   'ios-deploy'		# Required for installing your app on a physical device with the CLI. npx react-native doctor
   'npm-check-updates'
   'react-devtools'
 )
 
-for app in "${yarn_apps[@]}"; do
+for app in "${YARN_APPS[@]}"; do
   yarn global add "$app"
 done
 
@@ -211,26 +211,35 @@ export GEM_HOME="$HOME/.gem"
 gem install fontcustom
 
 ## Ruby development with Vim and CoC
-gem install rubocop -v 1.50.2
-gem install solargraph
+# gem install rubocop -v 1.50.2
+# gem install solargraph
 
 ###############################################################################
 # Configure installed apps                                                    #
 ###############################################################################
 
-# Set ZSH as the default shell
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+## Zsh
+if [ "$(echo $SHELL)" = "/bin/zsh" ]; then
+  # Install Oh My Zsh
+  sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone --depth=1 https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
-git clone --depth=1 https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
-git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+  declare -A ZSH_PLUGINS
 
-## ZSH theme customization
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-p10k configure
+  ZSH_PLUGINS[zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions"
+  ZSH_PLUGINS[zsh-bat]="https://github.com/fdellwing/zsh-bat.git"
+  ZSH_PLUGINS[zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search"
+  ZSH_PLUGINS[zsh-syntax-highlighting]="https://github.com/zsh-users/zsh-syntax-highlighting.git "
+  ZSH_PLUGINS[zsh-z]="https://github.com/agkozak/zsh-z"
+
+  for plugin in "${!my_dict[@]}"; do
+    git clone --depth=1 "${ZSH_PLUGINS[$key]}" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/${key}"
+  done
+
+  ## ZSH theme customization
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+  p10k configure
+fi
 
 ## Vim plug install
-sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+# sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 

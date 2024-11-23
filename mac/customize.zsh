@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # zsh extended glob operators
 # https://zsh.sourceforge.io/Doc/Release/Options.html#index-EXTENDED_005fGLOB
 # https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Operators
