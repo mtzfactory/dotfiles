@@ -159,7 +159,7 @@ declare -a BREW_CLI_APPS=(
   'pidcat'          # Colored logcat script to show entries only for specified app
   'pinentry-mac'    # Pinentry for GPG on Mac
   'readline'
-  'rbenv'           # Ruby version manager
+  'rbenv'           # Ruby environment
   'ruby-build'
   'tig'             # Text-mode interface for Git
   'tldr'            # Simplified and community-driven man pages
@@ -198,79 +198,35 @@ done
 # Extras                                                                      #
 ###############################################################################
 
+##
 # Rust
 \curl https://sh.rustup.rs -sSf | bash -s stable
 
-## Flipper
+##
+# Flipper
 pip3 install --user fb-idb
 
-## Python client to Neovim -- for vim-mundo plugin
+##
+# Python client for Neovim -- for vim-mundo plugin
 pip3 install pynvim
 
+##
+# Ruby version manager
 export GEM_HOME="$HOME/.gem"
-# Ruby environment
 \curl -sSL https://get.rvm.io | bash -s stable
 
-## Fontcustom
+##
+# Fontcustom
 gem install fontcustom
 
-## Ruby development with Vim and CoC
-# gem install rubocop -v 1.50.2
-# gem install solargraph
+## 
+# Neovim plug
+if [ "$EDITOR" = "nvim" ]; then
+  ## Ruby development with Vim and CoC
+  gem install rubocop -v 1.50.2
+  gem install solargraph
 
-###############################################################################
-# Configure installed apps                                                    #
-###############################################################################
-
-## Zsh
-if [ "$SHELL" = "/bin/zsh" ]; then
-  # Install Oh My Zsh
-  sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-  if [ -x "$(command -v omz)" ]; then
-    # Plugin customization
-    declare -A ZSH_INSTALL_PLUGINS
-
-    ZSH_INSTALL_PLUGINS[zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions.git"
-    ZSH_INSTALL_PLUGINS[zsh-bat]="https://github.com/fdellwing/zsh-bat.git"
-    ZSH_INSTALL_PLUGINS[zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search.git"
-    ZSH_INSTALL_PLUGINS[zsh-syntax-highlighting]="https://github.com/zsh-users/zsh-syntax-highlighting.git "
-    ZSH_INSTALL_PLUGINS[zsh-z]="https://github.com/agkozak/zsh-z.git"
-
-    local ZSH_INSTALL_PLUGIN
-    for ZSH_INSTALL_PLUGIN in "${!ZSH_INSTALL_PLUGINS[@]}"; do
-      git clone --depth=1 "${ZSH_INSTALL_PLUGINS[$ZSH_INSTALL_PLUGIN]}" "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/$ZSH_INSTALL_PLUGIN"
-      omz plugin enable "$ZSH_INSTALL_PLUGIN"
-    done
-
-    declare -a ZSH_ENALBE_PLUGINS=(
-      encode64
-      transfer
-    )
-
-    local ZSH_ENABLE_PLUGIN
-    for ZSH_ENABLE_PLUGIN in "${!ZSH_ENALBE_PLUGINS[@]}"; do
-      omz plugin enable "$ZSH_ENABLE_PLUGIN"
-    done
-
-    declare -a ZSH_APP_PLUGINS=(
-      eza
-    )
-
-    local ZSH_APP_PLUGIN
-    for ZSH_APP_PLUGIN in "${!ZSH_APP_PLUGINS[@]}"; do
-      [ -x "$(command -v $ZSH_APP_PLUGIN)" ] && omz plugin enable "$ZSH_APP_PLUGIN"
-    done
-
-    ## Theme customization
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-    omz theme set "powerlevel10k/powerlevel10k"
-    p10k configure
-  fi
-fi
-
-## Vim plug install
-if [ "$EDITOR" == "nvim" ]; then
+  ## Vim plug install
   sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
     --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 fi
