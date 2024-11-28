@@ -58,6 +58,27 @@ M.config = function()
       },
     }
   }
+
+  -- linter and formatter for ruby
+  vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "solargraph" })
+  require("lspconfig").solargraph.setup({})
+  local null_ls = require("null-ls")
+  local sources = { null_ls.builtins.diagnostics.rubocop }
+  null_ls.register({ sources = sources })
+
+  vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+    pattern = {
+      'Appfile',
+      "Deliverfile",
+      'Fastfile',
+      "Gymfile",
+      'Matchfile',
+      "Snapfile",
+      "Scanfile",
+      'Pluginfile',
+    },
+    command = "set filetype=ruby",
+  })
 end
 
 return M
