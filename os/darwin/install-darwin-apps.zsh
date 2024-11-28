@@ -211,21 +211,17 @@ pip3 install --user fb-idb
 pip3 install pynvim
 
 ##
-# Ruby version manager
-export GEM_HOME="$HOME/.gem"
-\curl -sSL https://get.rvm.io | bash -s stable
-
-##
 # Fontcustom
 gem install fontcustom
+
+##
+# Ruby development with Vim
+gem install rubocop -v 1.50.2
+gem install solargraph
 
 ## 
 # Neovim plug
 if [ "$EDITOR" = "nvim" ]; then
-  ## Ruby development with Vim and CoC
-  gem install rubocop -v 1.50.2
-  gem install solargraph
-
   ## Vim plug install
   sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
     --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'

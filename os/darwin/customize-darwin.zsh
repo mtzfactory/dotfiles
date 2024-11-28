@@ -144,7 +144,11 @@ local RBENV="$BREW_OPT_DIR/rbenv"
 [ -d "$RBENV" ] && eval "$(rbenv init - zsh)"
 
 # rvm - ruby version manager
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+local RVM="$HOME/.rvm"
+if [ -d "$RVM" ]; then
+  export PATH="$PATH:$RVM/bin"
+  [ -s "$RVM/scripts/rvm" ] && source "$RVM/scripts/rvm"
+fi
 
 # sqlite
 local SQLITE="$BREW_OPT_DIR/sqlite"
