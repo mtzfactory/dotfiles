@@ -8,6 +8,11 @@ M.config = function()
     update_cwd = true,
   }
 
+  lvim.builtin.telescope.defaults.layout_config = {
+    height = 0.65,
+    width = 0.65,
+  }
+
   -- folding powered by treesitter
   -- https://github.com/nvim-treesitter/nvim-treesitter#folding
   -- look for foldenable: https://github.com/neovim/neovim/blob/master/src/nvim/options.lua
