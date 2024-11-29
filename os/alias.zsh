@@ -69,6 +69,9 @@ alias a:debug="cd ./android && ./gradlew -PversionCode=1 -PversionName=\"0.0.1\"
 # time
 alias timestamp2date='fn(){ date -jf "%s" "$1" +"%Y-%m-%d %H:%M:%S"; unset -f fn; }; fn'
 
+# lazygit
+alias lg="lazygit"
+
 # vim
 alias v="nvim"
 alias lv="lvim"
