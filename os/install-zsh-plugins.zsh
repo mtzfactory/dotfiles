@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
 
 ##
-# zsh plugins
-#
-if [ "$SHELL" = "/bin/zsh" ]; then
+# Zsh plugins
+local SHELL_TYPE=$(basename "$SHELL")
+if [ "$SHELL_TYPE" = "zsh" ]; then
   ##
   # Install Oh My Zsh
   sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
