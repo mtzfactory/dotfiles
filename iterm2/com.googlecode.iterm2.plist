@@ -362,6 +362,8 @@
 	<false/>
 	<key>HotkeyMigratedFromSingleToMulti</key>
 	<true/>
+	<key>IRMemory</key>
+	<integer>4</integer>
 	<key>NeverWarnAboutShortLivedSessions_18F8A782-7124-422B-939E-735945735C02</key>
 	<true/>
 	<key>NeverWarnAboutShortLivedSessions_18F8A782-7124-422B-939E-735945735C02_selection</key>
@@ -1293,6 +1295,8 @@
 	<false/>
 	<key>SoundForEsc</key>
 	<false/>
+	<key>TabStyleWithAutomaticOption</key>
+	<integer>5</integer>
 	<key>TabsHaveCloseButton</key>
 	<true/>
 	<key>VisualIndicatorForEsc</key>
