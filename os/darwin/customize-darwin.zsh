@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Opting out homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
 
@@ -142,7 +143,15 @@ fi
 
 # rbenv - ruby environment
 local RBENV="$BREW_OPT_DIR/rbenv"
-[ -d "$RBENV" ] && eval "$(rbenv init - zsh)"
+if [ -d "$RBENV" ]; then
+  eval "$(rbenv init - --no-rehash zsh)"
+
+  # Shell completions
+  FPATH="$RBENV/completions:$FPATH"
+
+  autoload -U compinit
+  compinit
+fi
 
 # rvm - ruby version manager
 local RVM="$HOME/.rvm"
