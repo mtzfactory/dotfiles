@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
 # Opting out homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
 
