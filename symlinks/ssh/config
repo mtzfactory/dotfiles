@@ -37,7 +37,7 @@ Host github.com-2amigos
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
 
-Host mini-home.local
+Host mini-devil.local
   HostName 192.168.0.24
   # RemoteCommand "dietpi-login"
   IdentityFile ~/.ssh/id_ed25519_w4p
