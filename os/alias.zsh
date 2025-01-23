@@ -2,6 +2,21 @@
 
 local OS=$(uname | tr '[:upper:]' '[:lower:]')
 
+killport() {
+  if [ -z "$1" ]; then
+    echo "Usage: killport <port_number>"
+    return 1
+  fi
+
+  local PID=$(lsof -i :"$1" -t)
+
+  if [ -n "$PID" ]; then
+    kill -15 "$PID" && echo "Process with PID $PID killed on port $1"
+  else
+    echo "No process found on port $1"
+  fi
+}
+
 ##
 # Alias
 #
