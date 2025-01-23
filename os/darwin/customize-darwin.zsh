@@ -196,10 +196,14 @@ local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
 # android
 local ANDROID="$HOME/Library/Android"
 if [ -d "$ANDROID" ]; then
-  local ANDROID_SDK_VERSION="34.00"
+  local ANDROID_SDK_VERSION="34.0.0"
   export ANDROID_HOME="$ANDROID/sdk"
   export ANDROID_SDK_ROOT="$ANDROID/sdk"
-  export PATH="$ANDROID_HOME/build-tools/$ANDROID_SDK_VERSION:$PATH"
+  if [ -d "$ANDROID_HOME/build-tools/$ANDROID_SDK_VERSION" ]; then
+    export PATH="$ANDROID_HOME/build-tools/$ANDROID_SDK_VERSION:$PATH"
+  else
+    echo "The Android SDK $ANDROID_SDK_VERSION is not installed"
+  fi
   export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
   export PATH="$ANDROID_HOME/emulator:$PATH"
   export PATH="$ANDROID_HOME/platform-tools:$PATH"
