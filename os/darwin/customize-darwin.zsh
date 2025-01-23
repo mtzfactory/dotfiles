@@ -153,13 +153,6 @@ if [ -d "$RBENV" ]; then
   compinit
 fi
 
-# rvm - ruby version manager
-local RVM="$HOME/.rvm"
-if [ -d "$RVM" ]; then
-  export PATH="$PATH:$RVM/bin"
-  [ -s "$RVM/scripts/rvm" ] && source "$RVM/scripts/rvm"
-fi
-
 # sqlite
 local SQLITE="$BREW_OPT_DIR/sqlite"
 if [ -d "$SQLITE" ]; then
@@ -225,12 +218,6 @@ if [ ! -x "$(command -v idb)" ]; then
     local IDB="${PYTHON_SITE_PACKAGES%%"/lib/python/site-packages"}/bin/idb"
     sudo ln -s "$IDB" "$USR_LOCAL_BIN/idb"
   fi
-fi
-
-# ruby gems
-if [ -d "$HOME/.gem" ]; then
-  export GEM_HOME="$HOME/.gem"
-  export PATH="$HOME/.gem/bin:$PATH"
 fi
 
 # rust
