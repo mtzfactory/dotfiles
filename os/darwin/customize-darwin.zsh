@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[ -x "$(command -v brew)" ] || eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Opting out homebrew analytics
 export HOMEBREW_NO_ANALYTICS=1
@@ -9,7 +9,7 @@ export HOMEBREW_NO_ANALYTICS=1
 # Brew based apps
 #
 
-# Base root directory for brew intalled apps
+# Base root directory for brew installed apps
 local BREW_BIN_DIR="$(brew --prefix)/bin"
 local BREW_OPT_DIR="$(brew --prefix)/opt"
 
