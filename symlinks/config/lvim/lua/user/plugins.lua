@@ -180,6 +180,10 @@ M.config = function()
       opts = {},
       cmd = "Trouble",
     },
+    -- {
+    --   "davidmh/cspell.nvim",
+    --   dependencies = { "nvim-telescope/telescope.nvim" },
+    -- }
   }
 end
 
