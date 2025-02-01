@@ -66,7 +66,34 @@ alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
 alias global-packages="yarn global list; npm list --global --depth 0"
 
 # npm package
-alias scripts="jq -r .scripts package.json"
+# alias scripts='f() { if [ -n "$1" ]; then if [ -f "$1" ]; then PACKAGE_FILE="$1"; else echo "No file $1"; exit 1; fi; else PACKAGE_FILE="package.json"; fi; jq -r .scripts "$PACKAGE_FILE" }; f'
+scripts() {
+  local PACKAGE_FILE
+
+  if [ ! -x $(command -v jq) ]; then
+      echo "Error: jq is not installed" >&2
+      return 1
+  fi
+
+  if [ -n "$1" ]; then
+    PACKAGE_FILE="$1"
+  else
+    PACKAGE_FILE="package.json"
+  fi
+
+  if [ ! -f "$PACKAGE_FILE" ]; then
+    echo "Error: File not found: $PACKAGE_FILE" >&2
+    return 1
+  fi
+
+  if ! jq -e . >/dev/null 2>&1 <"$PACKAGE_FILE"; then
+    echo "Error: Invalid JSON in $PACKAGE_FILE" >&2
+    return 1
+  fi
+
+  jq -e '.scripts // empty' "$PACKAGE_FILE"
+}
+
 alias dependencies="jq -r .dependencies package.json"
 alias devDependencies="jq -r .devDependencies package.json"
 
