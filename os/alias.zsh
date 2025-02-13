@@ -2,6 +2,41 @@
 
 local OS=$(uname | tr '[:upper:]' '[:lower:]')
 
+# npm package
+package_filter() {
+  local PACKAGE_FILE
+
+  if [ -z "$1" ]; then
+    echo "Error: need a filter as parameter" >&2
+    return 1
+  fi
+
+  local COMMAND=$1
+
+  if [ ! -x $(command -v jq) ]; then
+      echo "Error: jq is not installed" >&2
+      return 1
+  fi
+
+  if [ -n "$2" ]; then
+    PACKAGE_FILE="$2"
+  else
+    PACKAGE_FILE="package.json"
+  fi
+
+  if [ ! -f "$PACKAGE_FILE" ]; then
+    echo "Error: File not found: $PACKAGE_FILE" >&2
+    return 1
+  fi
+
+  if ! jq -e . >/dev/null 2>&1 <"$PACKAGE_FILE"; then
+    echo "Error: Invalid JSON in $PACKAGE_FILE" >&2
+    return 1
+  fi
+
+  jq -e "$COMMAND" "$PACKAGE_FILE"
+}
+
 killport() {
   if [ -z "$1" ]; then
     echo "Usage: killport <port_number>"
@@ -62,37 +97,9 @@ alias ips="ifconfig -a | perl -nle'/(\d+\.\d+\.\d+\.\d+)/ && print $1'"
 # list npm or yarn global packages
 alias global-packages="yarn global list; npm list --global --depth 0"
 
-# npm package
-# alias scripts='f() { if [ -n "$1" ]; then if [ -f "$1" ]; then PACKAGE_FILE="$1"; else echo "No file $1"; exit 1; fi; else PACKAGE_FILE="package.json"; fi; jq -r .scripts "$PACKAGE_FILE" }; f'
-scripts() {
-  local PACKAGE_FILE
-
-  if [ ! -x $(command -v jq) ]; then
-      echo "Error: jq is not installed" >&2
-      return 1
-  fi
-
-  if [ -n "$1" ]; then
-    PACKAGE_FILE="$1"
-  else
-    PACKAGE_FILE="package.json"
-  fi
-
-  if [ ! -f "$PACKAGE_FILE" ]; then
-    echo "Error: File not found: $PACKAGE_FILE" >&2
-    return 1
-  fi
-
-  if ! jq -e . >/dev/null 2>&1 <"$PACKAGE_FILE"; then
-    echo "Error: Invalid JSON in $PACKAGE_FILE" >&2
-    return 1
-  fi
-
-  jq -e '.scripts // empty' "$PACKAGE_FILE"
-}
-
-alias dependencies="jq -r .dependencies package.json"
-alias devDependencies="jq -r .devDependencies package.json"
+alias scripts="package_filter \".scripts // empty\""
+alias dependencies="package_filter \".dependencies // empty\""
+alias devDependencies="package_filter \".devDependencies // empty\""
 
 # android adb
 alias a:devices="adb devices"
