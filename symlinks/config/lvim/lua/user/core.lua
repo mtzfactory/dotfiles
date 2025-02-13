@@ -1,6 +1,11 @@
 local M = {}
 
 M.config = function()
+  -- :checkhealth
+  local npm_global_folder = vim.fn.system('npm config get prefix'):gsub('\n', '')
+  vim.g.node_host_prog = npm_global_folder .. "/bin/neovim-node-host"
+  vim.g.ruby_host_prog = "~/.rbenv/shims/neovim-ruby-host"
+
   lvim.format_on_save.enabled = true
 
   lvim.builtin.nvimtree.setup.update_focused_file = {
