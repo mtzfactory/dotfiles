@@ -144,7 +144,10 @@ fi
 # rbenv - ruby environment
 local RBENV="$BREW_OPT_DIR/rbenv"
 if [ -d "$RBENV" ]; then
-  eval "$(rbenv init - --no-rehash zsh)"
+  if ! grep -q 'eval "$(rbenv init -)"' ~/.zlogin; then
+    echo 'eval "$(rbenv init -)"' >> ~/.zlogin
+    eval "$(rbenv init - --no-rehash zsh)"
+  fi
 
   # Shell completions
   FPATH="$RBENV/completions:$FPATH"
