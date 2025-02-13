@@ -54,9 +54,6 @@ alias egrep="egrep --color=auto"
 # file size
 alias fs="stat -f \"%z bytes\""
 
-# trim new lines and copy to clipboard
-alias cp="tr -d '\n' | pbcopy"
-
 # ip addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias localip="ipconfig getifaddr en1"
