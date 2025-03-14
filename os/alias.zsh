@@ -58,7 +58,7 @@ killport() {
 
 # list all files colorized in long format
 if [ -x "$(command -v eza)" ]; then
-  alias ls="eza --all --header --long --octal-permissions --git --icons=always --show-symlinks" 
+  alias ls="eza --all --group-directories-first --header --long --octal-permissions --git --icons=always --show-symlinks" 
 else
   # Detect which `ls` flavor is in use
   if ls --color > /dev/null 2>&1; then # GNU `ls`
