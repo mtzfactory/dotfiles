@@ -184,6 +184,11 @@ M.config = function()
     --   "davidmh/cspell.nvim",
     --   dependencies = { "nvim-telescope/telescope.nvim" },
     -- }
+    {
+      "catgoose/nvim-colorizer.lua",
+      event = "BufReadPre",
+      opts = {},
+    }
   }
 end
 
