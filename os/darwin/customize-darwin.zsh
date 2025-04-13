@@ -134,12 +134,6 @@ fi
 
 # ruby
 local RUBY="$BREW_OPT_DIR/ruby"
-if [ -d "$RUBY" ]; then
-  export PATH="$RUBY/bin:$PATH"
-  export LDFLAGS="$LDFLAGS -L$RUBY/lib"
-  export CPPFLAGS="$CPPFLAGS -I$RUBY/include"
-  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig:$PATH"
-fi
 
 # rbenv - ruby environment
 local RBENV="$BREW_OPT_DIR/rbenv"
@@ -149,11 +143,18 @@ if [ -d "$RBENV" ]; then
     eval "$(rbenv init - --no-rehash zsh)"
   fi
 
+  export PATH="$HOME/.rbenv/bin:$PATH"
+
   # Shell completions
   FPATH="$RBENV/completions:$FPATH"
 
   autoload -U compinit
   compinit
+elif [ -d "$RUBY" ]; then
+  export PATH="$RUBY/bin:$PATH"
+  export LDFLAGS="$LDFLAGS -L$RUBY/lib"
+  export CPPFLAGS="$CPPFLAGS -I$RUBY/include"
+  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$RUBY/lib/pkgconfig:$PATH"
 fi
 
 # sqlite
