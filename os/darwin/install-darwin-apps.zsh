@@ -143,6 +143,7 @@ declare -a BREW_CLI_APPS=(
   'gnu-tar'
   'gnupg'
   'gradle'
+  'graphviz'        # Required for Madge is a developer tool for generating a visual graph of your module dependencies, finding circular dependencies, etc...
   'highlight'
   'htop'
   'httpie'
