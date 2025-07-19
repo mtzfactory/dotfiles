@@ -116,6 +116,7 @@ declare -a BREW_CLI_APPS=(
   'automake'
   'bat'
   'binutils'
+  'bottom'          # for AstroVim
   'bundletool'      # Android
   'cmake'
   'cocoapods'
@@ -131,6 +132,7 @@ declare -a BREW_CLI_APPS=(
   'fontconfig'
   'freetype'
   'fzf'
+  'gdu'             # for AstroVim
   'gettext'
   'git'
   'git-delta'       # A syntax-highlighting pager for git: https://dandavison.github.io/delta/introduction.html
@@ -158,8 +160,9 @@ declare -a BREW_CLI_APPS=(
   'nvm'             # Node version manager
   'pidcat'          # Colored logcat script to show entries only for specified app
   'pinentry-mac'    # Pinentry for GPG on Mac
-  'readline'
   'rbenv'           # Ruby environment
+  'readline'
+  'ripgrep'         # for AstroVim
   'ruby-build'
   'tig'             # Text-mode interface for Git
   'tldr'            # Simplified and community-driven man pages
