@@ -154,6 +154,7 @@ declare -a BREW_CLI_APPS=(
   'jump'            # Navigate faster by learning your habits. https://github.com/gsamokovarov/jump
   'lazygit'         # This enables <leader>gg to launch lazygit for integrated and enhanced Git experience while in LunarVim
   'mas'             # Mac App Store command line interface. https://github.com/mas-cli/mas
+  'mitmproxy'       # HTTP(S) debugging proxy, analyzer, and client
   'ncdu'            # NCurses disk usage
   'neovim'
   'node'

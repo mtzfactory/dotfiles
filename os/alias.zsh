@@ -127,6 +127,9 @@ if [ "$OS" = "darwin" ]; then
   # ios
   alias i:simulator="xcrun simctl list devices"
 
+  # mitmproxy
+  alias mitm="networksetup -setsecurewebproxystate Wi-Fi on && mitmproxy && networksetup -setsecurewebproxystate Wi-Fi off"
+
   # python
   alias pip="pip3"
 fi
