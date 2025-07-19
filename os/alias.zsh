@@ -20,6 +20,7 @@ package_filter() {
 
   if [ -n "$2" ]; then
     PACKAGE_FILE="$2"
+    [[ $PACKAGE_FILE != */package.json ]] && PACKAGE_FILE="${PACKAGE_FILE%/}/package.json"
   else
     PACKAGE_FILE="package.json"
   fi
@@ -100,6 +101,7 @@ alias global-packages="yarn global list; npm list --global --depth 0"
 alias scripts="package_filter \".scripts // empty\""
 alias dependencies="package_filter \".dependencies // empty\""
 alias devDependencies="package_filter \".devDependencies // empty\""
+alias version="package_filter \".version // empty\""
 
 # android adb
 alias a:devices="adb devices"
