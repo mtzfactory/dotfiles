@@ -1,9 +1,5 @@
-Include /Users/ricardo.martinez/.colima/ssh_config
-
-Host *
-  UseKeychain yes
-  AddKeysToAgent yes
-  IdentityFile ~/.ssh/ttl-key
+Include $HOME/.config/ssh_company
+Include $HOME/.config/colima/ssh_config
 
 # Personal Bitbucket account
 Host bitbucket.org-mtzfactory
