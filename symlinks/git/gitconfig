@@ -95,6 +95,10 @@
   # List stale branches
   branch-stale = "!f() { git branch --sort=-committerdate | while read branch; do if [[ -z "$(git log -1 --since='90 days ago' -s $branch)" ]]; then echo $branch; fi; done; }; f"
 
+  # Clean up local branches that have been merged into the current branch
+  branch-cleanup = "!f() { git branch --merged | grep -v '\\*' | grep -v $(git branch-head) | xargs -n 1 git branch -d; }; f"
+  bc = branch-cleanup
+
   # Conflicts
   conflicts = diff --name-only --diff-filter=U
 
