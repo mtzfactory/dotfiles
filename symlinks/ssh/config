@@ -40,6 +40,12 @@ Host mini-devil.local
   IdentitiesOnly yes
   User dietpi
 
+Host big-devil.local
+  # RemoteCommand "dietpi-login"
+  IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
+  User dietpi
+
 Host tamarit101.mooo.com
   # RemoteCommand "dietpi-login"
   IdentityFile ~/.ssh/id_ed25519_w4p
