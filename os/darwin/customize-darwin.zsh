@@ -262,3 +262,7 @@ fi
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+##
+# Load SSH keys from the macOS keychain
+ssh-add --apple-load-keychain -q
+
