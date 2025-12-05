@@ -112,6 +112,7 @@ xcodebuild -runFirstLaunch
 
 declare -a BREW_CLI_APPS=(
   'ack'             # CtrlSF vim
+  'atuin'           # A modern shell history
   'autoconf'
   'automake'
   'bat'

@@ -17,6 +17,15 @@ local BREW_OPT_DIR="$(brew --prefix)/opt"
 local ASDF="$BREW_OPT_DIR/asdf"
 [ -d $ASDF ] && source /opt/homebrew/opt/asdf/libexec/asdf.sh
 
+# atuin
+local ATUIN="$BREW_OPT_DIR/atuin"
+if [ -d "$ATUIN" ]; then
+  if ! brew services info atuin | grep -Eq "PID: [0-9]+"; then
+    brew services start atuin
+  fi
+  eval "$(atuin init zsh)"
+fi
+
 # coreutils
 local COREUTILS="$BREW_OPT_DIR/coreutils"
 [ -d "$COREUTILS" ] && export PATH="$PATH:$COREUTILS/libexec/gnubin"
