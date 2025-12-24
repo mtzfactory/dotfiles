@@ -254,11 +254,13 @@ bindkey -M vicmd 'j' history-substring-search-down
 ##
 # iTerm
 #
-if [ ! -e "${HOME}/.iterm2_shell_integration.zsh" ]; then
-  curl -L https://iterm2.com/shell_integration/zsh -o "${HOME}/.iterm2_shell_integration.zsh"
-fi
+if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+  if [ ! -e "${HOME}/.iterm2_shell_integration.zsh" ]; then
+    curl -L https://iterm2.com/shell_integration/zsh -o "${HOME}/.iterm2_shell_integration.zsh"
+  fi
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+  test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+fi
 
 ##
 # Load SSH keys from the macOS keychain
