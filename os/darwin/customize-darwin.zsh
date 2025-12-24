@@ -239,10 +239,8 @@ if [ -d "$HOME/.cargo" ]; then
 fi
 
 # sming - esp8266
-if [ -d "$HOME/opt" ]; then
-  export ESP_HOME="$HOME/opt/esp-quick-toolchain"
-  export SMING_HOME="$HOME/opt/Sming/Sming"
-fi
+[ -d "/opt/esp-quick-toolchain" ] && export ESP_HOME="/opt/esp-quick-toolchain"
+[ -d "/opt/Sming" ] && export SMING_HOME="/opt/Sming/Sming"
 
 ##
 # Bindkeys
