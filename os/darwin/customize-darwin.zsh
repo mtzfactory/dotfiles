@@ -40,8 +40,10 @@ if [ -d "$BINUTILS" ]; then
 fi
 
 # gnu-sed
-local GNU_SED="$BREW_OPT_DIR/gnu-sed"
-[ -d "$GNU_SED" ] && export PATH="$GNU_SED/libexec/gnubin:$PATH"
+if [ "$ENABLE_GNU_SED" ]; then
+  local GNU_SED="$BREW_OPT_DIR/gnu-sed"
+  [ -d "$GNU_SED" ] && export PATH="$GNU_SED/libexec/gnubin:$PATH"
+fi
 
 # gnu-getopt
 local GNU_GETOPT="$BREW_OPT_DIR/gnu-getopt"
