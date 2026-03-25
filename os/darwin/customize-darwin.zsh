@@ -242,7 +242,10 @@ fi
 
 # sming - esp8266
 [ -d "/opt/esp-quick-toolchain" ] && export ESP_HOME="/opt/esp-quick-toolchain"
-[ -d "/opt/Sming" ] && export SMING_HOME="/opt/Sming/Sming"
+[ -d "/opt/sming/Sming/" ] && export SMING_HOME="/opt/sming/Sming"
+[ -d "/opt/sming/Tools/" ] && export PATH="$PATH:/opt/sming/Tools"
+[ -d "/opt/esp-idf" ] && export IDF_PATH="/opt/esp-idf"
+[ -d "/opt/esp32/" ] && export IDF_TOOLS_PATH="/opt/esp32"
 
 ##
 # Bindkeys
