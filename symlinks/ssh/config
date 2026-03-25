@@ -1,6 +1,10 @@
 Include $HOME/.config/ssh_company
 Include $HOME/.config/colima/ssh_config
 
+Host *
+  SetEnv TERM=xterm-256color
+  SendEnv COLORTERM
+
 # Personal Bitbucket account
 Host bitbucket.org-mtzfactory
   HostName bitbucket.org
