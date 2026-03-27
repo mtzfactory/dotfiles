@@ -9,9 +9,9 @@ export HOMEBREW_NO_ANALYTICS=1
 # Brew based apps
 #
 
-# Base root directory for brew installed apps
-local BREW_BIN_DIR="$(brew --prefix)/bin"
-local BREW_OPT_DIR="$(brew --prefix)/opt"
+# Base root directory for brew installed apps (hardcoded for Apple Silicon)
+local BREW_BIN_DIR="/opt/homebrew/bin"
+local BREW_OPT_DIR="/opt/homebrew/opt"
 
 # asdf
 local ASDF="$BREW_OPT_DIR/asdf"
@@ -20,9 +20,7 @@ local ASDF="$BREW_OPT_DIR/asdf"
 # atuin
 local ATUIN="$BREW_OPT_DIR/atuin"
 if [ -d "$ATUIN" ]; then
-  if ! brew services info atuin | grep -Eq "PID: [0-9]+"; then
-    brew services start atuin
-  fi
+  pgrep -x atuin > /dev/null || brew services start atuin
   eval "$(atuin init zsh)"
 fi
 
@@ -88,14 +86,23 @@ if [ -d "$NCURSES" ]; then
   export CPPFLAGS="$CPPFLAGS -I$NCURSES/include"
 fi
 
-# nvm
+# nvm — lazy loaded to avoid ~500ms startup cost
+# nvm, node, npm etc. are shimmed: the real nvm.sh is sourced on first use
 local NVM="$BREW_OPT_DIR/nvm"
 if [ -d "$NVM" ]; then
-  export NVM_DIR="$HOME/.nvm"
-  # This loads nvm
-  [ -s "$NVM/nvm.sh" ] && \. "$NVM/nvm.sh"
-  # This loads nvm bash_completion
-  [ -s "$NVM/etc/bash_completion.d/nvm" ] && \. "$NVM/etc/bash_completion.d/nvm"
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  _nvm_lazy_load() {
+    unfunction nvm node npm npx yarn pnpm corepack 2>/dev/null
+    [ -s "$NVM/nvm.sh" ] && \. "$NVM/nvm.sh"
+    [ -s "$NVM/etc/bash_completion.d/nvm" ] && \. "$NVM/etc/bash_completion.d/nvm"
+  }
+  nvm()      { _nvm_lazy_load; nvm "$@"; }
+  node()     { _nvm_lazy_load; node "$@"; }
+  npm()      { _nvm_lazy_load; npm "$@"; }
+  npx()      { _nvm_lazy_load; npx "$@"; }
+  yarn()     { _nvm_lazy_load; yarn "$@"; }
+  pnpm()     { _nvm_lazy_load; pnpm "$@"; }
+  corepack() { _nvm_lazy_load; corepack "$@"; }
 fi
 
 # openjdk
@@ -112,8 +119,8 @@ if [ -d "$OPENJDK" ]; then
   [ -d "$OPENJDK_JVM" ] && export JAVA_HOME="$OPENJDK_JVM/Contents/Home"
 fi
 
-# openssl
-local OPENSSL="$(brew --prefix openssl@1.1)"
+# openssl (hardcoded for Apple Silicon — avoids `brew --prefix` subprocess)
+local OPENSSL="/opt/homebrew/opt/openssl@1.1"
 if [ -d "$OPENSSL" ]; then
   export PATH="$OPENSSL/bin:$PATH"
   export LDFLAGS="$LDFLAGS -L$OPENSSL/lib"
@@ -147,20 +154,21 @@ fi
 local RUBY="$BREW_OPT_DIR/ruby"
 
 # rbenv - ruby environment
+# rbenv init runs via ~/.zlogin (login shells); here we only set PATH/FPATH
 local RBENV="$BREW_OPT_DIR/rbenv"
 if [ -d "$RBENV" ]; then
-  if ! grep -q 'eval "$(rbenv init -)"' ~/.zlogin; then
-    echo 'eval "$(rbenv init -)"' >> ~/.zlogin
-    eval "$(rbenv init - --no-rehash zsh)"
-  fi
-
   export PATH="$HOME/.rbenv/bin:$PATH"
 
   # Shell completions
   FPATH="$RBENV/completions:$FPATH"
 
-  autoload -U compinit
-  compinit
+  # compinit with dump-file caching: only rebuild if dump is older than 24h
+  autoload -Uz compinit
+  if [[ -n "${ZDOTDIR:-$HOME}/.zcompdump"(#qNmh+24) ]]; then
+    compinit
+  else
+    compinit -C
+  fi
 elif [ -d "$RUBY" ]; then
   export PATH="$RUBY/bin:$PATH"
   export LDFLAGS="$LDFLAGS -L$RUBY/lib"
@@ -226,14 +234,9 @@ local ESP_IDF="$HOME/esp/esp-idf"
 local FONTFORGE="/Applications/FontForge.app"
 [ -d "$FONTFORGE" ] && export PATH="$FONTFORGE/Contents/Resources/opt/local/bin:$PATH"
 
-# idb (flipper)
-if [ ! -x "$(command -v idb)" ]; then
-  if [ -x "$(command -v python3)" ]; then
-    local PYTHON_SITE_PACKAGES="$(python3 -m site --user-site)"
-    local IDB="${PYTHON_SITE_PACKAGES%%"/lib/python/site-packages"}/bin/idb"
-    sudo ln -s "$IDB" "$USR_LOCAL_BIN/idb"
-  fi
-fi
+# idb (flipper) — symlink setup is a one-time operation, not done at shell startup
+# If idb is missing, run manually:
+#   sudo ln -s "$(python3 -m site --user-site | sed 's|/lib/python/site-packages||')/bin/idb" /usr/local/bin/idb
 
 # rust
 if [ -d "$HOME/.cargo" ]; then
@@ -268,6 +271,6 @@ if [ "$TERM_PROGRAM" = "iTerm.app" ]; then
 fi
 
 ##
-# Load SSH keys from the macOS keychain
-ssh-add --apple-load-keychain -q
+# Load SSH keys from the macOS keychain (login shells only — not every tab/pane)
+[[ -o login ]] && ssh-add --apple-load-keychain -q
 
