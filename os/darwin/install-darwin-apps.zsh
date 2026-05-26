@@ -30,6 +30,9 @@ brew tap facebook/fb
 ## Fontcustom
 brew tap bramstein/webfonttools
 
+## git-worktreeinclude
+brew tap satococoa/tap
+
 ###############################################################################
 # Install Homebrew cask apps                                                  #
 ###############################################################################
@@ -139,6 +142,7 @@ declare -a BREW_CLI_APPS=(
   'git-delta'       # A syntax-highlighting pager for git: https://dandavison.github.io/delta/introduction.html
   'git-extras'	    # Git extra commands: https://github.com/tj/git-extras/blob/master/Commands.md
   'git-lfs'
+  'git-worktreeinclude'   # satococoa/tap — copy ignored files across worktrees: https://github.com/satococoa/git-worktreeinclude
   'gnu-getopt'
   'gnu-sed'
   'gnu-tar'
@@ -175,6 +179,7 @@ declare -a BREW_CLI_APPS=(
   'vim'
   'watchman'
   'wget'
+  'worktrunk'             # Git worktree manager: https://worktrunk.dev
   'yarn'
 ## Fontcustom
   'woff2'
@@ -208,6 +213,11 @@ done
 ##
 # Rust
 \curl https://sh.rustup.rs -sSf | bash -s stable
+
+##
+# worktrunk-sync — rebase stacked worktree branches in dependency order
+# https://github.com/pablospe/worktrunk-sync
+cargo install worktrunk-sync
 
 ##
 # Flipper

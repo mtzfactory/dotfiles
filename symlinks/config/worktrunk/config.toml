@@ -1,0 +1,13 @@
+##
+# WorkTrunk user configuration
+# https://worktrunk.dev/config/
+
+##
+# Hooks — apply to all repositories
+#
+
+# post-start: runs once when a new worktree is created, in the background
+# Copies gitignored files from the primary worktree using .worktreeinclude
+# https://github.com/satococoa/git-worktreeinclude
+[post-start]
+worktreeinclude = "git worktreeinclude apply"

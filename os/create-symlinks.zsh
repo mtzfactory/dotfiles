@@ -43,6 +43,15 @@ for APP_CONFIG in "${APP_CONFIGS[@]}"; do
 done
 
 ##
+# WorkTrunk config
+if command -v wt >/dev/null 2>&1; then
+  local XDG_CONFIG_HOME_WORKTRUNK="$XDG_CONFIG_HOME/worktrunk"
+  if [ ! -d "$XDG_CONFIG_HOME_WORKTRUNK" ]; then
+    ln -s "$DOTFILES_SYMLINKS_CONFIG/worktrunk" "$XDG_CONFIG_HOME_WORKTRUNK"
+  fi
+fi
+
+##
 # Ssh config
 local HOME_SSH="$HOME/.ssh"
 local HOME_SSH_CONFIG="$HOME_SSH/config"
