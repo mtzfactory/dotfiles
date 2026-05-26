@@ -63,6 +63,8 @@
 [user]
   # gpg --list-secret-keys --keyid-format=long
 	signingkey = 8CA1D252563BB6DF
+  email = 200234+mtzfactory@users.noreply.github.com
+  name = Ricardo Martínez
 
 [alias]
   # Clone repo using worktree
