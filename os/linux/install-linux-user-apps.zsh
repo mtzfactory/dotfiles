@@ -25,17 +25,18 @@ for app in "${CARGO_APPS[@]}"; do
   cargo install "$app"
 done
 
-##
-# Lazygit
-local ARCH=$(uname -m)
-if [ $ARCH -eq "aarch64"]; then
-  go install github.com/jesseduffield/lazygit@latest
-else
-  local LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-  curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-  tar xf lazygit.tar.gz lazygit
-  sudo install lazygit /usr/local/bin
-fi
+###############################################################################
+# Install Go apps                                                             #
+###############################################################################
+
+declare -a GO_APPS=(
+  'github.com/jesseduffield/lazygit@latest'                                    # Git TUI
+  'github.com/satococoa/git-worktreeinclude/cmd/git-worktreeinclude@latest'   # Copy ignored files across worktrees: https://github.com/satococoa/git-worktreeinclude
+)
+
+for app in "${GO_APPS[@]}"; do
+  go install "$app"
+done
 
 ##
 # LunarVim
