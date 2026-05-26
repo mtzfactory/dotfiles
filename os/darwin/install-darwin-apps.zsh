@@ -207,17 +207,25 @@ for app in "${YARN_APPS[@]}"; do
 done
 
 ###############################################################################
-# Extras                                                                      #
+# Install Cargo apps                                                          #
 ###############################################################################
 
 ##
 # Rust
 \curl https://sh.rustup.rs -sSf | bash -s stable
+source "$HOME/.cargo/env"
 
-##
-# worktrunk-sync — rebase stacked worktree branches in dependency order
-# https://github.com/pablospe/worktrunk-sync
-cargo install worktrunk-sync
+declare -a CARGO_APPS=(
+  'worktrunk-sync'   # Rebase stacked worktree branches: https://github.com/pablospe/worktrunk-sync
+)
+
+for app in "${CARGO_APPS[@]}"; do
+  cargo install "$app"
+done
+
+###############################################################################
+# Extras                                                                      #
+###############################################################################
 
 ##
 # Flipper

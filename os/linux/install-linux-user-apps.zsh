@@ -5,24 +5,25 @@ if [[ $(id -u) -eq 0 ]]; then
   exit 1;
 fi
 
-##
-# Cargo
+###############################################################################
+# Install Rust                                                                #
+###############################################################################
+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 
-##
-# worktrunk — git worktree manager: https://worktrunk.dev
-cargo install worktrunk
+###############################################################################
+# Install Cargo apps                                                          #
+###############################################################################
 
-##
-# worktrunk-sync — rebase stacked worktree branches in dependency order
-# https://github.com/pablospe/worktrunk-sync
-cargo install worktrunk-sync
+declare -a CARGO_APPS=(
+  'worktrunk'        # Git worktree manager: https://worktrunk.dev
+  'worktrunk-sync'   # Rebase stacked worktree branches: https://github.com/pablospe/worktrunk-sync
+)
 
-##
-# git-worktreeinclude — copy ignored files across worktrees
-# https://github.com/satococoa/git-worktreeinclude
-go install github.com/satococoa/git-worktreeinclude/cmd/git-worktreeinclude@latest
+for app in "${CARGO_APPS[@]}"; do
+  cargo install "$app"
+done
 
 ##
 # Lazygit
