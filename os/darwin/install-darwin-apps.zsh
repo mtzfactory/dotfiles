@@ -157,6 +157,7 @@ declare -a BREW_CLI_APPS=(
   'lazygit'         # This enables <leader>gg to launch lazygit for integrated and enhanced Git experience while in LunarVim
   'mas'             # Mac App Store command line interface. https://github.com/mas-cli/mas
   'mitmproxy'       # HTTP(S) debugging proxy, analyzer, and client
+  'modem-dev/tap/hunk'  # A fast and minimal HTTP load testing tool written in Rust
   'ncdu'            # NCurses disk usage
   'neovim'
   'node'
