@@ -6,8 +6,27 @@
 # Hooks — apply to all repositories
 #
 
+[commit.generation]
+# command = "llm -m haiku"
+# command = "opencode run -m anthropic/claude-haiku-4.5 --variant fast"
+command = "codex exec -m gpt-5.1-codex-mini -c model_reasoning_effort='low' -c system_prompt='' --sandbox=read-only --json - | jq -sr '[.[] | select(.item.type? == \"agent_message\")] | last.item.text'"
+
+[list]
+summary = true
+
 # post-start: runs once when a new worktree is created, in the background
+[pre-start]
+# Install npm dependencies when creating a new worktree
+install = "npm install --legacy-peer-deps"
 # Copies gitignored files from the primary worktree using .worktreeinclude
 # https://github.com/satococoa/git-worktreeinclude
-[post-start]
-worktreeinclude = "git worktreeinclude apply"
+copy = "wt step copy-ignored"
+
+[post-switch]
+# Create tmux session with four windows when switching branches
+tmux = "/Users/ricardo.martinez/.config/worktrunk/tmux-session.sh '{{ branch | sanitize }}'"
+
+[post-remove]
+# Kill the tmux session when removing the worktree
+tmux = "tmux kill-session -t '{{ branch | sanitize }}' 2>/dev/null || true"
+
