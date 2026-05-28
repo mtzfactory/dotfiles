@@ -36,7 +36,11 @@ local APP_CONFIG
 for APP_CONFIG in "${APP_CONFIGS[@]}"; do
   if [ -x "$(command -v $APP_CONFIG)" ] || [[ "$(type -w $APP_CONFIG)" = *"alias" ]]; then
     local XDG_CONFIG_HOME_APP="$XDG_CONFIG_HOME/$APP_CONFIG"
-    if [ ! -d "$XDG_CONFIG_HOME_APP" ]; then
+    if [[ -d "$XDG_CONFIG_HOME_APP" ]] && [[ ! -L "$XDG_CONFIG_HOME_APP" ]]; then
+      mv "$XDG_CONFIG_HOME_APP" "${XDG_CONFIG_HOME_APP}.bak"
+      echo "info: backed up $XDG_CONFIG_HOME_APP to ${XDG_CONFIG_HOME_APP}.bak"
+      ln -s "$DOTFILES_SYMLINKS_CONFIG/$APP_CONFIG" "$XDG_CONFIG_HOME_APP"
+    elif [[ ! -e "$XDG_CONFIG_HOME_APP" ]]; then
       ln -s "$DOTFILES_SYMLINKS_CONFIG/$APP_CONFIG" "$XDG_CONFIG_HOME_APP"
     fi
   fi
@@ -44,10 +48,31 @@ done
 
 ##
 # WorkTrunk config
+# Binary is `wt`, not `worktrunk`, so handled separately from APP_CONFIGS
 if command -v wt >/dev/null 2>&1; then
   local XDG_CONFIG_HOME_WORKTRUNK="$XDG_CONFIG_HOME/worktrunk"
-  if [ ! -d "$XDG_CONFIG_HOME_WORKTRUNK" ]; then
+  if [[ -d "$XDG_CONFIG_HOME_WORKTRUNK" ]] && [[ ! -L "$XDG_CONFIG_HOME_WORKTRUNK" ]]; then
+    mv "$XDG_CONFIG_HOME_WORKTRUNK" "${XDG_CONFIG_HOME_WORKTRUNK}.bak"
+    echo "info: backed up $XDG_CONFIG_HOME_WORKTRUNK to ${XDG_CONFIG_HOME_WORKTRUNK}.bak"
     ln -s "$DOTFILES_SYMLINKS_CONFIG/worktrunk" "$XDG_CONFIG_HOME_WORKTRUNK"
+  elif [[ ! -e "$XDG_CONFIG_HOME_WORKTRUNK" ]]; then
+    ln -s "$DOTFILES_SYMLINKS_CONFIG/worktrunk" "$XDG_CONFIG_HOME_WORKTRUNK"
+  fi
+fi
+
+##
+# Neovim config — selected by $NVIM_CONFIG (astronvim | nvim | lvim)
+# lvim manages its own config dir (~/.config/lvim), not ~/.config/nvim
+if [[ "$NVIM_CONFIG" != "lvim" ]]; then
+  local NVIM_CONFIG_NAME="${NVIM_CONFIG:-astronvim}"
+  local NVIM_DOTFILES_DIR="$DOTFILES_SYMLINKS_CONFIG/$NVIM_CONFIG_NAME"
+  local NVIM_XDG_DIR="$XDG_CONFIG_HOME/nvim"
+  if [[ -d "$NVIM_XDG_DIR" ]] && [[ ! -L "$NVIM_XDG_DIR" ]]; then
+    mv "$NVIM_XDG_DIR" "${NVIM_XDG_DIR}.bak"
+    echo "info: backed up $NVIM_XDG_DIR to ${NVIM_XDG_DIR}.bak"
+    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
+  elif [[ ! -e "$NVIM_XDG_DIR" ]]; then
+    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
   fi
 fi
 

@@ -1,7 +1,16 @@
 #!/usr/bin/env zsh
 
+# Neovim config selector: astronvim (default) | nvim | lvim
+# Override in your local shell profile before sourcing dotfiles, e.g.:
+#   export NVIM_CONFIG=lvim
+export NVIM_CONFIG="${NVIM_CONFIG:-astronvim}"
+
 # editor
-export EDITOR="lvim"
+if [[ "$NVIM_CONFIG" == "lvim" ]]; then
+  export EDITOR="lvim"
+else
+  export EDITOR="nvim"
+fi
 
 # fastlane
 export FASTLANE_SKIP_ACTION_SUMMARY=1
