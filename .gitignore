@@ -1,4 +1,5 @@
 .DS_Store
 
-# Lunar Vim
+# Neovim — lock files are machine-specific, run :Lazy sync after fresh install
 **/lvim/lazy-lock.json
+**/astronvim/lazy-lock.json
