@@ -15,9 +15,11 @@ command = "codex exec -m gpt-5.1-codex-mini -c model_reasoning_effort='low' -c s
 summary = true
 
 # post-start: runs once when a new worktree is created, in the background
-[pre-start]
+[[pre-start]]
 # Install npm dependencies when creating a new worktree
 install = "npm install --legacy-peer-deps"
+
+[[pre-start]]
 # Copies gitignored files from the primary worktree using .worktreeinclude
 # https://github.com/satococoa/git-worktreeinclude
 copy = "wt step copy-ignored"
