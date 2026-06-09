@@ -9,6 +9,13 @@ if command -v wt >/dev/null 2>&1; then
   eval "$(command wt config shell init zsh)"
 fi
 
+sanitize() {
+  local str="$1"
+  # Replace non-allowed chars with '-' (matches worktrunk's sanitize filter)
+  # Hyphen must be last in [...] to be literal, not a range operator
+  echo "${str//[^[:alnum:]_-]/-}"
+}
+
 # post-start hook: automatically applies .worktreeinclude when a new worktree
 # is created via `wt switch --create` or `wt switch <branch>`.
 # Configured in ~/.config/worktrunk/config.toml (symlinked from dotfiles).
@@ -22,12 +29,19 @@ fi
 # Wrapper for wt switch that also connects to tmux session
 wts() {
   wt switch "$@"
-  local branch=$(git branch --show-current 2>/dev/null | tr '/' '-')
-  if [[ -n "$branch" ]] && tmux has-session -t "$branch" 2>/dev/null; then
+
+  # Build session name matching the worktrunk post-switch hook template:
+  # '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'
+  # Use --git-common-dir to get the main repo path (not the worktree path)
+  local folder=$(basename "$(dirname "$(git rev-parse --git-common-dir 2>/dev/null)")")
+  local branch=$(git branch --show-current 2>/dev/null)
+  local session="$(sanitize "$folder")_$(sanitize "$branch")"
+
+  if tmux has-session -t "=$session" 2>/dev/null; then
     if [[ -n "$TMUX" ]]; then
-      tmux switch-client -t "$branch"
+      tmux switch-client -t "=$session"
     else
-      tmux attach-session -t "$branch"
+      tmux attach-session -t "=$session"
     fi
   fi
 }

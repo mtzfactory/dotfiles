@@ -14,21 +14,26 @@ command = "codex exec -m gpt-5.1-codex-mini -c model_reasoning_effort='low' -c s
 [list]
 summary = true
 
-# post-start: runs once when a new worktree is created, in the background
 [[pre-start]]
-# Install npm dependencies when creating a new worktree
-install = "npm install --legacy-peer-deps"
+sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
 
 [[pre-start]]
 # Copies gitignored files from the primary worktree using .worktreeinclude
 # https://github.com/satococoa/git-worktreeinclude
 copy = "wt step copy-ignored"
 
-[post-switch]
+[[pre-start]]
+# Install npm dependencies when creating a new worktree
+install = "npm install --legacy-peer-deps"
+
+[[post-switch]]
+sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
+
+[[post-switch]]
 # Create tmux session with four windows when switching branches
-tmux = "/Users/ricardo.martinez/.config/worktrunk/tmux-session.sh '{{ branch | sanitize }}'"
+tmux = "$HOME/.config/worktrunk/tmux-session.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'"
 
 [post-remove]
 # Kill the tmux session when removing the worktree
-tmux = "tmux kill-session -t '{{ branch | sanitize }}' 2>/dev/null || true"
+tmux = "tmux kill-session -t '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' 2>/dev/null || true"
 
