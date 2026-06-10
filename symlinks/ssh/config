@@ -10,7 +10,8 @@ Host bitbucket.org-mtzfactory
   HostName bitbucket.org
   User git
   AddKeysToAgent yes
-  UseKeychain yes
+  Match exec "uname -s | grep Darwin"
+    UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
 
 # Personal Github account
@@ -18,7 +19,8 @@ Host github.com-mtzfactory
   HostName github.com
   User git
   AddKeysToAgent yes
-  UseKeychain yes
+  Match exec "uname -s | grep Darwin"
+    UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
 
 # Personal Gitlab account
@@ -26,7 +28,8 @@ Host gitlab.com-mtzfactory
   HostName gitlab.com
   User git
   AddKeysToAgent yes
-  UseKeychain yes
+  Match exec "uname -s | grep Darwin"
+    UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
 
 # 2amigos Github account
@@ -34,7 +37,8 @@ Host github.com-2amigos
   HostName github.com
   User git
   AddKeysToAgent yes
-  UseKeychain yes
+  Match exec "uname -s | grep Darwin"
+    UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
 
 Host mini-devil.local
