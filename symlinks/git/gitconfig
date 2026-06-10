@@ -4,6 +4,9 @@
 [includeIf "gitdir:~/development/personal/"]
   path = ~/.gitconfig-personal
 
+[includeIf "gitdir:~/home-lab/dotfiles/"]
+  path = ~/.gitconfig-home-lab
+
 [credential]
   helper = osxkeychain
 
@@ -61,8 +64,6 @@
 	gpgsign = true
 
 [user]
-  # gpg --list-secret-keys --keyid-format=long
-	signingkey = 8CA1D252563BB6DF
   email = 200234+mtzfactory@users.noreply.github.com
   name = Ricardo Martínez
 

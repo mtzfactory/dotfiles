@@ -2,6 +2,8 @@
 [user]
   name = Ricardo Martínez
   email = 200234+mtzfactory@users.noreply.github.com
+  # gpg --list-secret-keys --keyid-format=long
+  signingkey = 8CA1D252563BB6DF
 
 #[core]
 #  sshCommand = "$(command -v ssh) -i ~/.ssh/id_ed25519_c4p"
