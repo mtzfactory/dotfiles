@@ -122,6 +122,7 @@
   # link https://salferrarello.com/git-delete-merged-branches-from-remote/
   delete-merged-on-origin = !git branch --all --merged remotes/origin/$(git branch-head)  | grep --invert-match $(git branch-head) | grep --invert-match HEAD | grep "remotes/origin/" | cut -d "/" -f 3- | xargs -n 1 git push --delete origin
   dmoo = delete-merged-on-origin
+
 	hdiff = -c core.pager=\"hunk pager\" diff
 	hshow = -c core.pager=\"hunk pager\" show
 
