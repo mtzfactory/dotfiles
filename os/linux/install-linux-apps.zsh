@@ -22,8 +22,10 @@ fi
 # Install with apt
 declare -a APT_APPS=(
   "batcat"
+  "build-essentials"
   "curl"
   "git"
+  "git-delta"
   "git-extras"
   "golang-go"
   "make"
@@ -35,10 +37,22 @@ declare -a APT_APPS=(
   "zsh"
 )
 
-local APP
-for APP in "${APT_APPS[@]}"; do
-  echo -e "\n-- Installing $APP"
-  sudo apt-get -y install "$APP"
+local APT
+for APT in "${APT_APPS[@]}"; do
+  echo -e "\n-- Installing $APT"
+  sudo apt-get -y install "$APT"
+done
+
+##
+# Install with npm
+declare -a NPM_APPS=(
+  "hunkdiff"
+)
+
+local NPM
+for NPM in "${NPM_APPS[@]}"; do
+  echo -e "\n-- Installing $NPM"
+  npm i -g "$NPM"
 done
 
 # Change shell to Zsh
