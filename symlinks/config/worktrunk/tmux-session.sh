@@ -12,13 +12,14 @@ fi
 # Only create session if it doesn't exist
 # Use '=' prefix for exact name matching — without it, tmux interprets
 # dots in the session name as window.pane separators.
-if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
+if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
   tmux new-session -d -s "$SESSION_NAME" -n ai
-  tmux new-window -t "=$SESSION_NAME" -n editor
-  tmux new-window -t "=$SESSION_NAME" -n metro
-  tmux new-window -t "=$SESSION_NAME" -n terminal
-  tmux select-window -t "=$SESSION_NAME:ai"
+  tmux new-window -t "$SESSION_NAME" -n editor
+  tmux new-window -t "$SESSION_NAME" -n metro
+  tmux new-window -t "$SESSION_NAME" -n terminal
   echo "✓ Tmux session '$SESSION_NAME' created"
 else
   echo "✓ Tmux session '$SESSION_NAME' already exists"
 fi
+
+tmux select-window -t "$SESSION_NAME:ai"
