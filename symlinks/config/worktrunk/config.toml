@@ -22,10 +22,6 @@ sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
 # https://github.com/satococoa/git-worktreeinclude
 copy = "wt step copy-ignored"
 
-[[pre-start]]
-# Install npm dependencies when creating a new worktree
-install = "npm install --legacy-peer-deps"
-
 [[post-switch]]
 sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
 
