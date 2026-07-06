@@ -4,6 +4,8 @@ Include $HOME/.config/colima/ssh_config
 Host *
   SetEnv TERM=xterm-256color
   SendEnv COLORTERM
+  IgnoreUnknown UseKeychain
+  AddKeysToAgent yes
 
 # Personal Bitbucket account
 Host bitbucket.org-mtzfactory
