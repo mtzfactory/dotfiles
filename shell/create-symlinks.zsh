@@ -3,7 +3,7 @@
 ##
 # Symlinks
 #
-local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
+local DOTFILES_SYMLINKS="$DOTFILES/config"
 
 ##
 # Git configs
@@ -25,7 +25,7 @@ done
 
 ##
 # App configs
-local DOTFILES_SYMLINKS_CONFIG="$DOTFILES_SYMLINKS/config"
+local DOTFILES_SYMLINKS_CONFIG="$DOTFILES_SYMLINKS"
 
 declare -a APP_CONFIGS=(
   "lazygit"

@@ -202,7 +202,7 @@ local GIT_EXTRAS="$BREW_OPT_DIR/git-extras"
 [ -d "$GIT_EXTRAS" ] && source "$GIT_EXTRAS/share/git-extras/git-extras-completion.zsh"
 
 # Custom git commands
-local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/symlinks/git/custom-git-commands"
+local CUSTOM_GIT_COMMANDS_SYMLINK="$DOTFILES/config/git/custom-git-commands"
 [ -d "$CUSTOM_GIT_COMMANDS_SYMLINK" ] && export PATH="$CUSTOM_GIT_COMMANDS_SYMLINK:$PATH"
 
 ##

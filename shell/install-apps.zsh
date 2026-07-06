@@ -11,9 +11,9 @@ local OS=$(uname | tr '[:upper:]' '[:lower:]')
 
 ##
 # Install apps
-source "$DOTFILES/os/env.zsh"
-$DOTFILES/os/$OS/install-$OS-apps.zsh
+source "$DOTFILES/shell/env.zsh"
+$DOTFILES/shell/$OS/install-$OS-apps.zsh
 
 ##
 # Install Zsh plugins
-$DOTFILES/os/install-zsh-plugins.zsh
+$DOTFILES/shell/install-zsh-plugins.zsh

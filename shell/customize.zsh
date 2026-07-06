@@ -33,10 +33,10 @@ export XDG_CONFIG_HOME="$HOME/.config"
 ##
 # Customize the OS
 local OS=$(uname | tr '[:upper:]' '[:lower:]')
-source "$DOTFILES/os/env.zsh"
-source "$DOTFILES/os/alias.zsh"
-source "$DOTFILES/os/shared/worktrunk.zsh"
-source "$DOTFILES/os/$OS/customize-$OS.zsh"
+source "$DOTFILES/shell/env.zsh"
+source "$DOTFILES/shell/alias.zsh"
+source "$DOTFILES/shell/shared/worktrunk.zsh"
+source "$DOTFILES/shell/$OS/customize-$OS.zsh"
 
 # Create symlinks
-$DOTFILES/os/create-symlinks.zsh
+$DOTFILES/shell/create-symlinks.zsh

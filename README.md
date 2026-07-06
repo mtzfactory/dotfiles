@@ -8,7 +8,7 @@ Add the following lines at the bottom of your `~/.zshrc` file.
 # Custom ZSH
 export DOTFILES="$HOME/{path-to}/dotfiles"
 
-local CUSTOM_ZSH="$DOTFILES/os/customize.zsh"
+local CUSTOM_ZSH="$DOTFILES/shell/customize.zsh"
 [[ ! -f $CUSTOM_ZSH ]] || source $CUSTOM_ZSH
 ```
 
