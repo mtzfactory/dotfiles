@@ -39,4 +39,4 @@ source "$DOTFILES/shell/shared/worktrunk.zsh"
 source "$DOTFILES/shell/$OS/customize-$OS.zsh"
 
 # Create symlinks
-$DOTFILES/shell/create-symlinks.zsh
+source $DOTFILES/shell/create-symlinks.zsh
