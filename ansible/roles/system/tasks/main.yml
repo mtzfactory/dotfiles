@@ -40,3 +40,6 @@
 
 - name: Install GitHub CLI
   ansible.builtin.import_tasks: github-cli.yml
+
+- name: Set up glow (Charm apt repo)
+  ansible.builtin.import_tasks: glow.yml
