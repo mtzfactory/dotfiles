@@ -1,5 +1,5 @@
-Include $HOME/.config/ssh_company
-Include $HOME/.config/colima/ssh_config
+Include ~/.config/ssh_company
+Include ~/.config/colima/ssh_config
 
 Host *
   SetEnv TERM=xterm-256color
@@ -12,36 +12,36 @@ Host bitbucket.org-mtzfactory
   HostName bitbucket.org
   User git
   AddKeysToAgent yes
-  Match exec "uname -s | grep Darwin"
-    UseKeychain yes
+  UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
 
 # Personal Github account
 Host github.com-mtzfactory
   HostName github.com
   User git
   AddKeysToAgent yes
-  Match exec "uname -s | grep Darwin"
-    UseKeychain yes
+  UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
 
 # Personal Gitlab account
 Host gitlab.com-mtzfactory
   HostName gitlab.com
   User git
   AddKeysToAgent yes
-  Match exec "uname -s | grep Darwin"
-    UseKeychain yes
+  UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_w4p
+  IdentitiesOnly yes
 
 # 2amigos Github account
 Host github.com-2amigos
   HostName github.com
   User git
   AddKeysToAgent yes
-  Match exec "uname -s | grep Darwin"
-    UseKeychain yes
+  UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519_2amigos
+  IdentitiesOnly yes
 
 Host mini-devil.local
   HostName 192.168.0.24
