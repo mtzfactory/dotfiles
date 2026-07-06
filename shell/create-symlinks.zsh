@@ -27,9 +27,12 @@ done
 # App configs
 declare -a APP_CONFIGS=(
   "lazygit"
-  "lvim"
   "pip"
 )
+
+##
+# Include lvim config when selected via NVIM_CONFIG
+[[ "${NVIM_CONFIG:-}" == "lvim" ]] && APP_CONFIGS+=("lvim")
 
 local APP_CONFIG
 for APP_CONFIG in "${APP_CONFIGS[@]}"; do
@@ -45,6 +48,20 @@ for APP_CONFIG in "${APP_CONFIGS[@]}"; do
 done
 
 ##
+# Neovim config — selected by $NVIM_CONFIG (astronvim | nvim | lvim)
+# lvim manages its own config dir (~/.config/lvim), not ~/.config/nvim
+if [[ "$NVIM_CONFIG" != "lvim" ]]; then
+  local NVIM_DOTFILES_DIR="$DOTFILES_SYMLINKS/$NVIM_CONFIG"
+  local NVIM_XDG_DIR="$XDG_CONFIG_HOME/nvim"
+  if [[ -d "$NVIM_XDG_DIR" ]] && [[ ! -L "$NVIM_XDG_DIR" ]]; then
+    mv "$NVIM_XDG_DIR" "${NVIM_XDG_DIR}.bak"
+    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
+  elif [[ ! -e "$NVIM_XDG_DIR" ]]; then
+    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
+  fi
+fi
+
+##
 # WorkTrunk config
 # Binary is `wt`, not `worktrunk`, so handled separately from APP_CONFIGS
 if command -v wt >/dev/null 2>&1; then
@@ -54,22 +71,6 @@ if command -v wt >/dev/null 2>&1; then
     ln -s "$DOTFILES_SYMLINKS/worktrunk" "$XDG_CONFIG_HOME_WORKTRUNK"
   elif [[ ! -e "$XDG_CONFIG_HOME_WORKTRUNK" ]]; then
     ln -s "$DOTFILES_SYMLINKS/worktrunk" "$XDG_CONFIG_HOME_WORKTRUNK"
-  fi
-fi
-
-##
-# Neovim config — selected by $NVIM_CONFIG (astronvim | nvim | lvim)
-# lvim manages its own config dir (~/.config/lvim), not ~/.config/nvim
-if [[ "$NVIM_CONFIG" != "lvim" ]]; then
-  local NVIM_CONFIG_NAME="${NVIM_CONFIG:-astronvim}"
-  local NVIM_DOTFILES_DIR="$DOTFILES_SYMLINKS/$NVIM_CONFIG_NAME"
-  local NVIM_XDG_DIR="$XDG_CONFIG_HOME/nvim"
-  if [[ -d "$NVIM_XDG_DIR" ]] && [[ ! -L "$NVIM_XDG_DIR" ]]; then
-    mv "$NVIM_XDG_DIR" "${NVIM_XDG_DIR}.bak"
-    echo "info: backed up $NVIM_XDG_DIR to ${NVIM_XDG_DIR}.bak"
-    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
-  elif [[ ! -e "$NVIM_XDG_DIR" ]]; then
-    ln -s "$NVIM_DOTFILES_DIR" "$NVIM_XDG_DIR"
   fi
 fi
 
