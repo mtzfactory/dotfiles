@@ -63,11 +63,6 @@
 [commit]
 	gpgsign = true
 
-[user]
-  email = 200234+mtzfactory@users.noreply.github.com
-  name = Ricardo Martínez
-	signingkey = 06BCC481F5CE2B48
-
 [alias]
   # Clone repo using worktree
   # Example: git c4wt git@your-repo.git
