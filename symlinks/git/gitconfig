@@ -4,8 +4,8 @@
 [includeIf "gitdir:~/development/personal/"]
   path = ~/.gitconfig-personal
 
-[includeIf "gitdir:~/home-lab/dotfiles/"]
-  path = ~/.gitconfig-home-lab
+[includeIf "gitdir:~/homelab/dotfiles/"]
+  path = ~/.gitconfig-homelab
 
 [credential]
   helper = osxkeychain
@@ -66,6 +66,7 @@
 [user]
   email = 200234+mtzfactory@users.noreply.github.com
   name = Ricardo Martínez
+	signingkey = 06BCC481F5CE2B48
 
 [alias]
   # Clone repo using worktree

@@ -9,7 +9,7 @@ local DOTFILES_SYMLINKS="$DOTFILES/symlinks"
 # Git configs
 declare -a GIT_CONFIGS=(
   "gitconfig"
-  "gitconfig-home-lab"
+  "gitconfig-homelab"
   "gitconfig-personal"
   "gitconfig-work"
   "gitignore-global"
