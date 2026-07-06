@@ -1,5 +1,17 @@
-.DS_Store
-
-# Neovim — lock files are machine-specific, run :Lazy sync after fresh install
+# ── Neovim: lock files are machine-specific, run :Lazy sync after fresh install ──
 **/lvim/lazy-lock.json
 **/astronvim/lazy-lock.json
+
+# ── Ansible: secrets and local files ──
+ansible/files/gpg_private.asc
+ansible/inventory.ini
+
+# ── Terraform ──
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
+
+# ── System ──
+.DS_Store
