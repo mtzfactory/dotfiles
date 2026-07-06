@@ -1,0 +1,42 @@
+---
+# Role: backups — rclone + cron
+#
+# rclone se instala en el role `system` (apt). Aquí se prepara la estructura
+# y el cron. La configuración del remote (`rclone config`) es interactiva y
+# se hace UNA vez a mano en el servidor.
+
+- name: Ensure backup scripts directory exists
+  file:
+    path: "{{ home_lab_root }}/scripts"
+    state: directory
+    mode: "0755"
+
+- name: Deploy backup script
+  copy:
+    dest: "{{ home_lab_root }}/scripts/backup.sh"
+    mode: "0755"
+    content: |
+      #!/usr/bin/env bash
+      # Backup del home lab vía rclone.
+      # Requiere un remote configurado: rclone config
+      set -euo pipefail
+
+      REMOTE="remote:m8-backups"   # ← ajustar al nombre real del remote
+      LOG="$HOME/home-lab/scripts/backup.log"
+
+      {
+        echo "── $(date -Is) ─────────────────────────────"
+        # Notas de Obsidian (llegan al M8 vía git/rsync)
+        rclone sync "$HOME/home-lab/obsidian" "$REMOTE/obsidian" --create-empty-src-dirs
+        # Datos de servicios (cada servicio co-localiza sus datos)
+        rclone sync "$HOME/home-lab/services" "$REMOTE/services" \
+          --exclude "**/cache/**" --exclude "**/tmp/**"
+        echo "OK"
+      } >> "$LOG" 2>&1
+
+- name: Schedule nightly backup via cron
+  cron:
+    name: "home lab backup (rclone)"
+    hour: "{{ backup_cron_hour }}"
+    minute: "{{ backup_cron_minute }}"
+    job: "{{ home_lab_root }}/scripts/backup.sh"

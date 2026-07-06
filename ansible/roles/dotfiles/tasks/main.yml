@@ -1,0 +1,173 @@
+---
+# Role: dotfiles — Dev tools, repo dotfiles, Oh My Zsh, symlinks y bootstrap del shell
+#
+# NOTA sobre rutas: estructura APLANADA — las configs de apps viven
+# directamente en config/ (antes symlinks/config/), junto a git/ y ssh/.
+
+# ── Dev tools ───────────────────────────────────────────────────────────────
+- name: Install dev tools (apt)
+  become: true
+  apt:
+    name:
+      - neovim
+      - ripgrep
+      - fd-find
+      - fzf
+      - bat
+      - jq
+      - tree
+      - make
+      - build-essential
+      - golang-go
+    state: present
+
+# ── Repo dotfiles ───────────────────────────────────────────────────────────
+- name: Ensure home lab root exists
+  file:
+    path: "{{ home_lab_root }}"
+    state: directory
+    mode: "0755"
+
+- name: Clone dotfiles repository
+  git:
+    repo: "{{ dotfiles_repo }}"
+    dest: "{{ dotfiles_dest }}"
+    version: main
+    update: false # no machacar cambios locales en ejecuciones posteriores
+
+# ── Rust / Cargo ────────────────────────────────────────────────────────────
+- name: Check if cargo is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
+  register: cargo_bin
+
+- name: Install Rust via rustup
+  shell: |
+    set -o pipefail
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  args:
+    executable: /bin/bash
+  when: not cargo_bin.stat.exists
+
+# ── Go apps ─────────────────────────────────────────────────────────────────
+- name: Install lazygit (go install)
+  shell: go install github.com/jesseduffield/lazygit@latest
+  args:
+    creates: "{{ ansible_env.HOME }}/go/bin/lazygit"
+  environment:
+    GOPATH: "{{ ansible_env.HOME }}/go"
+
+# ── NVM + Node LTS ──────────────────────────────────────────────────────────
+- name: Check if NVM is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+  register: nvm_sh
+
+- name: Install NVM
+  shell: |
+    set -o pipefail
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  args:
+    executable: /bin/bash
+  when: not nvm_sh.stat.exists
+
+- name: Install Node LTS via NVM
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm install --lts
+  args:
+    executable: /bin/bash
+    creates: "{{ ansible_env.HOME }}/.nvm/versions/node"
+
+# ── Oh My Zsh + plugins + Powerlevel10k ─────────────────────────────────────
+- name: Check if Oh My Zsh is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: omz
+
+- name: Install Oh My Zsh (unattended)
+  shell: |
+    set -o pipefail
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  args:
+    executable: /bin/bash
+  when: not omz.stat.exists
+
+- name: Install zsh-autosuggestions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    update: false
+
+- name: Install zsh-syntax-highlighting plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    update: false
+
+- name: Install Powerlevel10k theme
+  git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1
+    update: false
+
+# ── SSH config específico de Linux ─────────────────────────────────────────
+# El config/ssh/config del repo es macOS-only (Colima, UseKeychain, pinentry-mac).
+# Se pre-crea aquí un ~/.ssh/config propio de Linux con force: no, de modo que
+# create-symlinks.zsh lo encuentre existente en el primer login y NO cree el
+# symlink al fichero del Mac.
+- name: Ensure ~/.ssh exists
+  file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: "0700"
+
+- name: Pre-create Linux-specific ~/.ssh/config (blocks macOS symlink)
+  copy:
+    dest: "{{ ansible_env.HOME }}/.ssh/config"
+    force: false # nunca sobreescribir si ya existe
+    mode: "0600"
+    content: |
+      # ~/.ssh/config — M8 (Linux)
+      # Gestionado por Ansible (role dotfiles). NO es un symlink al repo:
+      # el config del repo contiene entradas macOS-only.
+
+      Host github.com
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519
+        AddKeysToAgent yes
+
+# ── Symlinks de configs de apps (rutas post-migración: config/) ─────
+- name: Ensure ~/.config exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config"
+    state: directory
+    mode: "0755"
+
+- name: Symlink ~/.config/lazygit → dotfiles/config/lazygit
+  file:
+    src: "{{ dotfiles_dest }}/config/lazygit"
+    dest: "{{ ansible_env.HOME }}/.config/lazygit"
+    state: link
+
+- name: Symlink ~/.config/nvim → dotfiles/config/{{ nvim_config }}
+  file:
+    src: "{{ dotfiles_dest }}/config/{{ nvim_config }}"
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    state: link
+
+# ── Bootstrap del shell en ~/.zshrc ─────────────────────────────────────────
+- name: Inject dotfiles initialization block into ~/.zshrc
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    create: true
+    mode: "0644"
+    marker: "# ── {mark} DOTFILES — gestionado por Ansible ──"
+    block: |
+      export DOTFILES="{{ dotfiles_dest }}"
+      export NVIM_CONFIG="{{ nvim_config }}"
+      CUSTOM_ZSH="$DOTFILES/shell/customize.zsh"
+      [[ ! -f $CUSTOM_ZSH ]] || source $CUSTOM_ZSH

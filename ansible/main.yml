@@ -1,0 +1,27 @@
+---
+# main.yml — Aprovisionamiento del M8 (home lab)
+#
+# Uso (desde el Mac):
+#   cd ansible/
+#   cp inventory.ini.example inventory.ini   # editar con la IP real
+#   ansible -i inventory.ini home_lab -m ping
+#   ansible-playbook -i inventory.ini main.yml -e @vars.yml --check   # dry-run
+#   ansible-playbook -i inventory.ini main.yml -e @vars.yml --ask-become-pass
+
+- name: Provision home lab server (M8)
+  hosts: home_lab
+  become: false
+
+  roles:
+    - role: system # Paquetes base de infraestructura (become interno)
+      tags: [system]
+    - role: dotfiles # Dev tools, repo dotfiles, Oh My Zsh, symlinks, shell
+      tags: [dotfiles]
+    - role: git # Importación de clave GPG para commit signing
+      tags: [git]
+    - role: docker # Docker Engine + red externa 'web'
+      tags: [docker]
+    - role: security # UFW + fail2ban + hardening SSH
+      tags: [security]
+    - role: backups # rclone + cron
+      tags: [backups]

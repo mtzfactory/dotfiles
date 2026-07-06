@@ -1,0 +1,70 @@
+---
+# Role: security — UFW + fail2ban + hardening SSH
+
+# ── UFW ─────────────────────────────────────────────────────────────────────
+- name: Set UFW default policies
+  become: true
+  ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: incoming, policy: deny }
+    - { direction: outgoing, policy: allow }
+
+- name: Allow SSH
+  become: true
+  ufw:
+    rule: limit # rate-limit contra fuerza bruta
+    port: "22"
+    proto: tcp
+
+- name: Allow HTTP/HTTPS (reverse proxy)
+  become: true
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "80"
+    - "443"
+
+- name: Enable UFW
+  become: true
+  ufw:
+    state: enabled
+
+# ── fail2ban ────────────────────────────────────────────────────────────────
+- name: Configure fail2ban jail for sshd
+  become: true
+  copy:
+    dest: /etc/fail2ban/jail.local
+    mode: "0644"
+    content: |
+      [DEFAULT]
+      bantime  = 1h
+      findtime = 10m
+      maxretry = 5
+
+      [sshd]
+      enabled = true
+  notify: restart fail2ban
+
+- name: Enable and start fail2ban
+  become: true
+  systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+
+# ── Hardening SSH ───────────────────────────────────────────────────────────
+- name: Harden sshd configuration
+  become: true
+  copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    mode: "0644"
+    content: |
+      PasswordAuthentication no
+      PermitRootLogin no
+      MaxAuthTries 3
+      X11Forwarding no
+  notify: restart sshd

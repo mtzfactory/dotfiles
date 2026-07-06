@@ -1,0 +1,39 @@
+---
+# Role: system — Paquetes base de infraestructura del servidor
+# (Los dev tools personales van en el role `dotfiles`.)
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade installed packages
+  become: true
+  apt:
+    upgrade: safe
+
+- name: Install base infrastructure packages
+  become: true
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - zsh
+      - htop
+      - unzip
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - python3-pip
+      - ufw
+      - fail2ban
+      - rclone
+    state: present
+
+- name: Set zsh as default shell for the user
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /usr/bin/zsh

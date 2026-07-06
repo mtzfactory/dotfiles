@@ -1,0 +1,35 @@
+---
+# Role: git — Importación de la clave GPG para commit signing
+#
+# ~/.gitconfig NO se gestiona aquí: llega vía symlink de dotfiles
+# (create-symlinks.zsh), y ya referencia la clave {{ gpg_key_id }}.
+#
+# Prerequisito en el Mac (una vez, NO versionar el fichero):
+#   gpg --armor --export-secret-keys {{ gpg_key_id }} > ansible/files/gpg_private.asc
+
+- name: Check if GPG key is already imported
+  shell: gpg --list-secret-keys {{ gpg_key_id }}
+  register: gpg_check
+  changed_when: false
+  failed_when: false
+
+- name: Copy GPG private key to server (temporary)
+  copy:
+    src: "{{ gpg_private_key_path }}"
+    dest: "/tmp/gpg_private.asc"
+    mode: "0600"
+  when: gpg_check.rc != 0
+
+- name: Import GPG private key
+  shell: gpg --batch --import /tmp/gpg_private.asc
+  when: gpg_check.rc != 0
+
+- name: Set ultimate trust on the key
+  shell: |
+    echo "{{ gpg_key_id }}:6:" | gpg --import-ownertrust
+  when: gpg_check.rc != 0
+
+- name: Remove temporary key file from server
+  file:
+    path: /tmp/gpg_private.asc
+    state: absent

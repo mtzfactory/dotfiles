@@ -1,0 +1,21 @@
+---
+# vars.yml — Variables del aprovisionamiento
+# Pasar con: ansible-playbook ... -e @vars.yml
+
+# ── Home lab ────────────────────────────────────────────────────────────────
+home_lab_root: "{{ ansible_env.HOME }}/home-lab"
+
+# ── Dotfiles ────────────────────────────────────────────────────────────────
+dotfiles_repo: "https://github.com/mtzfactory/dotfiles.git"
+dotfiles_dest: "{{ home_lab_root }}/dotfiles"
+nvim_config: "astronvim" # astronvim | nvim | lvim
+
+# ── Git / GPG (commit signing) ─────────────────────────────────────────────
+git_user_name: "Ricardo"
+git_user_email: "TU_EMAIL_DE_GITHUB" # ← el asociado a la clave GPG
+gpg_key_id: "06BCC481F5CE2B48"
+gpg_private_key_path: "files/gpg_private.asc" # relativo a ansible/ — NO versionar
+
+# ── Backups (rclone) ────────────────────────────────────────────────────────
+backup_cron_hour: "3"
+backup_cron_minute: "30"
