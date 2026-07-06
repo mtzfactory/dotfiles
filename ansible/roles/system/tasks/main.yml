@@ -37,3 +37,6 @@
   user:
     name: "{{ ansible_user_id }}"
     shell: /usr/bin/zsh
+
+- name: Install GitHub CLI
+  ansible.builtin.import_tasks: github-cli.yml
