@@ -1,0 +1,10 @@
+# Copiar a terraform.tfvars (no versionado) y ajustar.
+# NOTA: Terraform se ejecuta EN el M8 (o vía SSH) — la ruta es la del servidor.
+home_lab_root = "/home/ricardo/home-lab"
+
+services = [
+  "photoprism",
+  "kavita",
+  "n8n",
+  "ollama",
+]
