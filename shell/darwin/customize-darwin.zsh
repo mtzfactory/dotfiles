@@ -161,14 +161,6 @@ if [ -d "$RBENV" ]; then
 
   # Shell completions
   FPATH="$RBENV/completions:$FPATH"
-
-  # compinit with dump-file caching: only rebuild if dump is older than 24h
-  autoload -Uz compinit
-  if [[ -n "${ZDOTDIR:-$HOME}/.zcompdump"(#qNmh+24) ]]; then
-    compinit
-  else
-    compinit -C
-  fi
 elif [ -d "$RUBY" ]; then
   export PATH="$RUBY/bin:$PATH"
   export LDFLAGS="$LDFLAGS -L$RUBY/lib"
@@ -273,4 +265,22 @@ fi
 ##
 # Load SSH keys from the macOS keychain (login shells only — not every tab/pane)
 [[ -o login ]] && ssh-add --apple-load-keychain -q
+
+##
+# Shell completions
+fpath=(~/.zfunc $fpath)
+autoload -Uz compinit
+
+# compinit with dump-file caching: only rebuild if dump is older than 24h
+#
+# The globbing is a little complicated here:
+# - '#q' is an explicit glob qualifier that makes globbing work within zsh's [[ ]] construct.
+# - 'N' makes the glob pattern evaluate to nothing when it doesn't match (rather than throw a globbing error)
+# - '.' matches "regular files"
+# - 'mh+24' matches files (or directories or whatever) that are older than 24 hours.
+if [[ -n "${ZDOTDIR:-$HOME}/.zcompdump"(#qNmh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
