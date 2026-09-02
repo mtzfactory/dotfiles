@@ -25,11 +25,23 @@ copy = "wt step copy-ignored"
 [[post-switch]]
 sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
 
-[[post-switch]]
+# [[post-switch]]
 # Create tmux session with four windows when switching branches
-tmux = "$HOME/.config/worktrunk/tmux-session.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'"
+# tmux = "$HOME/.config/worktrunk/tmux-session.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'"
+
+[[post-switch]]
+# Create herdr workspace with four tabs when switching branches
+herdr = "$HOME/.config/worktrunk/herdr-session.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' '{{ worktree_path }}'"
+
+[[pre-remove]]
+# Resolve & stash the herdr workspace bound to this worktree while the checkout
+# still exists — after removal, path -> workspace can no longer be resolved.
+herdr = "$HOME/.config/worktrunk/herdr-session-resolve.sh '{{ worktree_path }}'"
 
 [post-remove]
 # Kill the tmux session when removing the worktree
 tmux = "tmux kill-session -t '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' 2>/dev/null || true"
+# Close the herdr workspace (and its tabs) when removing the worktree.
+# Args: label, worktree path (primary key), sanitized branch (legacy fallback).
+herdr = "$HOME/.config/worktrunk/herdr-session-close.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' '{{ worktree_path }}' '{{ branch | sanitize }}'"
 
