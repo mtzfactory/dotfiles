@@ -49,9 +49,59 @@ _wt_label() {
 # Works automatically once `wt-sync` is on PATH (cargo install worktrunk-sync).
 # See: https://github.com/pablospe/worktrunk-sync
 
+# Runs a `wt switch` invocation and, if it fails only because the branch
+# doesn't exist yet, offers to create it (equivalent to adding --create) and
+# retries. Leaves any other failure (occupied path, branch already exists,
+# etc.) untouched.
+#
+# Usage: _wt_switch_or_offer_create <runner-command-string> [switch-args...]
+# <runner-command-string> is the command to run wt switch with, e.g.
+# "wt switch" (shell-integrated, cds) or "command wt switch" (raw binary,
+# used by wths() so the current pane's cwd is untouched).
+_wt_switch_or_offer_create() {
+  local runner="$1"
+  shift
+  local -a args=("$@")
+
+  eval "$runner \"\${args[@]}\""
+  local exit_code=$?
+  [[ $exit_code -eq 0 ]] && return 0
+
+  # Only offer to create when there's an explicit branch argument (skip the
+  # interactive picker case).
+  local branch_arg=""
+  for arg in "${args[@]}"; do
+    [[ "$arg" != -* ]] && branch_arg="$arg"
+  done
+  [[ -n "$branch_arg" ]] || return $exit_code
+
+  # Already asked for --create? Then this failure is for another reason
+  # (e.g. branch already exists) — don't offer again.
+  for arg in "${args[@]}"; do
+    [[ "$arg" == "-c" || "$arg" == "--create" ]] && return $exit_code
+  done
+
+  # Confirm the branch really doesn't exist (locally or remotely) before
+  # assuming that's why wt switch failed.
+  if wt list --format json --branches --remotes 2>/dev/null \
+      | jq -e --arg b "$branch_arg" '.[] | select(.branch == $b)' >/dev/null 2>&1; then
+    return $exit_code
+  fi
+
+  print -n "Branch '$branch_arg' doesn't exist. Create it? [y/N] "
+  local reply
+  read -r reply
+  [[ "$reply" == [yY]* ]] || return $exit_code
+
+  eval "$runner --create \"\${args[@]}\""
+  return $?
+}
+
 # Wrapper for wt switch that also connects to tmux session
 wts() {
-  wt switch "$@"
+  _wt_switch_or_offer_create "wt switch" "$@"
+  local switch_exit=$?
+  [[ $switch_exit -ne 0 ]] && return $switch_exit
 
   # Build session name matching the worktrunk post-switch hook template:
   # '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'
@@ -77,7 +127,7 @@ wts() {
 wths() {
   # Skip herdr flow if the server isn't running
   if ! herdr workspace list >/dev/null 2>&1; then
-    wt switch "$@"
+    _wt_switch_or_offer_create "wt switch" "$@"
     return
   fi
 
@@ -111,7 +161,7 @@ wths() {
 
     if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
       echo "wths: failed to create herdr workspace, falling back to direct switch" >&2
-      wt switch "$@"
+      _wt_switch_or_offer_create "wt switch" "$@"
       return
     fi
 
@@ -122,7 +172,7 @@ wths() {
     # Set _WTHS_ACTIVE so herdr-session.sh (called by the post-switch hook)
     # skips workspace creation — wths already pre-created the correct one.
     export _WTHS_ACTIVE=1
-    command wt switch "$@"
+    _wt_switch_or_offer_create "command wt switch" "$@"
     local wt_exit=$?
     unset _WTHS_ACTIVE
 
