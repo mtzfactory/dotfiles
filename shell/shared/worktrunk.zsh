@@ -9,6 +9,33 @@ if command -v wt >/dev/null 2>&1; then
   eval "$(command wt config shell init zsh)"
 fi
 
+# `wt remove` deregisters the worktree from git synchronously, but by default
+# runs the actual directory deletion (`rm -rf`) in the background so large
+# node_modules-style trees don't block the shell — see "Background removal"
+# in `wt config state logs`. post-remove hooks (ours included: tmux
+# kill-session / herdr workspace close) are NOT part of that background job
+# and can fire — and tear down the pane/session running `wt remove` — before
+# the background deletion finishes. When that happens the worktree directory
+# (and its git registration) is silently orphaned: `wt remove` looked like it
+# ran, but the folder is still on disk.
+#
+# Fix: always force `--foreground` so the real deletion completes before
+# `wt remove` returns (and therefore before any post-remove hook can race it).
+# Wrap whatever `wt` the shell integration above defined (for switch's cd
+# behavior etc.) rather than replacing it, so everything else keeps working.
+if (( $+functions[wt] )); then
+  functions[_wt_shell_integrated]="${functions[wt]}"
+
+  wt() {
+    if [[ "$1" == "remove" ]]; then
+      shift
+      _wt_shell_integrated remove --foreground "$@"
+    else
+      _wt_shell_integrated "$@"
+    fi
+  }
+fi
+
 sanitize() {
   local str="$1"
   # Replace non-allowed chars with '-' (matches worktrunk's sanitize filter)
