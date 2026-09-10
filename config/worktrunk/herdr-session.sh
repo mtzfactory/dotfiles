@@ -1,12 +1,23 @@
 #!/bin/bash
-# Worktrunk hook: Create herdr workspace with four tabs if it doesn't exist
-# Usage: herdr-session.sh <label> [cwd]
+# Worktrunk hook: open a herdr *worktree* workspace with four tabs when
+# switching branches, if one doesn't already exist for this label.
+#
+# Usage: herdr-session.sh <label> <worktree_path> [base_worktree_path]
+#
+# Uses `herdr worktree open --cwd <base_worktree_path> --path <worktree_path>`
+# (the same primitive behind the TUI's "New worktree"/"Open worktree..."
+# menu, see `herdr worktree --help`) rather than `herdr workspace create`, so
+# the new workspace is GROUPED under the space you switched FROM in the
+# sidebar instead of appearing as a disconnected top-level space.
+# base_worktree_path is worktrunk's "{{ base_worktree_path }}" — the worktree
+# you switched from — falling back to $PWD if unset (e.g. manual invocation).
 
 LABEL="$1"
-CWD="${2:-$PWD}"
+WORKTREE_PATH="$2"
+BASE_PATH="${3:-$PWD}"
 
-if [ -z "$LABEL" ]; then
-  echo "Error: label required"
+if [ -z "$LABEL" ] || [ -z "$WORKTREE_PATH" ]; then
+  echo "Error: label and worktree path required"
   exit 1
 fi
 
@@ -29,19 +40,24 @@ if [ -n "$WORKSPACE_ID" ] && [ "$WORKSPACE_ID" != "null" ]; then
   exit 0
 fi
 
-# Create workspace (first tab created automatically)
-RESULT=$(herdr workspace create --cwd "$CWD" --label "$LABEL" --no-focus)
+# Open as a herdr worktree workspace, grouped under the originating space
+# ($BASE_PATH) in the sidebar. `--path` is the actual checkout to attach.
+RESULT=$(herdr worktree open --cwd "$BASE_PATH" --path "$WORKTREE_PATH" --label "$LABEL" --no-focus)
 WORKSPACE_ID=$(echo "$RESULT" | jq -r '.result.workspace.workspace_id')
 FIRST_TAB_ID=$(echo "$RESULT" | jq -r '.result.tab.tab_id')
 
 if [ -z "$WORKSPACE_ID" ] || [ "$WORKSPACE_ID" = "null" ]; then
-  echo "Error: failed to create herdr workspace"
+  echo "Error: failed to open herdr worktree workspace"
+  echo "$RESULT"
   exit 1
 fi
 
-herdr tab rename "$FIRST_TAB_ID" ai >/dev/null
-herdr tab create --workspace "$WORKSPACE_ID" --label editor --no-focus >/dev/null
-herdr tab create --workspace "$WORKSPACE_ID" --label metro --no-focus >/dev/null
-herdr tab create --workspace "$WORKSPACE_ID" --label shell --no-focus >/dev/null
+# Create all four tabs with the correct worktree cwd, then close the
+# auto-created first tab (its cwd is $BASE_PATH, not the new worktree).
+herdr tab create --workspace "$WORKSPACE_ID" --label ai     --cwd "$WORKTREE_PATH" --no-focus >/dev/null
+herdr tab create --workspace "$WORKSPACE_ID" --label editor --cwd "$WORKTREE_PATH" --no-focus >/dev/null
+herdr tab create --workspace "$WORKSPACE_ID" --label metro  --cwd "$WORKTREE_PATH" --no-focus >/dev/null
+herdr tab create --workspace "$WORKSPACE_ID" --label shell  --cwd "$WORKTREE_PATH" --no-focus >/dev/null
+[ -n "$FIRST_TAB_ID" ] && [ "$FIRST_TAB_ID" != "null" ] && herdr tab close "$FIRST_TAB_ID" >/dev/null
 
-echo "✓ Herdr workspace '$LABEL' created ($WORKSPACE_ID)"
+echo "✓ Herdr worktree workspace '$LABEL' created ($WORKSPACE_ID)"

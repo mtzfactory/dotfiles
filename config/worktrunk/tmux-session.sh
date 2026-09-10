@@ -16,7 +16,7 @@ if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
   tmux new-session -d -s "$SESSION_NAME" -n ai
   tmux new-window -t "$SESSION_NAME" -n editor
   tmux new-window -t "$SESSION_NAME" -n metro
-  tmux new-window -t "$SESSION_NAME" -n terminal
+  tmux new-window -t "$SESSION_NAME" -n shell
   echo "✓ Tmux session '$SESSION_NAME' created"
 else
   echo "✓ Tmux session '$SESSION_NAME' already exists"

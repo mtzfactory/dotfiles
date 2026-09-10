@@ -147,10 +147,13 @@ wts() {
 # Wrapper for wt switch that opens the target branch in a new herdr workspace
 # WITHOUT changing the current workspace's working directory.
 #
-# Strategy: pre-create the herdr workspace, then run `command wt switch` (the
-# binary, bypassing the shell function) in the current terminal. The binary
-# creates the worktree and runs all hooks but does NOT cd, so the current
-# workspace's path stays unchanged.
+# Strategy: run `command wt switch` (the binary, bypassing the shell function)
+# in the current terminal to create/checkout the worktree and run all
+# worktrunk hooks. `command wt` does NOT cd, so the current workspace's path
+# stays unchanged. Then attach the new checkout to herdr via the native
+# `herdr worktree open`, which groups the new workspace under the current
+# space in the sidebar (same primitive behind the TUI's "New worktree" /
+# "Open worktree..." menu) instead of a disconnected top-level space.
 wths() {
   # Skip herdr flow if the server isn't running
   if ! herdr workspace list >/dev/null 2>&1; then
@@ -171,56 +174,96 @@ wths() {
 
   local label="$(_wt_label "$branch_arg")"
 
-  # Look up existing workspace for this branch
+  # Does a worktree checkout for this branch already exist on disk? Resolve
+  # this by PATH via git, then map path -> herdr workspace using herdr's own
+  # worktree<->workspace tracking (`herdr worktree list --cwd`) — the same
+  # robust lookup herdr-session-close.sh uses. Labels are NOT trusted for this
+  # check: workspaces created before the repo-prefix fix to _wt_label use a
+  # legacy "_<branch>" label (missing the "<repo>_" prefix) and would
+  # otherwise be invisible here, making wths() think no workspace exists and
+  # try to recreate an already-existing worktree ("Directory already exists").
+  local existing_path
+  existing_path=$(git worktree list --porcelain 2>/dev/null \
+    | awk -v b="branch refs/heads/$branch_arg" '/^worktree /{p=$2} $0==b{print p; exit}')
+
   local workspace_id
-  workspace_id=$(herdr workspace list 2>/dev/null \
-    | jq -r --arg l "$label" '.result.workspaces[] | select(.label == $l) | .workspace_id' \
-    | head -1)
+  if [[ -n "$existing_path" ]]; then
+    workspace_id=$(herdr worktree list --cwd "$existing_path" 2>/dev/null \
+      | jq -r --arg p "$existing_path" '.result.worktrees[]? | select(.path == $p) | .open_workspace_id // empty' \
+      | head -1)
+  fi
+
+  # Fallback: match by current-format label (covers a workspace that exists
+  # but isn't yet resolvable by path for some reason).
+  if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
+    workspace_id=$(herdr workspace list 2>/dev/null \
+      | jq -r --arg l "$label" '.result.workspaces[] | select(.label == $l) | .workspace_id' \
+      | head -1)
+  fi
 
   if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
-    # ── Create workspace BEFORE wt switch ────────────────────────────────────
-    # Pre-creating ensures the current workspace's pane CWD is never changed;
-    # only the new workspace's pane will change to the worktree path.
-    local result first_tab_id
-    result=$(herdr workspace create --cwd "$PWD" --label "$label" --no-focus)
-    workspace_id=$(echo "$result" | jq -r '.result.workspace.workspace_id')
-    first_tab_id=$(echo "$result"  | jq -r '.result.tab.tab_id')
-
-    if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
-      echo "wths: failed to create herdr workspace, falling back to direct switch" >&2
-      _wt_switch_or_offer_create "wt switch" "$@"
-      return
-    fi
-
+    # ── Create/checkout the git worktree FIRST, then open it in herdr ───────
+    # `herdr worktree open` only accepts an *existing* checkout, so the worktree
+    # must exist before herdr can attach a workspace to it. Since `command wt`
+    # (the raw binary) never cd's the calling shell, the current workspace's
+    # pane CWD stays untouched regardless of this ordering.
+    #
+    # If `existing_path` is set, the worktree is already there (just not open
+    # in herdr, e.g. the workspace was closed via the UI "Close" action
+    # without `wt remove`) — plain `wt switch` re-attaches/re-runs hooks
+    # without trying to (re)create anything. Otherwise this is genuinely new
+    # and `_wt_switch_or_offer_create` may offer --create.
+    #
     # Run wt switch as the raw binary (bypassing the shell function) in the
     # current terminal. `command wt` skips the shell function's `cd`, so the
     # current workspace's CWD is never changed. The binary still creates the
     # worktree, runs all pre-start/post-switch hooks, and prints progress here.
     # Set _WTHS_ACTIVE so herdr-session.sh (called by the post-switch hook)
-    # skips workspace creation — wths already pre-created the correct one.
+    # skips workspace creation — wths opens the correct (grouped) workspace
+    # itself, below.
     export _WTHS_ACTIVE=1
     _wt_switch_or_offer_create "command wt switch" "$@"
     local wt_exit=$?
     unset _WTHS_ACTIVE
 
-    if [[ $wt_exit -ne 0 ]]; then
-      herdr workspace close "$workspace_id" >/dev/null 2>&1 || true
-      return $wt_exit
+    [[ $wt_exit -ne 0 ]] && return $wt_exit
+
+    # Find the worktree's path (already known if it pre-existed)
+    local new_path="$existing_path"
+    if [[ -z "$new_path" ]]; then
+      new_path=$(git worktree list --porcelain \
+        | awk -v b="branch refs/heads/$branch_arg" '/^worktree /{p=$2} $0==b{print p; exit}')
     fi
 
-    # Find the new worktree path for the remaining tabs' starting directory
-    local new_path tab_cwd
-    new_path=$(git worktree list --porcelain \
-      | awk -v b="branch refs/heads/$branch_arg" '/^worktree /{p=$2} $0==b{print p; exit}')
-    tab_cwd="${new_path:-$PWD}"
+    if [[ -z "$new_path" ]]; then
+      echo "wths: could not resolve worktree path for '$branch_arg'" >&2
+      return 1
+    fi
+
+    # ── Open it as a herdr *worktree* workspace ──────────────────────────────
+    # `herdr worktree open` (the same primitive behind the TUI's "New
+    # worktree"/"Open worktree..." menu, see herdr worktree --help) attaches the
+    # checkout as a workspace GROUPED under the current repo's space in the
+    # sidebar, instead of a disconnected top-level space. `--cwd "$PWD"`
+    # anchors the grouping to whatever repo/space wths was invoked from.
+    local result first_tab_id
+    result=$(herdr worktree open --cwd "$PWD" --path "$new_path" --label "$label" --no-focus)
+    workspace_id=$(echo "$result" | jq -r '.result.workspace.workspace_id')
+    first_tab_id=$(echo "$result"  | jq -r '.result.tab.tab_id')
+
+    if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
+      echo "wths: failed to open herdr worktree workspace" >&2
+      echo "$result" >&2
+      return 1
+    fi
 
     # Create all four tabs with the correct worktree cwd, then close the
-    # auto-created first tab (it was opened with $PWD = old path at pre-create time).
-    herdr tab create --workspace "$workspace_id" --label ai       --cwd "$tab_cwd" --no-focus >/dev/null
-    herdr tab create --workspace "$workspace_id" --label editor   --cwd "$tab_cwd" --no-focus >/dev/null
-    herdr tab create --workspace "$workspace_id" --label metro    --cwd "$tab_cwd" --no-focus >/dev/null
-    herdr tab create --workspace "$workspace_id" --label terminal --cwd "$tab_cwd" --no-focus >/dev/null
-    herdr tab close "$first_tab_id" >/dev/null
+    # auto-created first tab.
+    herdr tab create --workspace "$workspace_id" --label ai       --cwd "$new_path" --no-focus >/dev/null
+    herdr tab create --workspace "$workspace_id" --label editor   --cwd "$new_path" --no-focus >/dev/null
+    herdr tab create --workspace "$workspace_id" --label metro    --cwd "$new_path" --no-focus >/dev/null
+    herdr tab create --workspace "$workspace_id" --label shell    --cwd "$new_path" --no-focus >/dev/null
+    [[ -n "$first_tab_id" && "$first_tab_id" != "null" ]] && herdr tab close "$first_tab_id" >/dev/null
 
   else
     # Workspace already exists — focus it; wt switch already ran (or will run
