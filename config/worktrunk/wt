@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Universal `wt remove` --foreground wrapper.
+#
+# Why this exists: `wt remove` defaults to deleting worktree files in a
+# DETACHED background process (so large node_modules-style trees don't
+# block the shell). That's fine by itself, but our worktrunk hooks
+# (config/worktrunk/config.toml [post-remove]) close the herdr workspace /
+# tmux session the command is running in — and when you remove your OWN
+# current worktree, that hook can tear down the very pane hosting the
+# detached deletion before it makes any real progress, orphaning the
+# worktree directory in .git/wt/trash/ forever (confirmed: every orphaned
+# trash dir found on this machine was a self-removal case, fully intact,
+# with the herdr post-remove hook log showing "this pane goes with it").
+#
+# `--foreground` makes `wt remove` block until deletion is FULLY done
+# before it dispatches post-remove hooks at all, closing that race. See
+# `wt remove --help` ("Background removal").
+#
+# shell/shared/worktrunk.zsh already forces `--foreground` — but only via a
+# zsh shell FUNCTION defined in ~/.zshrc, which is sourced for INTERACTIVE
+# zsh shells only. It never applies to non-interactive shells: scripts, and
+# critically, AI coding agents' tool-call shells, which typically run
+# `bash -c ...` without sourcing `.zshrc` at all and just inherit whatever
+# $PATH their parent process already had.
+#
+# This script closes that gap by living on $PATH itself (symlinked into
+# ~/.local/bin/wt by create-symlinks.zsh, which — same as the zsh function
+# fix — only helps if ~/.local/bin precedes the real `wt` on $PATH; verify
+# with `which -a wt` if this ever stops applying). Because it sits on $PATH
+# rather than being a shell function, it's picked up by every caller
+# regardless of shell or interactivity: zsh, bash, an agent's tool runner,
+# all of it.
+#
+# Idempotent: if --foreground is already present (e.g. the zsh function
+# added it), it is not duplicated.
+
+set -euo pipefail
+
+# Resolve the REAL `wt` binary by temporarily stripping this script's own
+# directory from $PATH and looking `wt` up again — avoids recursing into
+# this same script, and avoids hardcoding a Homebrew-specific path so this
+# keeps working on Linux / Intel Homebrew / other install locations.
+self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+real_wt="$(PATH="${PATH//"$self_dir:"/}"; PATH="${PATH%":$self_dir"}"; command -v wt)"
+
+if [[ -z "$real_wt" || "$real_wt" == "${BASH_SOURCE[0]}" ]]; then
+  echo "wt (wrapper): could not resolve the real wt binary on \$PATH" >&2
+  exit 1
+fi
+
+if [[ "${1:-}" == "remove" ]]; then
+  shift
+  has_foreground=false
+  for arg in "$@"; do
+    [[ "$arg" == "--foreground" ]] && has_foreground=true
+  done
+  if [[ "$has_foreground" == true ]]; then
+    exec "$real_wt" remove "$@"
+  else
+    exec "$real_wt" remove --foreground "$@"
+  fi
+else
+  exec "$real_wt" "$@"
+fi

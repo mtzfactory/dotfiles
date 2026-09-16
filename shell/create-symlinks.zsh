@@ -75,6 +75,18 @@ if command -v wt >/dev/null 2>&1; then
 fi
 
 ##
+# WorkTrunk `wt` PATH wrapper — forces `wt remove --foreground` for every
+# caller (interactive shells, scripts, AI agent tool-call shells), not just
+# interactive zsh. See config/worktrunk/wt for why. Only takes effect while
+# $HOME/.local/bin precedes the real `wt` on $PATH (set up above).
+if command -v wt >/dev/null 2>&1; then
+  local WT_WRAPPER_TARGET="$HOME/.local/bin/wt"
+  if [ ! -e "$WT_WRAPPER_TARGET" ]; then
+    ln -s "$DOTFILES_SYMLINKS/worktrunk/wt" "$WT_WRAPPER_TARGET"
+  fi
+fi
+
+##
 # Ssh config
 local HOME_SSH="$HOME/.ssh"
 local HOME_SSH_CONFIG="$HOME_SSH/config"
