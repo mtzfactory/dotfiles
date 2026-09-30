@@ -18,9 +18,16 @@ local ASDF="$BREW_OPT_DIR/asdf"
 [ -d $ASDF ] && source /opt/homebrew/opt/asdf/libexec/asdf.sh
 
 # atuin
+# Daemon mode is off (daemon.enabled = false in ~/.config/atuin/config.toml,
+# it's only needed for sync perf) so don't try to keep a background daemon
+# alive here: `atuin init zsh` works standalone. A previous version of this
+# block did `pgrep -x atuin || brew services start atuin` on every new
+# shell; once the daemon's unix socket got orphaned (crash without cleanup)
+# it crash-looped forever and `brew services start` kept failing with
+# "Bootstrap failed" — printing to stderr during zsh init and breaking
+# Powerlevel10k's instant prompt on every single shell.
 local ATUIN="$BREW_OPT_DIR/atuin"
 if [ -d "$ATUIN" ]; then
-  pgrep -x atuin > /dev/null || brew services start atuin
   eval "$(atuin init zsh)"
 fi
 
