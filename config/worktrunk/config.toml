@@ -19,6 +19,25 @@ summary = true
 # https://github.com/satococoa/git-worktreeinclude
 copy = "wt step copy-ignored"
 
+[[pre-start]]
+# Right after the copy, delete Android build state that bakes in ABSOLUTE paths
+# to the checkout it was generated in. A copy keeps pointing at the SOURCE
+# checkout, so Gradle (e.g. assembleRelease) in the new worktree ends up
+# building there instead:
+# - android/build/generated/autolinking (React Native / Expo): every
+#   `sourceDir` in autolinking.json points at the source checkout's
+#   node_modules. It's keyed on package.json's hash, so `expo prebuild` in the
+#   worktree does NOT regenerate it and Gradle compiles the native modules
+#   inside the source checkout.
+# - .cxx at any depth (node_modules/<pkg>/android/.cxx, android/app/.cxx, ...):
+#   CMake caches, so ninja runs inside the source checkout's .cxx, can't find
+#   the worktree's libraries and leaves build leftovers there.
+# Gradle regenerates both for the worktree's own paths on the next build.
+# Not doable with [step.copy-ignored] exclude: it only filters the top-level
+# ignored entries (node_modules, android, ...), never paths nested inside them.
+# Separate [[pre-start]] block so it runs strictly after the copy finishes.
+strip-abs-paths = "cd '{{ worktree_path }}' && rm -rf android/build/generated/autolinking && find . -path ./.git -prune -o -type d -name .cxx -prune -exec rm -rf {} +"
+
 [[post-start]]
 # Rebase onto upstream when a NEW worktree is created. Moved out of
 # pre-start: pre-start hooks BLOCK and a failure (e.g. rebase conflict on a

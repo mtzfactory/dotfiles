@@ -66,8 +66,11 @@ _wt_label() {
   printf '%s\n' "$(sanitize "$(_wt_repo_folder)")_$(sanitize "$branch")"
 }
 
-# post-start hook: automatically applies .worktreeinclude when a new worktree
-# is created via `wt switch --create` or `wt switch <branch>`.
+# pre-start hook: automatically applies .worktreeinclude when a new worktree
+# is created via `wt switch --create`, `wt switch <branch>` or wto(), then
+# deletes copied Android build state that holds absolute paths to the source
+# checkout (.cxx CMake caches at any depth, android/build/generated/autolinking)
+# so Gradle builds in the new worktree instead of the source one.
 # Configured in ~/.config/worktrunk/config.toml (symlinked from dotfiles).
 # Requires: brew install satococoa/tap/git-worktreeinclude
 # See: https://github.com/satococoa/git-worktreeinclude
