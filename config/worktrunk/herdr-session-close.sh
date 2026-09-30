@@ -11,7 +11,7 @@
 #      where pre-remove did not run or the checkout is still on disk.
 #   3. Exact label match.
 #   4. Legacy label "_<branch>" — workspaces created before the missing-repo-
-#      prefix bug in worktrunk.zsh's wths()/wts() was fixed.
+#      prefix bug in wt-session.zsh's wto()/wts() was fixed.
 #
 # Always exits 0: a failed cleanup must not make `wt remove` look broken.
 

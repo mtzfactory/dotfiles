@@ -27,8 +27,8 @@ if ! herdr workspace list >/dev/null 2>&1; then
   exit 0
 fi
 
-# Skip if wths is managing the workspace (it pre-creates the correct one)
-if [[ -n "$_WTHS_ACTIVE" ]]; then
+# Skip if wto is managing the workspace (it pre-creates the correct one)
+if [[ -n "$_WTO_ACTIVE" ]]; then
   exit 0
 fi
 

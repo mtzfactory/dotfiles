@@ -23,7 +23,7 @@ copy = "wt step copy-ignored"
 # Rebase onto upstream when a NEW worktree is created. Moved out of
 # pre-start: pre-start hooks BLOCK and a failure (e.g. rebase conflict on a
 # branch that diverged from its tracked upstream) aborted the whole `wt
-# switch --create`/wths before the herdr workspace ever got opened — you'd
+# switch --create`/wto before the herdr workspace ever got opened — you'd
 # land back wherever you started with a worktree stuck mid-rebase and no
 # space to fix it in. post-start runs in the background after the worktree
 # (and its herdr workspace/tabs) already exist, so a conflict just leaves

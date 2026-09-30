@@ -16,7 +16,7 @@
 # before it dispatches post-remove hooks at all, closing that race. See
 # `wt remove --help` ("Background removal").
 #
-# shell/shared/worktrunk.zsh already forces `--foreground` — but only via a
+# shell/shared/wt-session.zsh already forces `--foreground` — but only via a
 # zsh shell FUNCTION defined in ~/.zshrc, which is sourced for INTERACTIVE
 # zsh shells only. It never applies to non-interactive shells: scripts, and
 # critically, AI coding agents' tool-call shells, which typically run

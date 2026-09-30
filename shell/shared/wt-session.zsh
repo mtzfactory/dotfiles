@@ -60,7 +60,7 @@ _wt_repo_folder() {
 # Session/workspace label, matching the worktrunk hook template exactly:
 # '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'
 # Must stay in sync with the hooks in ~/.config/worktrunk/config.toml, otherwise
-# the post-remove cleanup cannot find what wths()/wts() created.
+# the post-remove cleanup cannot find what wto()/wts() created.
 _wt_label() {
   local branch="$1"
   printf '%s\n' "$(sanitize "$(_wt_repo_folder)")_$(sanitize "$branch")"
@@ -84,7 +84,7 @@ _wt_label() {
 # Usage: _wt_switch_or_offer_create <runner-command-string> [switch-args...]
 # <runner-command-string> is the command to run wt switch with, e.g.
 # "wt switch" (shell-integrated, cds) or "command wt switch" (raw binary,
-# used by wths() so the current pane's cwd is untouched).
+# used by wto() so the current pane's cwd is untouched).
 _wt_switch_or_offer_create() {
   local runner="$1"
   shift
@@ -154,7 +154,7 @@ wts() {
 # `herdr worktree open`, which groups the new workspace under the current
 # space in the sidebar (same primitive behind the TUI's "New worktree" /
 # "Open worktree..." menu) instead of a disconnected top-level space.
-wths() {
+wto() {
   # Skip herdr flow if the server isn't running
   if ! herdr workspace list >/dev/null 2>&1; then
     _wt_switch_or_offer_create "wt switch" "$@"
@@ -168,7 +168,7 @@ wths() {
   done
 
   if [[ -z "$branch_arg" ]]; then
-    echo "wths: no branch specified" >&2
+    echo "wto: no branch specified" >&2
     return 1
   fi
 
@@ -180,7 +180,7 @@ wths() {
   # robust lookup herdr-session-close.sh uses. Labels are NOT trusted for this
   # check: workspaces created before the repo-prefix fix to _wt_label use a
   # legacy "_<branch>" label (missing the "<repo>_" prefix) and would
-  # otherwise be invisible here, making wths() think no workspace exists and
+  # otherwise be invisible here, making wto() think no workspace exists and
   # try to recreate an already-existing worktree ("Directory already exists").
   local existing_path
   existing_path=$(git worktree list --porcelain 2>/dev/null \
@@ -218,13 +218,13 @@ wths() {
     # current terminal. `command wt` skips the shell function's `cd`, so the
     # current workspace's CWD is never changed. The binary still creates the
     # worktree, runs all pre-start/post-switch hooks, and prints progress here.
-    # Set _WTHS_ACTIVE so herdr-session.sh (called by the post-switch hook)
-    # skips workspace creation — wths opens the correct (grouped) workspace
+    # Set _WTO_ACTIVE so herdr-session.sh (called by the post-switch hook)
+    # skips workspace creation — wto opens the correct (grouped) workspace
     # itself, below.
-    export _WTHS_ACTIVE=1
+    export _WTO_ACTIVE=1
     _wt_switch_or_offer_create "command wt switch" "$@"
     local wt_exit=$?
-    unset _WTHS_ACTIVE
+    unset _WTO_ACTIVE
 
     [[ $wt_exit -ne 0 ]] && return $wt_exit
 
@@ -236,7 +236,7 @@ wths() {
     fi
 
     if [[ -z "$new_path" ]]; then
-      echo "wths: could not resolve worktree path for '$branch_arg'" >&2
+      echo "wto: could not resolve worktree path for '$branch_arg'" >&2
       return 1
     fi
 
@@ -245,14 +245,14 @@ wths() {
     # worktree"/"Open worktree..." menu, see herdr worktree --help) attaches the
     # checkout as a workspace GROUPED under the current repo's space in the
     # sidebar, instead of a disconnected top-level space. `--cwd "$PWD"`
-    # anchors the grouping to whatever repo/space wths was invoked from.
+    # anchors the grouping to whatever repo/space wto was invoked from.
     local result first_tab_id
     result=$(herdr worktree open --cwd "$PWD" --path "$new_path" --label "$label" --no-focus)
     workspace_id=$(echo "$result" | jq -r '.result.workspace.workspace_id')
     first_tab_id=$(echo "$result"  | jq -r '.result.tab.tab_id')
 
     if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
-      echo "wths: failed to open herdr worktree workspace" >&2
+      echo "wto: failed to open herdr worktree workspace" >&2
       echo "$result" >&2
       return 1
     fi
@@ -273,4 +273,10 @@ wths() {
 
   herdr workspace focus "$workspace_id"
   [[ -z "$HERDR_ENV" ]] && herdr
+}
+
+# Lists tmux panes running a claude herdr agent: name, pane_id, cwd, terminal title.
+# Handy for locating/attaching to workspaces opened via wto().
+claude-agents() {
+  herdr agent list | jq -r '.result.agents[] | select(.agent=="claude") | "\(.name // "-")\t\(.pane_id)\t\(.cwd)\t\(.terminal_title_stripped // "")"'
 }
