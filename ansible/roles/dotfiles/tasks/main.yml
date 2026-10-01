@@ -159,6 +159,19 @@
     dest: "{{ ansible_env.HOME }}/.config/nvim"
     state: link
 
+# ── PATH para shells no interactivos en ~/.zshenv ───────────────────────────
+# customize.zsh añade ~/.local/bin, pero solo lo carga ~/.zshrc. Un `ssh host cmd`
+# (Herdr Mobile, `herdr --remote`) arranca un zsh no interactivo que solo lee
+# ~/.zshenv, y sin esto no encuentra herdr ni wt.
+- name: Inject ~/.local/bin into the non-interactive PATH in ~/.zshenv
+  blockinfile:
+    path: "{{ ansible_env.HOME }}/.zshenv"
+    create: true
+    mode: "0644"
+    marker: "# ── {mark} DOTFILES PATH — gestionado por Ansible ──"
+    block: |
+      [[ -d "$HOME/.local/bin" && ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
+
 # ── Bootstrap del shell en ~/.zshrc ─────────────────────────────────────────
 - name: Inject dotfiles initialization block into ~/.zshrc
   blockinfile:
