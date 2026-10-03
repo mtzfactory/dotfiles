@@ -163,6 +163,9 @@
 # customize.zsh añade ~/.local/bin, pero solo lo carga ~/.zshrc. Un `ssh host cmd`
 # (Herdr Mobile, `herdr --remote`) arranca un zsh no interactivo que solo lee
 # ~/.zshenv, y sin esto no encuentra herdr ni wt.
+# Lo mismo con node: los shims de nvm solo existen en el shell interactivo, así
+# que `zsh -lc`, los hooks de git y los agentes verían el node de Homebrew en vez
+# del que fija el .nvmrc del proyecto.
 - name: Inject ~/.local/bin into the non-interactive PATH in ~/.zshenv
   blockinfile:
     path: "{{ ansible_env.HOME }}/.zshenv"
@@ -171,6 +174,24 @@
     marker: "# ── {mark} DOTFILES PATH — gestionado por Ansible ──"
     block: |
       [[ -d "$HOME/.local/bin" && ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
+      # Node from the nearest .nvmrc, without sourcing nvm.sh: every zsh reads
+      # this file, so non-interactive shells (zsh -lc, agents, git hooks) get it too.
+      # Only an exact, already installed version counts (24.11.1, not 24 or lts/*).
+      () {
+        local dir=$PWD ver bin
+        # A deleted cwd leaves $PWD without a slash, which would never shorten.
+        [[ $dir == /* ]] || return
+        while [[ -n $dir ]]; do
+          if [[ -r $dir/.nvmrc ]]; then
+            ver=${${"$(<$dir/.nvmrc)"//[[:space:]]/}#v}
+            bin=${NVM_DIR:-$HOME/.nvm}/versions/node/v$ver/bin
+            [[ -d $bin ]] && path=($bin ${path:#${NVM_DIR:-$HOME/.nvm}/versions/node/*})
+            return
+          fi
+          [[ $dir == */* ]] || return
+          dir=${dir%/*}
+        done
+      }
 
 # ── Bootstrap del shell en ~/.zshrc ─────────────────────────────────────────
 - name: Inject dotfiles initialization block into ~/.zshrc
