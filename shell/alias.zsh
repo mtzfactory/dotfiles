@@ -58,7 +58,11 @@ killport() {
 #
 
 # list all files colorized in long format
-if [ -x "$(command -v eza)" ]; then
+if [ -n "$CLAUDECODE" ]; then
+  # agents parse `ls` output, so give them the stock one back (the oh-my-zsh
+  # eza plugin has already aliased it by the time this file is sourced)
+  unalias ls 2>/dev/null
+elif [ -x "$(command -v eza)" ]; then
   alias ls="eza --all --group-directories-first --header --long --octal-permissions --git --icons=always --show-symlinks" 
 else
   # Detect which `ls` flavor is in use

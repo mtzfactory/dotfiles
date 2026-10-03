@@ -95,8 +95,11 @@ fi
 
 # nvm — lazy loaded to avoid ~500ms startup cost
 # nvm, node, npm etc. are shimmed: the real nvm.sh is sourced on first use
+# Not in agent sessions: Claude Code's shell snapshot keeps the shims but drops
+# _nvm_lazy_load, so they would recurse into "command not found". Agents get
+# node from the .nvmrc lookup in ~/.zshenv instead.
 local NVM="$BREW_OPT_DIR/nvm"
-if [ -d "$NVM" ]; then
+if [ -d "$NVM" ] && [ -z "$CLAUDECODE" ]; then
   export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
   _nvm_lazy_load() {
     unfunction nvm node npm npx yarn pnpm corepack 2>/dev/null
@@ -110,6 +113,29 @@ if [ -d "$NVM" ]; then
   yarn()     { _nvm_lazy_load; yarn "$@"; }
   pnpm()     { _nvm_lazy_load; pnpm "$@"; }
   corepack() { _nvm_lazy_load; corepack "$@"; }
+elif [ -n "$CLAUDECODE" ]; then
+  # Same .nvmrc lookup as the ~/.zshenv block, repeated this late on purpose:
+  # the snapshot freezes the PATH of this interactive shell, and by now
+  # path_helper and the lines above have pushed the Homebrew node back in front.
+  () {
+    local dir=$PWD ver bin
+    # A deleted cwd leaves $PWD without a slash, which would never shorten.
+    [[ $dir == /* ]] || return
+    while [[ -n $dir ]]; do
+      if [[ -r $dir/.nvmrc ]]; then
+        ver=${${"$(<$dir/.nvmrc)"//[[:space:]]/}#v}
+        bin=${NVM_DIR:-$HOME/.nvm}/versions/node/v$ver/bin
+        [[ -d $bin ]] && path=($bin ${path:#${NVM_DIR:-$HOME/.nvm}/versions/node/*})
+        return
+      fi
+      [[ $dir == */* ]] || return
+      dir=${dir%/*}
+    done
+  }
+  # `mise activate` runs at the end of ~/.zshrc. With the state inherited from
+  # the shell that launched claude it rebuilds PATH from that shell's copy and
+  # undoes the line above, so make it start from the PATH we have now.
+  unset __MISE_ORIG_PATH __MISE_DIFF __MISE_SESSION
 fi
 
 # openjdk

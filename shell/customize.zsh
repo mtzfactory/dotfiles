@@ -13,6 +13,10 @@ fi
 # https://zsh.sourceforge.io/Doc/Release/Expansion.html#Glob-Operators
 setopt extended_glob
 
+# Agents write bash-style commands: pass an unmatched glob through literally
+# instead of aborting the whole command line.
+[ -n "$CLAUDECODE" ] && setopt no_nomatch
+
 ##
 # Zsh extensions
 autoload -U zmv
