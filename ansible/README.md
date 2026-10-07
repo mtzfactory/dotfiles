@@ -115,6 +115,13 @@ El script y el log van a rutas de root (`backup_script_path`,
 escribible por el usuario, y un cron de root que ejecute algo de ahí da root a
 cualquier proceso que corra como él.
 
+Las bases de datos se vuelcan antes del snapshot (`backup_db_dumps`): copiar
+en caliente los ficheros de una BD en marcha puede dar una copia que no
+arranque. El volcado se hace con `docker exec` usando las variables del propio
+contenedor, así que ninguna contraseña sale de él, y va a `/var/backups/homelab`,
+que entra en el snapshot. Un contenedor parado se salta; un volcado fallido
+se anota en el log y el script sale con error, pero el backup se hace igual.
+
 Para operar el repo a mano está el wrapper `homelab-restic`, que lleva dentro
 el repo y el password (sudo no hereda las variables `RESTIC_*` del shell, así
 que definirlas en `~/.zshenv` no sirve):

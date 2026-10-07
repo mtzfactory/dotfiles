@@ -40,6 +40,19 @@ backup_excludes:
   - "**/cache"
   - "**/tmp"
 
+# ── Volcados de bases de datos ──────────────────────────────────────────────
+# Se ejecutan antes del `restic backup` y su directorio entra en el snapshot.
+# `command` corre DENTRO del contenedor con `sh -c`, así que puede usar las
+# variables de entorno del propio contenedor y ninguna contraseña sale de él.
+# No puede contener comillas simples. Si el contenedor está parado se salta.
+#   - name: passbolt
+#     container: passbolt-db-1
+#     command: mariadb-dump --single-transaction -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
+backup_db_dumps: []
+# De root y fuera de home_lab_root, por lo mismo que el script. Solo guarda el
+# último volcado de cada BD: el histórico ya lo lleva restic.
+backup_dump_dir: /var/backups/homelab
+
 # ── Retención ───────────────────────────────────────────────────────────────
 # Se aplica con `restic forget --prune` después de cada backup.
 restic_keep_daily: 7

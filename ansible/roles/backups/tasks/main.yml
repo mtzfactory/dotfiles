@@ -72,7 +72,33 @@
       export RESTIC_REPOSITORY="{{ restic_repo }}"
       export RESTIC_PASSWORD_FILE="{{ restic_password_file }}"
 
+      # cron arranca con PATH=/usr/bin:/bin, y el docker del snap vive en
+      # /snap/bin: sin esto los volcados fallarían solo de noche.
+      export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+
       LOG="{{ backup_log_path }}"
+      DUMP_DIR="{{ backup_dump_dir }}"
+      DUMP_FAILED=0
+
+      # Vuelca una BD desde su contenedor a $DUMP_DIR/<nombre>.sql. Copiar en
+      # caliente los ficheros de una BD en marcha puede dar un snapshot que
+      # no arranque; el volcado sí es consistente. Un fallo aquí se anota
+      # pero no aborta: es mejor un backup sin volcado que ningún backup.
+      dump_db() {
+        local name="$1" container="$2" cmd="$3" out="$DUMP_DIR/$1.sql"
+        if [[ "$(docker inspect -f '{% raw %}{{.State.Running}}{% endraw %}' "$container" 2>/dev/null)" != "true" ]]; then
+          echo "dump $name: SKIP, el contenedor $container no está en marcha"
+          return 0
+        fi
+        if docker exec "$container" sh -c "$cmd" > "$out.tmp" && [[ -s "$out.tmp" ]]; then
+          mv "$out.tmp" "$out"
+          echo "dump $name: OK ($(du -h "$out" | cut -f1))"
+        else
+          rm -f "$out.tmp"
+          echo "dump $name: FALLO, se conserva el volcado anterior si lo había"
+          DUMP_FAILED=1
+        fi
+      }
       SOURCES=({% for src in backup_sources %}"{{ src }}" {% endfor %})
       EXCLUDES=({% for ex in backup_excludes %}--exclude "{{ ex }}" {% endfor %})
 
@@ -105,6 +131,14 @@
           exit 0
         fi
 
+      {% if backup_db_dumps %}
+        install -d -m 0700 "$DUMP_DIR"
+      {% for d in backup_db_dumps %}
+        dump_db "{{ d.name }}" "{{ d.container }}" '{{ d.command }}'
+      {% endfor %}
+        PRESENT+=("$DUMP_DIR")
+
+      {% endif %}
         # Un solo snapshot con todas las rutas: restic guarda la ruta absoluta
         # de cada una, así que se restauran por separado igualmente.
         restic backup "${PRESENT[@]}" "${EXCLUDES[@]}"
@@ -115,6 +149,10 @@
           --keep-monthly {{ restic_keep_monthly }} \
           --prune
 
+        if (( DUMP_FAILED )); then
+          echo "OK, pero falló algún volcado"
+          exit 1
+        fi
         echo "OK"
       } >> "$LOG" 2>&1
 

@@ -46,3 +46,8 @@ backups_enabled: true
 backup_sources:
   - "{{ home_lab_root }}/notes"
   - "{{ home_lab_root }}/docker/data"
+# La contraseña no aparece: el volcado usa las variables del propio contenedor.
+backup_db_dumps:
+  - name: passbolt
+    container: passbolt-db-1
+    command: mariadb-dump --single-transaction -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
