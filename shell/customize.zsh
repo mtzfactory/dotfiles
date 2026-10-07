@@ -40,6 +40,7 @@ local OS=$(uname | tr '[:upper:]' '[:lower:]')
 source "$DOTFILES/shell/env.zsh"
 source "$DOTFILES/shell/alias.zsh"
 source "$DOTFILES/shell/shared/wt-session.zsh"
+source "$DOTFILES/shell/shared/herdr-epic.zsh" # depends on sanitize()/_wt_repo_folder() above
 source "$DOTFILES/shell/$OS/customize-$OS.zsh"
 
 # Create symlinks
