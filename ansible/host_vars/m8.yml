@@ -4,6 +4,16 @@
 # Este host ya estaba configurado a mano antes de existir el playbook, así que
 # aquí se declara lo que difiere de una máquina nueva.
 
+# ── sudo ────────────────────────────────────────────────────────────────────
+# Ubuntu 26.04 trae sudo-rs como alternative por defecto en /usr/bin/sudo, y
+# el plugin `sudo` de Ansible no se entiende con él: pasa su prompt con -p y
+# espera verlo desnudo, pero sudo-rs lo envuelve en el suyo
+# ("[sudo: <prompt>] Password: ") y vuelve a preguntar, así que -K se queda
+# colgado hasta "Timed out waiting for become success or become password
+# prompt". El sudo clásico (paquete `sudo`, 1.9.17) sigue instalado y emite el
+# prompt literal, que es lo que Ansible espera.
+ansible_become_exe: /usr/bin/sudo.ws
+
 # ── Firewall ────────────────────────────────────────────────────────────────
 # Además de SSH/HTTP/HTTPS, este equipo expone escritorio remoto
 # (gnome-remote-desktop en 3389/3390) y se administra por Tailscale.

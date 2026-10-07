@@ -107,6 +107,28 @@ reiniciar. El M8 además expone escritorio remoto en 3389/3390.
 Nunca corras `--tags security` desde una sesión remota sin haber hecho
 `--check --diff` antes.
 
+### sudo-rs (Ubuntu 25.10+)
+
+Ubuntu trae ya **sudo-rs** como alternative por defecto en `/usr/bin/sudo`, y
+el plugin `sudo` de Ansible no se entiende con él. Ansible pasa su prompt con
+`-p` y espera verlo literal; sudo-rs lo envuelve en el suyo
+(`[sudo: <prompt>] Password: `) y vuelve a preguntar, así que `-K` se queda
+colgado y acaba en:
+
+```
+Timed out waiting for become success or become password prompt.
+```
+
+`host_vars/m8.yml` lo esquiva apuntando al sudo clásico, que sigue instalado
+(paquete `sudo`) y emite el prompt desnudo:
+
+```yaml
+ansible_become_exe: /usr/bin/sudo.ws
+```
+
+Si una máquina nueva falla igual con `-K`, es esto. Comprueba con
+`sudo --version`: si dice `sudo-rs`, añade la misma línea a su `host_vars/`.
+
 ### Docker
 
 Si el host trae Docker como **snap** (lo detecta `main.yml` en `pre_tasks`), se
