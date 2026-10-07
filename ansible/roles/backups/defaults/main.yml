@@ -1,0 +1,11 @@
+---
+# Mientras esté en false se despliega el script pero NO se instala el cron,
+# para no tener un backup fallando cada noche sin remote configurado.
+backups_enabled: false
+
+backup_remote: "remote:m8-backups"
+# Lista de pares: - { src: /ruta/local, dest: subdir-en-el-remote }
+backup_sources: []
+backup_excludes:
+  - "**/cache/**"
+  - "**/tmp/**"

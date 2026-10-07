@@ -1,0 +1,4 @@
+---
+# Importar la clave GPG privada para firmar commits. Requiere que exista
+# `{{ gpg_private_key_path }}`; si la clave ya está en el llavero, se salta.
+git_import_gpg_key: true

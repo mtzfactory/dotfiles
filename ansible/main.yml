@@ -1,16 +1,44 @@
 ---
-# main.yml — Aprovisionamiento del M8 (home lab)
+# main.yml — Aprovisionamiento y convergencia del home lab
 #
-# Uso (desde el Mac):
+# El playbook es IDEMPOTENTE: se puede correr repetidamente, también sobre la
+# propia máquina (ansible_connection=local), para añadir apps o reconciliar
+# configuración. Ver README.md.
+#
+# Uso:
 #   cd ansible/
-#   cp inventory.ini.example inventory.ini   # editar con la IP real
-#   ansible -i inventory.ini home_lab -m ping
-#   ansible-playbook -i inventory.ini main.yml -e @vars.yml --check   # dry-run
-#   ansible-playbook -i inventory.ini main.yml -e @vars.yml --ask-become-pass
+#   cp inventory.ini.example inventory.ini     # editar si hace falta
+#   ansible-galaxy collection install -r requirements.yml
+#   ansible-playbook main.yml --check --diff -K    # dry-run, SIEMPRE primero
+#   ansible-playbook main.yml -K
+#
+# Por tags:
+#   ansible-playbook main.yml --tags dotfiles -K   # solo dev tools y symlinks
+#   ansible-playbook main.yml --tags upgrade -K    # apt upgrade (opt-in)
 
-- name: Provision home lab server (M8)
+- name: Provision and converge home lab hosts
   hosts: home_lab
   become: false
+
+  pre_tasks:
+    - name: Detect Docker installed as a snap
+      ansible.builtin.stat:
+        path: /snap/bin/docker
+      register: docker_snap
+      tags: [always]
+
+    - name: Record whether the Docker snap is present
+      ansible.builtin.set_fact:
+        docker_snap_present: "{{ docker_snap.stat.exists }}"
+      tags: [always]
+
+    - name: Warn when Docker comes from the snap
+      ansible.builtin.debug:
+        msg: >-
+          Docker viene del snap de Canonical: se omiten repo, engine y grupo
+          'docker'. Solo se asegura la red externa.
+      when: docker_snap_present
+      tags: [always]
 
   roles:
     - role: system # Paquetes base de infraestructura (become interno)

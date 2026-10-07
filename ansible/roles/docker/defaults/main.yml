@@ -1,0 +1,23 @@
+---
+# Instalar Docker Engine desde el repo oficial. Se desactiva solo si se
+# detecta el snap de Docker, para no tener dos motores peleándose por
+# /var/run/docker.sock.
+docker_manage_engine: true
+
+# Ubuntu 26.04 ("resolute") todavía no tiene suite en download.docker.com.
+# Mapea releases sin soporte a la última LTS publicada.
+docker_apt_release_map:
+  resolute: noble
+docker_apt_release: >-
+  {{ docker_apt_release_map.get(ansible_distribution_release,
+     ansible_distribution_release) }}
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Red externa compartida por los docker-compose.yml de cada servicio.
+docker_external_network: web

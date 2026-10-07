@@ -1,0 +1,10 @@
+---
+# Colecciones necesarias. Instalar con:
+#   ansible-galaxy collection install -r requirements.yml
+#
+# (El paquete `ansible` completo ya las trae; `ansible-core` a secas, no.)
+#
+# Docker se maneja por CLI, no con community.docker: el snap de Docker no
+# expone el SDK de Python que el módulo necesita.
+collections:
+  - name: community.general # ufw

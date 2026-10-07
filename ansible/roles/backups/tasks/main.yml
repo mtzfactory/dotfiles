@@ -6,37 +6,58 @@
 # se hace UNA vez a mano en el servidor.
 
 - name: Ensure backup scripts directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ home_lab_root }}/scripts"
     state: directory
     mode: "0755"
 
+# El script comprueba el remote y los orígenes en tiempo de ejecución: así el
+# cron no llena el log de errores mientras `rclone config` siga pendiente, y
+# tampoco revienta si un origen aún no existe.
 - name: Deploy backup script
-  copy:
+  ansible.builtin.copy:
     dest: "{{ home_lab_root }}/scripts/backup.sh"
     mode: "0755"
     content: |
       #!/usr/bin/env bash
-      # Backup del home lab vía rclone.
-      # Requiere un remote configurado: rclone config
+      # Backup del home lab vía rclone. Gestionado por Ansible (role backups).
       set -euo pipefail
 
-      REMOTE="remote:m8-backups"   # ← ajustar al nombre real del remote
-      LOG="$HOME/home-lab/scripts/backup.log"
+      REMOTE="{{ backup_remote }}"
+      LOG="{{ home_lab_root }}/scripts/backup.log"
+      # Pares "origen|destino": destino explícito para que dos orígenes con el
+      # mismo basename no se sobreescriban en el remote.
+      PAIRS=({% for s in backup_sources %}"{{ s.src }}|{{ s.dest }}" {% endfor %})
+      EXCLUDES=({% for ex in backup_excludes %}--exclude "{{ ex }}" {% endfor %})
 
       {
         echo "── $(date -Is) ─────────────────────────────"
-        # Notas de Obsidian (llegan al M8 vía git/rsync)
-        rclone sync "$HOME/home-lab/obsidian" "$REMOTE/obsidian" --create-empty-src-dirs
-        # Datos de servicios (cada servicio co-localiza sus datos)
-        rclone sync "$HOME/home-lab/services" "$REMOTE/services" \
-          --exclude "**/cache/**" --exclude "**/tmp/**"
+
+        remote_name="${REMOTE%%:*}"
+        if ! rclone listremotes | grep -qx "${remote_name}:"; then
+          echo "SKIP: el remote '${remote_name}' no está configurado. Corre: rclone config"
+          exit 0
+        fi
+
+        for pair in "${PAIRS[@]}"; do
+          src="${pair%%|*}"
+          dest="${pair##*|}"
+          if [[ ! -d "$src" ]]; then
+            echo "SKIP: $src no existe"
+            continue
+          fi
+          echo "sync: $src -> $REMOTE/$dest"
+          rclone sync "$src" "$REMOTE/$dest" \
+            --create-empty-src-dirs "${EXCLUDES[@]}"
+        done
+
         echo "OK"
       } >> "$LOG" 2>&1
 
 - name: Schedule nightly backup via cron
-  cron:
+  ansible.builtin.cron:
     name: "home lab backup (rclone)"
     hour: "{{ backup_cron_hour }}"
     minute: "{{ backup_cron_minute }}"
     job: "{{ home_lab_root }}/scripts/backup.sh"
+    state: "{{ 'present' if backups_enabled else 'absent' }}"

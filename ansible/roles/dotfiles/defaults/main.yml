@@ -1,0 +1,28 @@
+---
+dotfiles_dev_packages:
+  - neovim
+  - ripgrep
+  - fd-find
+  - fzf
+  - bat
+  - jq
+  - tree
+  - make
+  - build-essential
+  - golang-go
+
+# Apps de cargo. `bin` es el ejecutable que instala el crate — no siempre
+# coincide con el nombre del paquete: worktrunk instala `wt`. Se usa para
+# detectar si ya está y no recompilar en cada ejecución.
+#
+# La lista equivalente en shell/linux/install-linux-user-apps.zsh añade
+# `worktrunk-sync` (rebase de ramas apiladas); añádelo aquí si lo quieres.
+dotfiles_cargo_packages:
+  - { crate: worktrunk, bin: wt } # Gestor de worktrees: https://worktrunk.dev
+
+# Clonar el repo dotfiles. Se salta solo si el destino ya es un repo git
+# (caso de la máquina que se gestiona a sí misma). Ponlo a false para no
+# tocar el repo nunca.
+dotfiles_manage_repo: true
+
+nvm_version: "v0.40.1"

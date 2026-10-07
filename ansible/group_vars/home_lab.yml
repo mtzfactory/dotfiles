@@ -1,0 +1,36 @@
+---
+# group_vars/home_lab.yml — configuración común a todas las máquinas del home lab.
+#
+# Sustituye al antiguo `vars.yml` + `-e @vars.yml`: las extra-vars (-e) tienen la
+# precedencia MÁS ALTA de Ansible, así que impedían ajustar nada por host. Aquí
+# sí: host_vars/<host>.yml gana sobre este fichero, y este sobre los
+# roles/*/defaults/main.yml.
+
+# ── Rutas ───────────────────────────────────────────────────────────────────
+# Dos niveles, y la distinción importa:
+#
+#   workspace_root  ~/workspace          cajón de cosas dispares:
+#                                        development/, dotfiles/, homelab/, temp/
+#   home_lab_root   ~/workspace/homelab  el home lab de verdad: docker/, notes/,
+#                                        backups/ — mismo significado que la
+#                                        variable home_lab_root de Terraform.
+workspace_root: "{{ ansible_env.HOME }}/workspace"
+home_lab_root: "{{ workspace_root }}/homelab"
+
+# ── Dotfiles ────────────────────────────────────────────────────────────────
+dotfiles_repo: "https://github.com/mtzfactory/dotfiles.git"
+dotfiles_dest: "{{ workspace_root }}/dotfiles"
+nvim_config: "astronvim" # astronvim | nvim | lvim
+
+# NVM vive en ~/.config/nvm (XDG), no en ~/.nvm.
+nvm_dir: "{{ ansible_env.HOME }}/.config/nvm"
+
+# ── Git / GPG (commit signing) ─────────────────────────────────────────────
+git_user_name: "Ricardo Martínez"
+git_user_email: "200234+mtzfactory@users.noreply.github.com"
+gpg_key_id: "06BCC481F5CE2B48"
+gpg_private_key_path: "files/gpg_private.asc" # relativo a ansible/ — NO versionar
+
+# ── Backups (rclone) ────────────────────────────────────────────────────────
+backup_cron_hour: "3"
+backup_cron_minute: "30"

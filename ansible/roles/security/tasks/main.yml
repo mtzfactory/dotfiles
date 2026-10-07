@@ -1,70 +1,108 @@
 ---
 # Role: security — UFW + fail2ban + hardening SSH
+#
+# Los puertos NO están hardcodeados: `security_ufw_allowed_ports` y
+# `security_ufw_trusted_interfaces` se ajustan por host. En el M8, sin abrir
+# 3389/3390 y confiar en tailscale0, un `ufw enable` cortaría el escritorio
+# remoto y el acceso por el tailnet.
 
-# ── UFW ─────────────────────────────────────────────────────────────────────
-- name: Set UFW default policies
-  become: true
-  ufw:
-    direction: "{{ item.direction }}"
-    policy: "{{ item.policy }}"
-  loop:
-    - { direction: incoming, policy: deny }
-    - { direction: outgoing, policy: allow }
+- name: Configure the firewall
+  when: security_firewall_enabled
+  block:
+    - name: Set UFW default policies
+      become: true
+      community.general.ufw:
+        direction: "{{ item.direction }}"
+        policy: "{{ item.policy }}"
+      loop:
+        - { direction: incoming, policy: deny }
+        - { direction: outgoing, policy: allow }
 
-- name: Allow SSH
-  become: true
-  ufw:
-    rule: limit # rate-limit contra fuerza bruta
-    port: "22"
-    proto: tcp
+    - name: Allow SSH
+      become: true
+      community.general.ufw:
+        rule: limit # rate-limit contra fuerza bruta
+        port: "{{ security_ssh_port }}"
+        proto: tcp
 
-- name: Allow HTTP/HTTPS (reverse proxy)
-  become: true
-  ufw:
-    rule: allow
-    port: "{{ item }}"
-    proto: tcp
-  loop:
-    - "80"
-    - "443"
+    - name: Allow configured TCP ports
+      become: true
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop: "{{ security_ufw_allowed_ports }}"
 
-- name: Enable UFW
-  become: true
-  ufw:
-    state: enabled
+    # Imprescindible antes de `enable`: la política deny-incoming también
+    # aplica a tailscale0, así que sin esto se pierde el tailnet.
+    - name: Allow all inbound traffic on trusted interfaces
+      become: true
+      community.general.ufw:
+        rule: allow
+        direction: in
+        interface: "{{ item }}"
+      loop: "{{ security_ufw_trusted_interfaces }}"
+
+    - name: Enable UFW
+      become: true
+      community.general.ufw:
+        state: enabled
 
 # ── fail2ban ────────────────────────────────────────────────────────────────
-- name: Configure fail2ban jail for sshd
-  become: true
-  copy:
-    dest: /etc/fail2ban/jail.local
-    mode: "0644"
-    content: |
-      [DEFAULT]
-      bantime  = 1h
-      findtime = 10m
-      maxretry = 5
+- name: Configure fail2ban
+  when: security_fail2ban_enabled
+  block:
+    - name: Configure fail2ban jail for sshd
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/fail2ban/jail.local
+        mode: "0644"
+        content: |
+          [DEFAULT]
+          bantime  = {{ security_fail2ban_bantime }}
+          findtime = {{ security_fail2ban_findtime }}
+          maxretry = {{ security_fail2ban_maxretry }}
 
-      [sshd]
-      enabled = true
-  notify: restart fail2ban
+          [sshd]
+          enabled = true
+      notify: restart fail2ban
 
-- name: Enable and start fail2ban
-  become: true
-  systemd:
-    name: fail2ban
-    enabled: true
-    state: started
+    - name: Enable and start fail2ban
+      become: true
+      ansible.builtin.systemd:
+        name: fail2ban
+        enabled: true
+        state: started
 
 # ── Hardening SSH ───────────────────────────────────────────────────────────
+# Un único fichero `99-hardening.conf`. Si existe un hardening.conf hecho a
+# mano, se retira: en sshd_config gana el primer valor leído y los ficheros se
+# ordenan alfabéticamente, así que tener los dos hace que cuál manda dependa
+# del nombre. Las directivas de ambos se consolidan aquí.
 - name: Harden sshd configuration
-  become: true
-  copy:
-    dest: /etc/ssh/sshd_config.d/99-hardening.conf
-    mode: "0644"
-    content: |
-      PasswordAuthentication no
-      PermitRootLogin no
-      MaxAuthTries 3
-      X11Forwarding no
-  notify: restart sshd
+  when: security_harden_sshd
+  block:
+    - name: Harden sshd
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/99-hardening.conf
+        mode: "0644"
+        owner: root
+        group: root
+        content: |
+          # Gestionado por Ansible (role security). No editar a mano.
+          PermitRootLogin no
+          PasswordAuthentication no
+          PubkeyAuthentication yes
+          AuthorizedKeysFile .ssh/authorized_keys
+          MaxAuthTries 3
+          LoginGraceTime 20
+          X11Forwarding no
+      notify: restart sshd
+
+    - name: Remove superseded hand-written sshd drop-in
+      become: true
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d/hardening.conf
+        state: absent
+      notify: restart sshd

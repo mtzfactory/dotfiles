@@ -1,0 +1,26 @@
+---
+# host_vars/m8.yml — particularidades del M8 (Ubuntu 26.04, escritorio + home lab)
+#
+# Este host ya estaba configurado a mano antes de existir el playbook, así que
+# aquí se declara lo que difiere de una máquina nueva.
+
+# ── Firewall ────────────────────────────────────────────────────────────────
+# Además de SSH/HTTP/HTTPS, este equipo expone escritorio remoto
+# (gnome-remote-desktop en 3389/3390) y se administra por Tailscale.
+# Sin esto, `ufw enable` cortaría el RDP y todo lo que no sea 22/80/443.
+security_ufw_allowed_ports:
+  - "80"
+  - "443"
+  - "3389" # gnome-remote-desktop (RDP)
+  - "3390" # gnome-remote-desktop (handover)
+security_ufw_trusted_interfaces:
+  - tailscale0
+
+# ── Backups ─────────────────────────────────────────────────────────────────
+# El remote de rclone hay que crearlo a mano una vez: `rclone config`.
+# Mientras no exista, el script sale limpio sin escribir nada (ver role).
+backups_enabled: true
+backup_remote: "remote:m8-backups"
+backup_sources:
+  - { src: "{{ home_lab_root }}/notes", dest: "notes" }
+  - { src: "{{ home_lab_root }}/docker/data", dest: "docker-data" }

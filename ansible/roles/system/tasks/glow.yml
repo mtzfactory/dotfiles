@@ -1,22 +1,28 @@
+# roles/system/tasks/glow.yml
+---
 - name: Ensure apt keyrings directory exists
+  become: true
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: "0755"
 
 - name: Add Charm apt GPG key
+  become: true
   ansible.builtin.get_url:
     url: https://repo.charm.sh/apt/gpg.key
     dest: /etc/apt/keyrings/charm.asc
     mode: "0644"
 
 - name: Add Charm apt repository
+  become: true
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/etc/apt/keyrings/charm.asc] https://repo.charm.sh/apt/ * *"
     filename: charm
     state: present
 
 - name: Install glow
+  become: true
   ansible.builtin.apt:
     name: glow
     state: present

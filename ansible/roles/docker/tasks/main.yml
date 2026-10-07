@@ -3,65 +3,79 @@
 #
 # La red 'web' es la que comparten los docker-compose.yml independientes
 # de cada servicio (PhotoPrism, Kavita, n8n, Ollama…) con el reverse proxy.
+#
+# Si el host trae Docker como snap (lo detecta main.yml), se omiten repo,
+# engine y grupo: dos motores compartiendo /var/run/docker.sock es pedir
+# problemas. Solo se asegura la red externa.
 
-- name: Create keyrings directory
-  become: true
-  file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: "0755"
+- name: Manage Docker Engine from the official apt repository
+  when:
+    - docker_manage_engine
+    - not (docker_snap_present | default(false))
+  block:
+    - name: Create keyrings directory
+      become: true
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
 
-- name: Add Docker GPG key
-  become: true
-  get_url:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /etc/apt/keyrings/docker.asc
-    mode: "0644"
+    - name: Add Docker GPG key
+      become: true
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
 
-- name: Add Docker apt repository
-  become: true
-  apt_repository:
-    repo: >-
-      deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}
-      signed-by=/etc/apt/keyrings/docker.asc]
-      https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-    filename: docker
-    state: present
+    - name: Add Docker apt repository
+      become: true
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}
+          signed-by=/etc/apt/keyrings/docker.asc]
+          https://download.docker.com/linux/ubuntu {{ docker_apt_release }} stable
+        filename: docker
+        state: present
 
-- name: Install Docker packages
-  become: true
-  apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
-    state: present
-    update_cache: true
+    - name: Install Docker packages
+      become: true
+      ansible.builtin.apt:
+        name: "{{ docker_packages }}"
+        state: present
+        update_cache: true
 
-- name: Add user to docker group
-  become: true
-  user:
-    name: "{{ ansible_user_id }}"
-    groups: docker
-    append: true
+    - name: Add user to docker group
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: true
 
-- name: Enable and start Docker service
-  become: true
-  systemd:
-    name: docker
-    enabled: true
-    state: started
+    - name: Enable and start Docker service
+      become: true
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
 
-- name: Create external 'web' network for compose services
+# ── Red externa compartida ──────────────────────────────────────────────────
+# Vía CLI en vez de community.docker.docker_network: el snap de Docker no
+# expone el SDK de Python que necesita el módulo, y así el role funciona
+# igual con snap y con docker-ce.
+- name: Check whether the external network exists
   become: true
-  community.docker.docker_network:
-    name: web
-    state: present
+  ansible.builtin.command: docker network inspect {{ docker_external_network }}
+  register: docker_net
+  changed_when: false
+  failed_when: false
+
+- name: Create external network for compose services
+  become: true
+  ansible.builtin.command: docker network create {{ docker_external_network }}
+  when: docker_net.rc != 0
 
 - name: Install lazydocker
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     curl -fsSL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
   args:

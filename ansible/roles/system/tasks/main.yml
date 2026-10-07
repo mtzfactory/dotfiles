@@ -4,37 +4,27 @@
 
 - name: Update apt cache
   become: true
-  apt:
+  ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
 
+# Opt-in: un upgrade desatendido no debe pasar cuando lo único que querías era
+# añadir una app. Correr a propósito con: --tags upgrade
 - name: Upgrade installed packages
   become: true
-  apt:
+  ansible.builtin.apt:
     upgrade: safe
+  tags: [never, upgrade]
 
 - name: Install base infrastructure packages
   become: true
-  apt:
-    name:
-      - curl
-      - wget
-      - git
-      - zsh
-      - htop
-      - unzip
-      - ca-certificates
-      - gnupg
-      - lsb-release
-      - python3-pip
-      - ufw
-      - fail2ban
-      - rclone
+  ansible.builtin.apt:
+    name: "{{ system_base_packages }}"
     state: present
 
 - name: Set zsh as default shell for the user
   become: true
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     shell: /usr/bin/zsh
 

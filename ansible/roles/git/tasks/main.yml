@@ -8,28 +8,55 @@
 #   gpg --armor --export-secret-keys {{ gpg_key_id }} > ansible/files/gpg_private.asc
 
 - name: Check if GPG key is already imported
-  shell: gpg --list-secret-keys {{ gpg_key_id }}
+  ansible.builtin.shell: gpg --list-secret-keys {{ gpg_key_id }}
   register: gpg_check
   changed_when: false
   failed_when: false
 
-- name: Copy GPG private key to server (temporary)
-  copy:
-    src: "{{ gpg_private_key_path }}"
-    dest: "/tmp/gpg_private.asc"
-    mode: "0600"
+# Si la clave falta Y el .asc tampoco está, el role antiguo moría con un
+# "file not found" opaco. Mejor avisar y seguir: el resto del playbook no
+# depende de la firma de commits.
+- name: Check whether the exported private key is available
+  ansible.builtin.stat:
+    # Ruta absoluta: `delegate_to: localhost` no garantiza el cwd.
+    path: "{{ playbook_dir }}/{{ gpg_private_key_path }}"
+  delegate_to: localhost
+  become: false
+  register: gpg_asc
   when: gpg_check.rc != 0
 
-- name: Import GPG private key
-  shell: gpg --batch --import /tmp/gpg_private.asc
-  when: gpg_check.rc != 0
+- name: Warn when the GPG key can be neither found nor imported
+  ansible.builtin.debug:
+    msg: >-
+      La clave GPG {{ gpg_key_id }} no está en el llavero y no existe
+      {{ gpg_private_key_path }}. Se omite la firma de commits; exporta la
+      clave desde el Mac (ver ansible/files/README.md) y vuelve a correr
+      --tags git.
+  when:
+    - gpg_check.rc != 0
+    - not (gpg_asc.stat.exists | default(false))
 
-- name: Set ultimate trust on the key
-  shell: |
-    echo "{{ gpg_key_id }}:6:" | gpg --import-ownertrust
-  when: gpg_check.rc != 0
+- name: Import the GPG private key
+  when:
+    - git_import_gpg_key
+    - gpg_check.rc != 0
+    - gpg_asc.stat.exists | default(false)
+  block:
+    - name: Copy GPG private key to host (temporary)
+      ansible.builtin.copy:
+        src: "{{ gpg_private_key_path }}"
+        dest: "/tmp/gpg_private.asc"
+        mode: "0600"
 
-- name: Remove temporary key file from server
-  file:
-    path: /tmp/gpg_private.asc
-    state: absent
+    - name: Import GPG private key
+      ansible.builtin.shell: gpg --batch --import /tmp/gpg_private.asc
+
+    - name: Set ultimate trust on the key
+      ansible.builtin.shell: |
+        echo "{{ gpg_key_id }}:6:" | gpg --import-ownertrust
+
+  always:
+    - name: Remove temporary key file from host
+      ansible.builtin.file:
+        path: /tmp/gpg_private.asc
+        state: absent

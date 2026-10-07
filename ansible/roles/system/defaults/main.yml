@@ -1,0 +1,20 @@
+---
+# Paquetes base de infraestructura.
+system_base_packages:
+  - curl
+  - wget
+  - git
+  - zsh
+  - htop
+  - unzip
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - python3-pip
+  - ufw
+  - fail2ban
+  - rclone
+
+# `apt upgrade` NO corre en ejecuciones normales (la tarea lleva tags
+# [never, upgrade]). Para actualizar el sistema a propósito:
+#   ansible-playbook main.yml --tags upgrade -K

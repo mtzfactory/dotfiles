@@ -1,0 +1,20 @@
+---
+security_firewall_enabled: true
+
+# SSH se trata aparte: con `rule: limit` para frenar fuerza bruta.
+security_ssh_port: "22"
+
+# Puertos TCP abiertos a todas las interfaces.
+security_ufw_allowed_ports:
+  - "80"
+  - "443"
+
+# Interfaces de confianza: todo el tráfico entrante se permite (p.ej. tailscale0).
+security_ufw_trusted_interfaces: []
+
+security_fail2ban_enabled: true
+security_fail2ban_bantime: "1h"
+security_fail2ban_findtime: "10m"
+security_fail2ban_maxretry: 5
+
+security_harden_sshd: true

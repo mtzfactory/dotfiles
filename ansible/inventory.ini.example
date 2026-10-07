@@ -1,8 +1,16 @@
 # inventory.ini.example
 # Copiar a inventory.ini (no versionado) y editar con los valores reales.
+#
+# El playbook es CONVERGENTE: se puede correr repetidamente, también sobre
+# la propia máquina (ansible_connection=local), para añadir apps o
+# reconciliar configuración. Ver README.md.
 
 [home_lab]
-m8 ansible_host=192.168.1.XXX ansible_user=ricardo
+# La máquina que se gestiona a sí misma:
+m8 ansible_connection=local
+
+# Una máquina nueva, por SSH:
+# nuevo-host ansible_host=192.168.1.XXX ansible_user=mtz
 
 [home_lab:vars]
 ansible_python_interpreter=/usr/bin/python3

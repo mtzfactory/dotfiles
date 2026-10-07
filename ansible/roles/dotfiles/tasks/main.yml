@@ -7,87 +7,112 @@
 # ── Dev tools ───────────────────────────────────────────────────────────────
 - name: Install dev tools (apt)
   become: true
-  apt:
-    name:
-      - neovim
-      - ripgrep
-      - fd-find
-      - fzf
-      - bat
-      - jq
-      - tree
-      - make
-      - build-essential
-      - golang-go
+  ansible.builtin.apt:
+    name: "{{ dotfiles_dev_packages }}"
     state: present
 
 # ── Repo dotfiles ───────────────────────────────────────────────────────────
-- name: Ensure home lab root exists
-  file:
-    path: "{{ home_lab_root }}"
+- name: Ensure workspace root exists
+  ansible.builtin.file:
+    path: "{{ workspace_root }}"
     state: directory
     mode: "0755"
 
+# En la máquina que se gestiona a sí misma, el destino ES este repo: clonar
+# encima lo rompería (o reapuntaría el remote). Se detecta y se salta.
+- name: Check whether the dotfiles destination is already a git repo
+  ansible.builtin.stat:
+    path: "{{ dotfiles_dest }}/.git"
+  register: dotfiles_git
+
 - name: Clone dotfiles repository
-  git:
+  ansible.builtin.git:
     repo: "{{ dotfiles_repo }}"
     dest: "{{ dotfiles_dest }}"
     version: main
     update: false # no machacar cambios locales en ejecuciones posteriores
+  when:
+    - dotfiles_manage_repo
+    - not dotfiles_git.stat.exists
 
 # ── Rust / Cargo ────────────────────────────────────────────────────────────
 - name: Check if cargo is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
   register: cargo_bin
 
 - name: Install Rust via rustup
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
   args:
     executable: /bin/bash
   when: not cargo_bin.stat.exists
 
-# ── Go apps ─────────────────────────────────────────────────────────────────
-- name: Install lazygit (go install)
-  shell: go install github.com/jesseduffield/lazygit@latest
+# ── Cargo apps ──────────────────────────────────────────────────────────────
+# Ruta absoluta a cargo: rustup se instala con --no-modify-path, así que el
+# shell no interactivo de Ansible no lo tiene en el PATH.
+#
+# `creates` sobre el binario evita que cargo recompile en cada ejecución: sin
+# ello `cargo install` revisa el registro y tarda, aunque no reinstale.
+- name: Install cargo apps
+  ansible.builtin.command: >-
+    {{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}
   args:
-    creates: "{{ ansible_env.HOME }}/go/bin/lazygit"
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.bin }}"
+  loop: "{{ dotfiles_cargo_packages }}"
+  loop_control:
+    label: "{{ item.crate }}"
+
+# ── Go apps ─────────────────────────────────────────────────────────────────
+# `creates: ~/go/bin/lazygit` no bastaba: si lazygit está instalado en otro
+# sitio (p.ej. /usr/local/bin, vía install-linux-apps.zsh) se reinstalaba una
+# segunda copia en cada ejecución.
+- name: Check if lazygit is already on PATH
+  ansible.builtin.shell: command -v lazygit
+  register: lazygit_bin
+  changed_when: false
+  failed_when: false
+
+- name: Install lazygit (go install)
+  ansible.builtin.shell: go install github.com/jesseduffield/lazygit@latest
   environment:
     GOPATH: "{{ ansible_env.HOME }}/go"
+  when: lazygit_bin.rc != 0
 
 # ── NVM + Node LTS ──────────────────────────────────────────────────────────
 - name: Check if NVM is installed
-  stat:
-    path: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+  ansible.builtin.stat:
+    path: "{{ nvm_dir }}/nvm.sh"
   register: nvm_sh
 
 - name: Install NVM
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{ nvm_version }}/install.sh | bash
   args:
     executable: /bin/bash
+  environment:
+    NVM_DIR: "{{ nvm_dir }}"
   when: not nvm_sh.stat.exists
 
 - name: Install Node LTS via NVM
-  shell: |
-    export NVM_DIR="$HOME/.nvm"
+  ansible.builtin.shell: |
+    export NVM_DIR="{{ nvm_dir }}"
     . "$NVM_DIR/nvm.sh"
     nvm install --lts
   args:
     executable: /bin/bash
-    creates: "{{ ansible_env.HOME }}/.nvm/versions/node"
+    creates: "{{ nvm_dir }}/versions/node"
 
 # ── Oh My Zsh + plugins + Powerlevel10k ─────────────────────────────────────
 - name: Check if Oh My Zsh is installed
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_env.HOME }}/.oh-my-zsh"
   register: omz
 
 - name: Install Oh My Zsh (unattended)
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   args:
@@ -95,19 +120,19 @@
   when: not omz.stat.exists
 
 - name: Install zsh-autosuggestions plugin
-  git:
+  ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-autosuggestions.git
     dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
     update: false
 
 - name: Install zsh-syntax-highlighting plugin
-  git:
+  ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
     dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
     update: false
 
 - name: Install Powerlevel10k theme
-  git:
+  ansible.builtin.git:
     repo: https://github.com/romkatv/powerlevel10k.git
     dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
     depth: 1
@@ -119,13 +144,13 @@
 # create-symlinks.zsh lo encuentre existente en el primer login y NO cree el
 # symlink al fichero del Mac.
 - name: Ensure ~/.ssh exists
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.ssh"
     state: directory
     mode: "0700"
 
 - name: Pre-create Linux-specific ~/.ssh/config (blocks macOS symlink)
-  copy:
+  ansible.builtin.copy:
     dest: "{{ ansible_env.HOME }}/.ssh/config"
     force: false # nunca sobreescribir si ya existe
     mode: "0600"
@@ -142,60 +167,28 @@
 
 # ── Symlinks de configs de apps (rutas post-migración: config/) ─────
 - name: Ensure ~/.config exists
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.config"
     state: directory
     mode: "0755"
 
 - name: Symlink ~/.config/lazygit → dotfiles/config/lazygit
-  file:
+  ansible.builtin.file:
     src: "{{ dotfiles_dest }}/config/lazygit"
     dest: "{{ ansible_env.HOME }}/.config/lazygit"
     state: link
 
 - name: Symlink ~/.config/nvim → dotfiles/config/{{ nvim_config }}
-  file:
+  ansible.builtin.file:
     src: "{{ dotfiles_dest }}/config/{{ nvim_config }}"
     dest: "{{ ansible_env.HOME }}/.config/nvim"
     state: link
 
-# ── PATH para shells no interactivos en ~/.zshenv ───────────────────────────
-# customize.zsh añade ~/.local/bin, pero solo lo carga ~/.zshrc. Un `ssh host cmd`
-# (Herdr Mobile, `herdr --remote`) arranca un zsh no interactivo que solo lee
-# ~/.zshenv, y sin esto no encuentra herdr ni wt.
-# Lo mismo con node: los shims de nvm solo existen en el shell interactivo, así
-# que `zsh -lc`, los hooks de git y los agentes verían el node de Homebrew en vez
-# del que fija el .nvmrc del proyecto.
-- name: Inject ~/.local/bin into the non-interactive PATH in ~/.zshenv
-  blockinfile:
-    path: "{{ ansible_env.HOME }}/.zshenv"
-    create: true
-    mode: "0644"
-    marker: "# ── {mark} DOTFILES PATH — gestionado por Ansible ──"
-    block: |
-      [[ -d "$HOME/.local/bin" && ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
-      # Node from the nearest .nvmrc, without sourcing nvm.sh: every zsh reads
-      # this file, so non-interactive shells (zsh -lc, agents, git hooks) get it too.
-      # Only an exact, already installed version counts (24.11.1, not 24 or lts/*).
-      () {
-        local dir=$PWD ver bin
-        # A deleted cwd leaves $PWD without a slash, which would never shorten.
-        [[ $dir == /* ]] || return
-        while [[ -n $dir ]]; do
-          if [[ -r $dir/.nvmrc ]]; then
-            ver=${${"$(<$dir/.nvmrc)"//[[:space:]]/}#v}
-            bin=${NVM_DIR:-$HOME/.nvm}/versions/node/v$ver/bin
-            [[ -d $bin ]] && path=($bin ${path:#${NVM_DIR:-$HOME/.nvm}/versions/node/*})
-            return
-          fi
-          [[ $dir == */* ]] || return
-          dir=${dir%/*}
-        done
-      }
-
 # ── Bootstrap del shell en ~/.zshrc ─────────────────────────────────────────
+# customize.zsh es re-entrante (guarda contra doble carga), así que este bloque
+# conviviendo con un `export DOTFILES` puesto a mano no duplica el PATH.
 - name: Inject dotfiles initialization block into ~/.zshrc
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ ansible_env.HOME }}/.zshrc"
     create: true
     mode: "0644"
