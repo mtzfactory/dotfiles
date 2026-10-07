@@ -20,6 +20,11 @@ restic_password_file: "{{ home_lab_root }}/backups/.restic-password"
 # backup que reporta éxito sin contener lo que de verdad hace falta restaurar.
 restic_user: root
 
+# Rutas de root a propósito, fuera de home_lab_root: el cron de root no debe
+# ejecutar ni escribir nada que viva en un directorio escribible por el usuario.
+backup_script_path: /usr/local/sbin/homelab-backup.sh
+backup_log_path: /var/log/homelab-backup.log
+
 # ── Qué se respalda ─────────────────────────────────────────────────────────
 # Rutas sueltas: restic guarda la ruta absoluta de cada una en el snapshot, así
 # que no hace falta mapear origen a destino como con `rclone sync`.

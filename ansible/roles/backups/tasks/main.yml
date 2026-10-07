@@ -10,19 +10,13 @@
 # no queda histórico al que volver. restic hace snapshots deduplicados y
 # cifrados, con retención y verificación de integridad.
 
-- name: Ensure backup scripts directory exists
-  ansible.builtin.file:
-    path: "{{ home_lab_root }}/scripts"
-    state: directory
-    mode: "0755"
-
+# Sin become, owner ni mode a propósito: este directorio vive en el home del
+# usuario y debe seguir siendo suyo. Lo que hay que proteger ya lo está por su
+# cuenta: restic crea el repo 0700 de root y además lo cifra.
 - name: Ensure the restic repo parent directory exists
-  become: true
   ansible.builtin.file:
     path: "{{ restic_repo | dirname }}"
     state: directory
-    owner: "{{ restic_user }}"
-    mode: "0700"
   when: not restic_repo.startswith('rclone:')
 
 # El password no se crea aquí: un password generado por Ansible acabaría en el
@@ -56,9 +50,19 @@
 # `restic init` es idempotente por omisión: el script comprueba el repo antes,
 # de modo que un repo ya inicializado (o un remote todavía sin crear) no rompe
 # la ejecución.
+#
+# El script y su log van a rutas de root, NO bajo home_lab_root. Ese árbol es
+# escribible por el usuario, y quien puede escribir en un directorio puede
+# sustituir cualquier fichero que contenga, sea de quien sea: un script allí
+# daría root, a la hora del cron, a cualquier cosa que corra como el usuario.
+# Lo mismo el log: un symlink en su lugar haría que root escribiera donde
+# apunte.
 - name: Deploy backup script
+  become: true
   ansible.builtin.copy:
-    dest: "{{ home_lab_root }}/scripts/backup.sh"
+    dest: "{{ backup_script_path }}"
+    owner: root
+    group: root
     mode: "0755"
     content: |
       #!/usr/bin/env bash
@@ -68,7 +72,7 @@
       export RESTIC_REPOSITORY="{{ restic_repo }}"
       export RESTIC_PASSWORD_FILE="{{ restic_password_file }}"
 
-      LOG="{{ home_lab_root }}/scripts/backup.log"
+      LOG="{{ backup_log_path }}"
       SOURCES=({% for src in backup_sources %}"{{ src }}" {% endfor %})
       EXCLUDES=({% for ex in backup_excludes %}--exclude "{{ ex }}" {% endfor %})
 
@@ -122,7 +126,7 @@
     user: "{{ restic_user }}"
     hour: "{{ backup_cron_hour }}"
     minute: "{{ backup_cron_minute }}"
-    job: "{{ home_lab_root }}/scripts/backup.sh"
+    job: "{{ backup_script_path }}"
     state: "{{ 'present' if (backups_enabled and restic_pw.stat.exists) else 'absent' }}"
 
 # El cron de usuario del role anterior (rclone) quedaría huérfano si no se

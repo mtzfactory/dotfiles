@@ -63,7 +63,7 @@ en `roles/*/defaults/main.yml`. Precedencia: `defaults` < `group_vars` <
 | Variable         | Valor                 | Qué es                                                   |
 | ---------------- | --------------------- | -------------------------------------------------------- |
 | `workspace_root` | `~/workspace`         | Cajón: `development/`, `dotfiles/`, `homelab/`, `temp/`   |
-| `home_lab_root`  | `~/workspace/homelab` | El home lab: `docker/`, `notes/`, `backups/`, `scripts/`  |
+| `home_lab_root`  | `~/workspace/homelab` | El home lab: `docker/`, `notes/`, `backups/`             |
 
 No son lo mismo y conviene no confundirlas: `home_lab_root` tiene aquí el mismo
 significado que la variable homónima de `terraform/` (`services/`, `scripts/`,
@@ -108,6 +108,12 @@ El cron corre **como root** (`restic_user`), no como el usuario. En
 Portainer, los certs de Traefik, `acme.json` — que un cron de usuario se
 saltaría en silencio, dejando un backup que reporta éxito sin lo que de verdad
 hace falta restaurar.
+
+El script y el log van a rutas de root (`backup_script_path`,
+`backup_log_path`: `/usr/local/sbin/homelab-backup.sh` y
+`/var/log/homelab-backup.log`), no bajo `home_lab_root`. Ese árbol es
+escribible por el usuario, y un cron de root que ejecute algo de ahí da root a
+cualquier proceso que corra como él.
 
 #### Cuidado con los patrones de exclusión
 
