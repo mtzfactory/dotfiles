@@ -162,11 +162,21 @@ if [ -d "$OPENSSL" ]; then
 fi
 
 # pinentry for gpg
-local GPG_AGENT_FILE="$HOME/.gnupg/gpg-agent.conf"
-if [[ -f "$GPG_AGENT_FILE" ]]; then
-  if ! grep -q -E '^pinentry-program.*$' "$GPG_AGENT_FILE"; then
-    echo "pinentry-program $(brew --prefix)/bin/pinentry-mac" | tee -a "$GPG_AGENT_FILE" >/dev/null
-  fi
+# The old `[[ -f $GPG_AGENT_FILE ]]` guard made this a no-op on a fresh box,
+# where gpg has not written gpg-agent.conf yet — exactly the case worth
+# covering. Create the file instead, and leave any pinentry-program line that
+# is already there alone.
+local GPG_AGENT_DIR="$HOME/.gnupg"
+local GPG_AGENT_FILE="$GPG_AGENT_DIR/gpg-agent.conf"
+if [[ ! -d "$GPG_AGENT_DIR" ]]; then
+  mkdir -p "$GPG_AGENT_DIR" && chmod 700 "$GPG_AGENT_DIR"
+fi
+if ! grep -q -E '^[[:space:]]*pinentry-program[[:space:]]' "$GPG_AGENT_FILE" 2>/dev/null; then
+  # ${BREW_OPT_DIR:h} rather than `brew --prefix`: same reason the openssl
+  # block above hardcodes the prefix — no subprocess on shell init.
+  echo "pinentry-program ${BREW_OPT_DIR:h}/bin/pinentry-mac" >> "$GPG_AGENT_FILE"
+  chmod 600 "$GPG_AGENT_FILE"
+  gpgconf --reload gpg-agent 2>/dev/null
 fi
 
 # python@3

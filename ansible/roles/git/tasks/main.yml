@@ -60,3 +60,31 @@
       ansible.builtin.file:
         path: /tmp/gpg_private.asc
         state: absent
+
+# ── pinentry ────────────────────────────────────────────────────────────────
+# El equivalente para macOS vive en shell/darwin/customize-darwin.zsh: este
+# playbook usa el módulo apt en todos los roles, así que no puede gestionar
+# el Mac.
+- name: Install the pinentry frontend
+  become: true
+  ansible.builtin.apt:
+    name: "{{ gpg_pinentry_package }}"
+    state: present
+
+- name: Ensure ~/.gnupg exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.gnupg"
+    state: directory
+    mode: "0700"
+
+# lineinfile y no copy/template: gpg-agent.conf lleva ajustes propios
+# (default-cache-ttl, allow-loopback-pinentry…) que no hay que pisar. El
+# regexp sustituye una línea pinentry-program existente, o la añade si falta.
+- name: Set the pinentry program in gpg-agent.conf
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+    regexp: '^\s*pinentry-program\s'
+    line: "pinentry-program {{ gpg_pinentry_program }}"
+    create: true
+    mode: "0600"
+  notify: reload gpg-agent

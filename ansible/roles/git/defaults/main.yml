@@ -1,4 +1,12 @@
 ---
+# Frontend con el que gpg-agent pide el passphrase. pinentry-gnome3 abre el
+# diálogo nativo de GNOME cuando hay sesión de escritorio y cae a curses
+# cuando no hay display (también por SSH), así que funciona igualmente en
+# shells sin TTY: agentes, hooks de git, cron. pinentry-curses falla ahí con
+# "cannot open '/dev/tty'".
+gpg_pinentry_package: pinentry-gnome3
+gpg_pinentry_program: /usr/bin/pinentry-gnome3
+
 # Importar la clave GPG privada para firmar commits. Requiere que exista
 # `{{ gpg_private_key_path }}`; si la clave ya está en el llavero, se salta.
 git_import_gpg_key: true

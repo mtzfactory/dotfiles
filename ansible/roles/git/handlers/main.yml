@@ -1,0 +1,6 @@
+---
+# gpg-agent lee gpg-agent.conf sólo al arrancar: sin recargarlo, el pinentry
+# nuevo no se usa hasta que el agente muera por su cuenta.
+- name: reload gpg-agent
+  ansible.builtin.command: gpgconf --reload gpg-agent
+  changed_when: true
