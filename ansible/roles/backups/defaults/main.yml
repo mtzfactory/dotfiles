@@ -1,11 +1,39 @@
 ---
 # Mientras esté en false se despliega el script pero NO se instala el cron,
-# para no tener un backup fallando cada noche sin remote configurado.
+# para no tener un backup fallando cada noche sin repo ni password.
 backups_enabled: false
 
-backup_remote: "remote:m8-backups"
-# Lista de pares: - { src: /ruta/local, dest: subdir-en-el-remote }
+# ── Repo restic ─────────────────────────────────────────────────────────────
+# Un repo en el mismo disco que los datos protege de borrados y corrupción,
+# pero no de que muera el disco ni de perder la máquina. restic trae backend
+# rclone nativo, así que para sacarlo fuera basta cambiar esto por
+# "rclone:<remote>:<ruta>" — el resto del role no se toca.
+restic_repo: "{{ home_lab_root }}/backups/restic"
+
+# Fichero con el password del repo. NO se versiona: lo crea el operador una
+# vez. Si falta, el role avisa y no instala el cron.
+restic_password_file: "{{ home_lab_root }}/backups/.restic-password"
+
+# El backup corre como root a propósito. En docker/data hay ficheros 0600 de
+# root — la BD de Passbolt, las claves de Portainer, los certs de Traefik,
+# acme.json — que un cron de usuario se saltaría EN SILENCIO, dejando un
+# backup que reporta éxito sin contener lo que de verdad hace falta restaurar.
+restic_user: root
+
+# ── Qué se respalda ─────────────────────────────────────────────────────────
+# Rutas sueltas: restic guarda la ruta absoluta de cada una en el snapshot, así
+# que no hace falta mapear origen a destino como con `rclone sync`.
 backup_sources: []
+# Sintaxis de restic, NO la de rclone: el patrón "**/cache/**" que usaba el
+# role con rclone excluye el árbol COMPLETO en restic (verificado: 0 ficheros
+# procesados), dejando snapshots vacíos que reportan éxito. Sin el sufijo
+# "/**" excluye el directorio y su contenido, que es lo que se quiere.
 backup_excludes:
-  - "**/cache/**"
-  - "**/tmp/**"
+  - "**/cache"
+  - "**/tmp"
+
+# ── Retención ───────────────────────────────────────────────────────────────
+# Se aplica con `restic forget --prune` después de cada backup.
+restic_keep_daily: 7
+restic_keep_weekly: 4
+restic_keep_monthly: 6

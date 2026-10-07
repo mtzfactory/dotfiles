@@ -13,8 +13,14 @@ security_ufw_allowed_ports:
 security_ufw_trusted_interfaces: []
 
 security_fail2ban_enabled: true
-security_fail2ban_bantime: "1h"
+# 24h, no 1h: es lo que el M8 ya tenía configurado a mano, y bajarlo sería
+# relajar el bloqueo sin pedirlo.
+security_fail2ban_bantime: "24h"
 security_fail2ban_findtime: "10m"
 security_fail2ban_maxretry: 5
+# `backend = systemd` es imprescindible en Ubuntu: sin él fail2ban busca un
+# /var/log/auth.log que no existe, porque sshd solo registra en el journal.
+security_fail2ban_backend: systemd
+security_fail2ban_sshd_port: ssh
 
 security_harden_sshd: true

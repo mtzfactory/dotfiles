@@ -9,8 +9,8 @@ docker_manage_engine: true
 docker_apt_release_map:
   resolute: noble
 docker_apt_release: >-
-  {{ docker_apt_release_map.get(ansible_distribution_release,
-     ansible_distribution_release) }}
+  {{ docker_apt_release_map.get(ansible_facts.distribution_release,
+     ansible_facts.distribution_release) }}
 
 docker_packages:
   - docker-ce

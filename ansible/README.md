@@ -83,16 +83,40 @@ app. Para actualizar a propósito: `--tags upgrade`.
 
 ### Backups
 
-`backups_enabled` controla solo el cron. El script se despliega siempre, y
-comprueba en tiempo de ejecución que el remote de rclone exista, así que no
-llena el log de errores mientras `rclone config` siga pendiente:
+**restic**, no `rclone sync`: sync es un espejo, así que un borrado o un cifrado
+por ransomware se propaga al destino en la siguiente ejecución y no queda
+histórico. restic hace snapshots deduplicados y cifrados, con retención.
 
-```bash
-rclone config          # crear el remote, una vez, a mano
+El repo vive en `{{ home_lab_root }}/backups/restic`. Para sacarlo del equipo,
+restic trae backend rclone nativo y basta cambiar `restic_repo`:
+
+```yaml
+restic_repo: "rclone:<remote>:<ruta>"   # requiere `rclone config` una vez
 ```
 
-Los orígenes son pares `src`/`dest` explícitos (no `basename`) para que dos
-rutas distintas no se sobreescriban en el remote.
+El password del repo **no se versiona**. Créalo una vez:
+
+```bash
+umask 077 && openssl rand -base64 32 | sudo tee ~/workspace/homelab/backups/.restic-password
+```
+
+Guárdalo donde puedas recuperarlo: sin él el repo es irrecuperable. Mientras
+falte, el role avisa y no instala el cron.
+
+El cron corre **como root** (`restic_user`), no como el usuario. En
+`docker/data` hay ficheros 0600 de root — la BD de Passbolt, las claves de
+Portainer, los certs de Traefik, `acme.json` — que un cron de usuario se
+saltaría en silencio, dejando un backup que reporta éxito sin lo que de verdad
+hace falta restaurar.
+
+#### Cuidado con los patrones de exclusión
+
+Son sintaxis de **restic**, no de rclone, y se evalúan contra la **ruta
+absoluta**. `**/cache/**` (válido en rclone) excluye en restic el árbol
+COMPLETO — verificado: 0 ficheros procesados, snapshot vacío, log diciendo OK.
+Sin el sufijo `/**` excluye el directorio y su contenido, que es lo que se
+quiere. Y un patrón como `**/tmp` casa con cualquier componente del path, así
+que ojo si algún origen cuelga de un ancestro con ese nombre.
 
 ## Particularidades por máquina
 

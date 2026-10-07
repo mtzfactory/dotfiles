@@ -14,7 +14,7 @@
 #   home_lab_root   ~/workspace/homelab  el home lab de verdad: docker/, notes/,
 #                                        backups/ — mismo significado que la
 #                                        variable home_lab_root de Terraform.
-workspace_root: "{{ ansible_env.HOME }}/workspace"
+workspace_root: "{{ ansible_facts.env.HOME }}/workspace"
 home_lab_root: "{{ workspace_root }}/homelab"
 
 # ── Dotfiles ────────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ dotfiles_dest: "{{ workspace_root }}/dotfiles"
 nvim_config: "astronvim" # astronvim | nvim | lvim
 
 # NVM vive en ~/.config/nvm (XDG), no en ~/.nvm.
-nvm_dir: "{{ ansible_env.HOME }}/.config/nvm"
+nvm_dir: "{{ ansible_facts.env.HOME }}/.config/nvm"
 
 # ── Git / GPG (commit signing) ─────────────────────────────────────────────
 git_user_name: "Ricardo Martínez"

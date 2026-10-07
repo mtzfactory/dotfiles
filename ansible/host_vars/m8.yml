@@ -27,10 +27,9 @@ security_ufw_trusted_interfaces:
   - tailscale0
 
 # ── Backups ─────────────────────────────────────────────────────────────────
-# El remote de rclone hay que crearlo a mano una vez: `rclone config`.
-# Mientras no exista, el script sale limpio sin escribir nada (ver role).
+# Repo restic local en ~/workspace/homelab/backups/restic. El password hay que
+# crearlo a mano una vez; mientras falte, el role avisa y no instala el cron.
 backups_enabled: true
-backup_remote: "remote:m8-backups"
 backup_sources:
-  - { src: "{{ home_lab_root }}/notes", dest: "notes" }
-  - { src: "{{ home_lab_root }}/docker/data", dest: "docker-data" }
+  - "{{ home_lab_root }}/notes"
+  - "{{ home_lab_root }}/docker/data"

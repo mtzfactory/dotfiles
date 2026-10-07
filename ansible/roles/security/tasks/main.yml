@@ -58,13 +58,17 @@
         dest: /etc/fail2ban/jail.local
         mode: "0644"
         content: |
+          # Gestionado por Ansible (role security). No editar a mano.
           [DEFAULT]
           bantime  = {{ security_fail2ban_bantime }}
           findtime = {{ security_fail2ban_findtime }}
           maxretry = {{ security_fail2ban_maxretry }}
 
           [sshd]
-          enabled = true
+          enabled  = true
+          port     = {{ security_fail2ban_sshd_port }}
+          logpath  = %(sshd_log)s
+          backend  = {{ security_fail2ban_backend }}
       notify: restart fail2ban
 
     - name: Enable and start fail2ban

@@ -76,7 +76,7 @@
 
 - name: Ensure ~/.gnupg exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.gnupg"
+    path: "{{ ansible_facts.env.HOME }}/.gnupg"
     state: directory
     mode: "0700"
 
@@ -85,7 +85,7 @@
 # regexp sustituye una línea pinentry-program existente, o la añade si falta.
 - name: Set the pinentry program in gpg-agent.conf
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+    path: "{{ ansible_facts.env.HOME }}/.gnupg/gpg-agent.conf"
     regexp: '^\s*pinentry-program\s'
     line: "pinentry-program {{ gpg_pinentry_program }}"
     create: true

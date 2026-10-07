@@ -1,9 +1,14 @@
 ---
-# Role: backups — rclone + cron
+# Role: backups — restic + cron
 #
-# rclone se instala en el role `system` (apt). Aquí se prepara la estructura
-# y el cron. La configuración del remote (`rclone config`) es interactiva y
-# se hace UNA vez a mano en el servidor.
+# restic se instala en el role `system` (apt). Aquí se prepara el script, el
+# repo y el cron. El password del repo lo crea el operador a mano: no se
+# versiona nada en ansible/.
+#
+# Por qué restic y no `rclone sync`: sync es un espejo, así que un borrado o
+# un cifrado por ransomware se propaga al destino en la siguiente ejecución y
+# no queda histórico al que volver. restic hace snapshots deduplicados y
+# cifrados, con retención y verificación de integridad.
 
 - name: Ensure backup scripts directory exists
   ansible.builtin.file:
@@ -11,53 +16,118 @@
     state: directory
     mode: "0755"
 
-# El script comprueba el remote y los orígenes en tiempo de ejecución: así el
-# cron no llena el log de errores mientras `rclone config` siga pendiente, y
-# tampoco revienta si un origen aún no existe.
+- name: Ensure the restic repo parent directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ restic_repo | dirname }}"
+    state: directory
+    owner: "{{ restic_user }}"
+    mode: "0700"
+  when: not restic_repo.startswith('rclone:')
+
+# El password no se crea aquí: un password generado por Ansible acabaría en el
+# log o en el repo git. Se comprueba que esté y con permisos sanos.
+- name: Check whether the restic password file is in place
+  become: true
+  ansible.builtin.stat:
+    path: "{{ restic_password_file }}"
+  register: restic_pw
+  check_mode: false
+
+- name: Warn when the restic password file is missing
+  ansible.builtin.debug:
+    msg: >-
+      Falta {{ restic_password_file }}, así que no se instala el cron. Créalo
+      una vez con, por ejemplo:
+      umask 077 && openssl rand -base64 32 | sudo tee {{ restic_password_file }}
+      y guarda ese password donde puedas recuperarlo: sin él, el repo es
+      irrecuperable.
+  when: not restic_pw.stat.exists
+
+- name: Tighten permissions on the restic password file
+  become: true
+  ansible.builtin.file:
+    path: "{{ restic_password_file }}"
+    owner: "{{ restic_user }}"
+    group: "{{ restic_user }}"
+    mode: "0600"
+  when: restic_pw.stat.exists
+
+# `restic init` es idempotente por omisión: el script comprueba el repo antes,
+# de modo que un repo ya inicializado (o un remote todavía sin crear) no rompe
+# la ejecución.
 - name: Deploy backup script
   ansible.builtin.copy:
     dest: "{{ home_lab_root }}/scripts/backup.sh"
     mode: "0755"
     content: |
       #!/usr/bin/env bash
-      # Backup del home lab vía rclone. Gestionado por Ansible (role backups).
+      # Backup del home lab con restic. Gestionado por Ansible (role backups).
       set -euo pipefail
 
-      REMOTE="{{ backup_remote }}"
+      export RESTIC_REPOSITORY="{{ restic_repo }}"
+      export RESTIC_PASSWORD_FILE="{{ restic_password_file }}"
+
       LOG="{{ home_lab_root }}/scripts/backup.log"
-      # Pares "origen|destino": destino explícito para que dos orígenes con el
-      # mismo basename no se sobreescriban en el remote.
-      PAIRS=({% for s in backup_sources %}"{{ s.src }}|{{ s.dest }}" {% endfor %})
+      SOURCES=({% for src in backup_sources %}"{{ src }}" {% endfor %})
       EXCLUDES=({% for ex in backup_excludes %}--exclude "{{ ex }}" {% endfor %})
 
       {
         echo "── $(date -Is) ─────────────────────────────"
 
-        remote_name="${REMOTE%%:*}"
-        if ! rclone listremotes | grep -qx "${remote_name}:"; then
-          echo "SKIP: el remote '${remote_name}' no está configurado. Corre: rclone config"
+        if [[ ! -r "$RESTIC_PASSWORD_FILE" ]]; then
+          echo "SKIP: no se puede leer $RESTIC_PASSWORD_FILE"
           exit 0
         fi
 
-        for pair in "${PAIRS[@]}"; do
-          src="${pair%%|*}"
-          dest="${pair##*|}"
-          if [[ ! -d "$src" ]]; then
-            echo "SKIP: $src no existe"
-            continue
-          fi
-          echo "sync: $src -> $REMOTE/$dest"
-          rclone sync "$src" "$REMOTE/$dest" \
-            --create-empty-src-dirs "${EXCLUDES[@]}"
+        # Repo sin inicializar: crearlo. `cat config` es la comprobación más
+        # barata que distingue "no existe" de "existe y abre".
+        if ! restic cat config >/dev/null 2>&1; then
+          echo "init: $RESTIC_REPOSITORY"
+          restic init
+        fi
+
+        PRESENT=()
+        for src in "${SOURCES[@]}"; do
+          if [[ -d "$src" ]]; then PRESENT+=("$src")
+          else echo "SKIP: $src no existe"; fi
         done
+
+        # Se comprueba con ${PRESENT[*]:-} y no contando la longitud del
+        # array: la forma con almohadilla tras la llave abre un comentario
+        # para Jinja y rompe la plantilla de esta tarea.
+        if [[ -z "${PRESENT[*]:-}" ]]; then
+          echo "SKIP: ningún origen presente"
+          exit 0
+        fi
+
+        # Un solo snapshot con todas las rutas: restic guarda la ruta absoluta
+        # de cada una, así que se restauran por separado igualmente.
+        restic backup "${PRESENT[@]}" "${EXCLUDES[@]}"
+
+        restic forget \
+          --keep-daily {{ restic_keep_daily }} \
+          --keep-weekly {{ restic_keep_weekly }} \
+          --keep-monthly {{ restic_keep_monthly }} \
+          --prune
 
         echo "OK"
       } >> "$LOG" 2>&1
 
+# Cron de root, no del usuario: ver restic_user en defaults/main.yml.
 - name: Schedule nightly backup via cron
+  become: true
   ansible.builtin.cron:
-    name: "home lab backup (rclone)"
+    name: "home lab backup (restic)"
+    user: "{{ restic_user }}"
     hour: "{{ backup_cron_hour }}"
     minute: "{{ backup_cron_minute }}"
     job: "{{ home_lab_root }}/scripts/backup.sh"
-    state: "{{ 'present' if backups_enabled else 'absent' }}"
+    state: "{{ 'present' if (backups_enabled and restic_pw.stat.exists) else 'absent' }}"
+
+# El cron de usuario del role anterior (rclone) quedaría huérfano si no se
+# retira explícitamente.
+- name: Remove the superseded rclone cron entry
+  ansible.builtin.cron:
+    name: "home lab backup (rclone)"
+    state: absent

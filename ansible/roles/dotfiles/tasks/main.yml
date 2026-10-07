@@ -12,11 +12,12 @@
     state: present
 
 # ── Repo dotfiles ───────────────────────────────────────────────────────────
+# Sin `mode`: es un directorio del usuario y su 0775 viene del umask de la
+# distro. Forzar 0755 sería un cambio gratuito que el dry-run reporta cada vez.
 - name: Ensure workspace root exists
   ansible.builtin.file:
     path: "{{ workspace_root }}"
     state: directory
-    mode: "0755"
 
 # En la máquina que se gestiona a sí misma, el destino ES este repo: clonar
 # encima lo rompería (o reapuntaría el remote). Se detecta y se salta.
@@ -38,7 +39,7 @@
 # ── Rust / Cargo ────────────────────────────────────────────────────────────
 - name: Check if cargo is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
+    path: "{{ ansible_facts.env.HOME }}/.cargo/bin/cargo"
   register: cargo_bin
 
 - name: Install Rust via rustup
@@ -57,9 +58,9 @@
 # ello `cargo install` revisa el registro y tarda, aunque no reinstale.
 - name: Install cargo apps
   ansible.builtin.command: >-
-    {{ ansible_env.HOME }}/.cargo/bin/cargo install {{ item.crate }}
+    {{ ansible_facts.env.HOME }}/.cargo/bin/cargo install {{ item.crate }}
   args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/{{ item.bin }}"
+    creates: "{{ ansible_facts.env.HOME }}/.cargo/bin/{{ item.bin }}"
   loop: "{{ dotfiles_cargo_packages }}"
   loop_control:
     label: "{{ item.crate }}"
@@ -80,7 +81,7 @@
 - name: Install lazygit (go install)
   ansible.builtin.shell: go install github.com/jesseduffield/lazygit@latest
   environment:
-    GOPATH: "{{ ansible_env.HOME }}/go"
+    GOPATH: "{{ ansible_facts.env.HOME }}/go"
   when: lazygit_bin.rc != 0
 
 # ── NVM + Node LTS ──────────────────────────────────────────────────────────
@@ -111,7 +112,7 @@
 # ── Oh My Zsh + plugins + Powerlevel10k ─────────────────────────────────────
 - name: Check if Oh My Zsh is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    path: "{{ ansible_facts.env.HOME }}/.oh-my-zsh"
   register: omz
 
 - name: Install Oh My Zsh (unattended)
@@ -125,19 +126,19 @@
 - name: Install zsh-autosuggestions plugin
   ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-autosuggestions.git
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
     update: false
 
 - name: Install zsh-syntax-highlighting plugin
   ansible.builtin.git:
     repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
     update: false
 
 - name: Install Powerlevel10k theme
   ansible.builtin.git:
     repo: https://github.com/romkatv/powerlevel10k.git
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
     depth: 1
     update: false
 
@@ -148,13 +149,13 @@
 # symlink al fichero del Mac.
 - name: Ensure ~/.ssh exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.ssh"
+    path: "{{ ansible_facts.env.HOME }}/.ssh"
     state: directory
     mode: "0700"
 
 - name: Pre-create Linux-specific ~/.ssh/config (blocks macOS symlink)
   ansible.builtin.copy:
-    dest: "{{ ansible_env.HOME }}/.ssh/config"
+    dest: "{{ ansible_facts.env.HOME }}/.ssh/config"
     force: false # nunca sobreescribir si ya existe
     mode: "0600"
     content: |
@@ -169,22 +170,24 @@
         AddKeysToAgent yes
 
 # ── Symlinks de configs de apps (rutas post-migración: config/) ─────
+# 0700, no 0755: aquí viven las configs de todas las apps. La versión previa
+# de esta tarea habría ABIERTO un ~/.config que ya estaba en 0700.
 - name: Ensure ~/.config exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config"
+    path: "{{ ansible_facts.env.HOME }}/.config"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
 - name: Symlink ~/.config/lazygit → dotfiles/config/lazygit
   ansible.builtin.file:
     src: "{{ dotfiles_dest }}/config/lazygit"
-    dest: "{{ ansible_env.HOME }}/.config/lazygit"
+    dest: "{{ ansible_facts.env.HOME }}/.config/lazygit"
     state: link
 
 - name: Symlink ~/.config/nvim → dotfiles/config/{{ nvim_config }}
   ansible.builtin.file:
     src: "{{ dotfiles_dest }}/config/{{ nvim_config }}"
-    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    dest: "{{ ansible_facts.env.HOME }}/.config/nvim"
     state: link
 
 # ── Bootstrap del shell en ~/.zshrc ─────────────────────────────────────────
@@ -192,7 +195,7 @@
 # conviviendo con un `export DOTFILES` puesto a mano no duplica el PATH.
 - name: Inject dotfiles initialization block into ~/.zshrc
   ansible.builtin.blockinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     create: true
     mode: "0644"
     marker: "# ── {mark} DOTFILES — gestionado por Ansible ──"
