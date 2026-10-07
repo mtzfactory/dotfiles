@@ -153,6 +153,16 @@ dispositivos y carpetas se hace a mano en <http://127.0.0.1:8384>. Para que
 funcione por la LAN hay que abrir `22000`, `22000/udp` y `21027/udp` en
 `security_ufw_allowed_ports`; por Tailscale no hace falta.
 
+La GUI escucha solo en `127.0.0.1` por defecto. Para abrirla a la red, primero
+contraseña y HTTPS, después la dirección, y el puerto `8384` en UFW:
+
+```sh
+syncthing cli config gui user set <usuario>
+syncthing cli config gui password set <contraseña>
+syncthing cli config gui raw-use-tls set true
+syncthing cli config gui raw-address set 0.0.0.0:8384
+```
+
 Las apps gráficas, como KeePassXC, van en `system_desktop_packages`, vacío por
 defecto para no instalar GUI en un servidor.
 
