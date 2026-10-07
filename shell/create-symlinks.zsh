@@ -87,6 +87,21 @@ if command -v wt >/dev/null 2>&1; then
 fi
 
 ##
+# Claude Code status line script
+# Only the script is linked: ~/.claude/settings.json is rewritten by Claude
+# Code itself, so its `statusLine` block is added once per machine instead.
+if command -v claude >/dev/null 2>&1; then
+  local CLAUDE_STATUSLINE_TARGET="$HOME/.claude/statusline-command.sh"
+  if [[ -f "$CLAUDE_STATUSLINE_TARGET" ]] && [[ ! -L "$CLAUDE_STATUSLINE_TARGET" ]]; then
+    mv "$CLAUDE_STATUSLINE_TARGET" "${CLAUDE_STATUSLINE_TARGET}.bak"
+    ln -s "$DOTFILES_SYMLINKS/claude/statusline-command.sh" "$CLAUDE_STATUSLINE_TARGET"
+  elif [[ ! -e "$CLAUDE_STATUSLINE_TARGET" ]]; then
+    [ ! -d "$HOME/.claude" ] && mkdir -p "$HOME/.claude"
+    ln -s "$DOTFILES_SYMLINKS/claude/statusline-command.sh" "$CLAUDE_STATUSLINE_TARGET"
+  fi
+fi
+
+##
 # Ssh config
 local HOME_SSH="$HOME/.ssh"
 local HOME_SSH_CONFIG="$HOME_SSH/config"
