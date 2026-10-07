@@ -54,7 +54,7 @@ There is no CI and no test runner. Validate changes like this instead:
   `customize-darwin.zsh`.
 - **Home-lab provisioning** is split across two tools with different scopes:
   Terraform (`terraform/main.tf`) declares the on-disk directory tree for
-  self-hosted services on the server (`~/home-lab/services/<svc>`); Ansible
+  self-hosted services on the server (`~/workspace/homelab/services/<svc>`); Ansible
   (`ansible/main.yml`) provisions the server itself, running roles in a
   fixed order (`system` → `dotfiles` → `git` → `docker` → `security` →
   `backups`), each independently taggable. Ansible role comments/docs are

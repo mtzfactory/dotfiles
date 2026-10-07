@@ -7,6 +7,19 @@ if [ -z "${DOTFILES}" ]; then
   exit 1
 fi
 
+##
+# Re-entrancy guard: este fichero prepende a PATH y crea symlinks, así que
+# cargarlo dos veces en el MISMO shell (p.ej. el export manual de ~/.zshrc más
+# el bloque que inyecta Ansible) duplicaría entradas de PATH.
+#
+# Sin `export` a propósito: exportada, la heredarían los shells hijos y un
+# `exec zsh` o un shell anidado se saltaría toda la configuración, quedándose
+# sin aliases ni PATH. Cada proceso debe cargarla una vez.
+if [ -n "${DOTFILES_LOADED:-}" ]; then
+  return 0
+fi
+typeset -g DOTFILES_LOADED=1
+
 ## 
 # Zsh extended glob operators
 # https://zsh.sourceforge.io/Doc/Release/Options.html#index-EXTENDED_005fGLOB
@@ -20,6 +33,14 @@ setopt extended_glob
 ##
 # Zsh extensions
 autoload -U zmv
+
+##
+# PATH sin duplicados: `path` como array único. Varias rutas de abajo (y de
+# customize-$OS.zsh) ya vienen en el PATH por defecto del sistema, así que
+# prependerlas a ciegas duplicaba entradas en cada login. Con -U zsh deduplica
+# en cada asignación y mantiene la aparición más a la izquierda, que es la
+# precedencia que se busca al prepender.
+typeset -U PATH path
 
 local USR_LOCAL_BIN="/usr/local/bin"
 [ ! -d "$USR_LOCAL_BIN" ] && sudo mkdir -p "$USR_LOCAL_BIN"

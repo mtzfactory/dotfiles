@@ -31,7 +31,16 @@ if [ -x "$(command -v go)" ]; then
 fi
 
 # Node version manager
-export NVM_DIR="$HOME/.nvm"
+# NVM se instaló bajo XDG ($XDG_CONFIG_HOME/nvm), no en la ruta por defecto
+# del instalador (~/.nvm). Se prefiere la que exista de verdad, y se respeta
+# un NVM_DIR ya exportado. Ansible usa la misma ruta vía la var `nvm_dir`.
+if [ -z "${NVM_DIR:-}" ]; then
+  if [ -s "${XDG_CONFIG_HOME:-$HOME/.config}/nvm/nvm.sh" ]; then
+    export NVM_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvm"
+  else
+    export NVM_DIR="$HOME/.nvm"
+  fi
+fi
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 

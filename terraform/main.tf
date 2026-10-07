@@ -1,6 +1,6 @@
 # main.tf — Estructura de directorios del home lab en el M8
 #
-# Terraform (provider local) declara el árbol ~/home-lab de forma
+# Terraform (provider local) declara el árbol ~/workspace/homelab de forma
 # reproducible. Cada servicio co-localiza su docker-compose.yml y sus datos.
 
 terraform {

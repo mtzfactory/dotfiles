@@ -4,7 +4,7 @@
 [includeIf "gitdir:~/development/personal/"]
   path = ~/.gitconfig-personal
 
-[includeIf "gitdir:~/homelab/dotfiles/"]
+[includeIf "gitdir:~/workspace/dotfiles/"]
   path = ~/.gitconfig-homelab
 
 [credential]
