@@ -16,6 +16,10 @@ system_base_packages:
   - rclone
   - restic
 
+# Apps de escritorio. Vacío por defecto para que un servidor sin entorno
+# gráfico no arrastre dependencias de GUI; se rellena por host.
+system_desktop_packages: []
+
 # `apt upgrade` NO corre en ejecuciones normales (la tarea lleva tags
 # [never, upgrade]). Para actualizar el sistema a propósito:
 #   ansible-playbook main.yml --tags upgrade -K

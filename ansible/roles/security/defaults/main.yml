@@ -4,7 +4,8 @@ security_firewall_enabled: true
 # SSH se trata aparte: con `rule: limit` para frenar fuerza bruta.
 security_ssh_port: "22"
 
-# Puertos TCP abiertos a todas las interfaces.
+# Puertos abiertos a todas las interfaces. TCP salvo que se indique el
+# protocolo: "443" o "22000/udp".
 security_ufw_allowed_ports:
   - "80"
   - "443"

@@ -1,0 +1,8 @@
+---
+# Apagado por defecto: se activa por host en host_vars/.
+syncthing_enabled: false
+
+# Usuario bajo el que corre. Se usa la unidad de sistema syncthing@<usuario>,
+# no la de usuario: esta última solo vive mientras haya sesión abierta, y en
+# una máquina que hace de servidor la sincronización tiene que arrancar sola.
+syncthing_user: "{{ ansible_facts.user_id }}"

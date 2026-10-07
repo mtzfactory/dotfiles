@@ -23,8 +23,20 @@ security_ufw_allowed_ports:
   - "443"
   - "3389" # gnome-remote-desktop (RDP)
   - "3390" # gnome-remote-desktop (handover)
+  - "22000" # Syncthing: sincronización (TCP)
+  - "22000/udp" # Syncthing: sincronización (QUIC)
+  - "21027/udp" # Syncthing: descubrimiento en la LAN
 security_ufw_trusted_interfaces:
   - tailscale0
+
+# ── Apps de escritorio ──────────────────────────────────────────────────────
+system_desktop_packages:
+  - keepassxc # Gestor de contraseñas; el .kdbx se sincroniza con Syncthing
+
+# ── Syncthing ───────────────────────────────────────────────────────────────
+# Por Tailscale funcionaría sin abrir nada (tailscale0 es de confianza); los
+# tres puertos de arriba son para que también sincronice por la LAN.
+syncthing_enabled: true
 
 # ── Backups ─────────────────────────────────────────────────────────────────
 # Repo restic local en ~/workspace/homelab/backups/restic. El password hay que

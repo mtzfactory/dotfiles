@@ -51,5 +51,7 @@
       tags: [docker]
     - role: security # UFW + fail2ban + hardening SSH
       tags: [security]
-    - role: backups # rclone + cron
+    - role: syncthing # Sincronización entre equipos (opt-in por host)
+      tags: [syncthing]
+    - role: backups # restic + cron de root
       tags: [backups]

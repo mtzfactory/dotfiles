@@ -32,7 +32,7 @@ ansible-playbook main.yml --tags docker -K
 ansible-playbook main.yml --tags upgrade -K   # apt upgrade (opt-in, ver abajo)
 ```
 
-Tags disponibles: `system`, `dotfiles`, `git`, `docker`, `security`, `backups`,
+Tags disponibles: `system`, `dotfiles`, `git`, `docker`, `security`, `syncthing`, `backups`,
 y `upgrade`.
 
 ## Añadir una app nueva
@@ -133,6 +133,19 @@ que ojo si algún origen cuelga de un ancestro con ese nombre.
 `tailscale0`, así que una máquina que se administre por Tailscale necesita esa
 interfaz en `security_ufw_trusted_interfaces` o se pierde el acceso al
 reiniciar. El M8 además expone escritorio remoto en 3389/3390.
+
+Cada puerto es `"443"` (TCP) o `"22000/udp"`.
+
+### Syncthing y KeePassXC
+
+`syncthing_enabled: true` instala Syncthing y arranca `syncthing@<usuario>`,
+la unidad de sistema, para que sincronice sin sesión abierta. Emparejar
+dispositivos y carpetas se hace a mano en <http://127.0.0.1:8384>. Para que
+funcione por la LAN hay que abrir `22000`, `22000/udp` y `21027/udp` en
+`security_ufw_allowed_ports`; por Tailscale no hace falta.
+
+Las apps gráficas, como KeePassXC, van en `system_desktop_packages`, vacío por
+defecto para no instalar GUI en un servidor.
 
 Nunca corras `--tags security` desde una sesión remota sin haber hecho
 `--check --diff` antes.

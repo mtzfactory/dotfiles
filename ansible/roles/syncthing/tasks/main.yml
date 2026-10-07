@@ -1,0 +1,25 @@
+---
+# Role: syncthing — sincronización de ficheros entre equipos
+#
+# Solo instala y arranca el servicio. Los dispositivos y carpetas se emparejan
+# a mano desde la GUI (http://127.0.0.1:8384, solo local): los device ID y las
+# rutas son propios de cada máquina y no pintan nada en el repo.
+#
+# Los puertos NO se abren aquí sino en `security_ufw_allowed_ports`, para que
+# el firewall tenga un único dueño. Ver README.md.
+
+- name: Install and run Syncthing
+  when: syncthing_enabled
+  block:
+    - name: Install Syncthing
+      become: true
+      ansible.builtin.apt:
+        name: syncthing
+        state: present
+
+    - name: Enable and start Syncthing for the user
+      become: true
+      ansible.builtin.systemd:
+        name: "syncthing@{{ syncthing_user }}.service"
+        enabled: true
+        state: started
