@@ -34,6 +34,16 @@ security_ufw_trusted_interfaces:
 # Los stacks de docker/stacks declaran `proxy` como red externa (la de
 # Traefik), no el `web` por defecto del role.
 docker_external_network: proxy
+# Hosts que enruta Traefik (las reglas Host(`…local`) de los stacks).
+docker_local_hostnames:
+  - claves.local
+  - glance.local
+  - home.local
+  - kavita.local
+  - portainer.local
+  - status.local
+  - umami.local
+  - whoami.local
 
 # ── Apps de escritorio ──────────────────────────────────────────────────────
 system_desktop_packages:

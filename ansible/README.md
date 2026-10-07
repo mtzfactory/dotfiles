@@ -207,6 +207,10 @@ omiten repo, engine y grupo `docker`: dos motores compartiendo
 La red se crea por CLI, no con `community.docker`, porque el snap no expone el
 SDK de Python que el módulo necesita.
 
+`docker_local_hostnames` lista los nombres `*.local` que enruta el reverse
+proxy. El role los apunta a `127.0.0.1` en una línea de `/etc/hosts` marcada con
+`# homelab services`, para poder abrirlos desde el propio equipo.
+
 Ubuntu 26.04 (`resolute`) todavía no tiene suite en `download.docker.com`;
 `docker_apt_release_map` lo mapea a la última LTS publicada.
 

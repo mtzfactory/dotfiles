@@ -21,3 +21,7 @@ docker_packages:
 
 # Red externa compartida por los docker-compose.yml de cada servicio.
 docker_external_network: web
+
+# Nombres locales de los servicios detrás del reverse proxy. Se apuntan a
+# 127.0.0.1 en /etc/hosts para poder abrirlos desde el propio equipo.
+docker_local_hostnames: []

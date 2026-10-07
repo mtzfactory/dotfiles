@@ -77,6 +77,17 @@
   ansible.builtin.command: docker network create {{ docker_external_network }}
   when: docker_net.rc != 0
 
+# ── Nombres locales de los servicios ────────────────────────────────────────
+# Una sola línea marcada con un comentario, para poder reescribirla entera
+# cuando cambie la lista sin tocar el resto de /etc/hosts.
+- name: Point the local service hostnames at this machine
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '# homelab services$'
+    line: "127.0.0.1 {{ docker_local_hostnames | join(' ') }} # homelab services"
+  when: docker_local_hostnames | length > 0
+
 - name: Install lazydocker
   ansible.builtin.shell: |
     set -o pipefail
