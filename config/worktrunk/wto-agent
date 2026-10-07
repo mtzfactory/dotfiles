@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# wto-agent — non-interactive sibling of the wto() zsh function
+# (shell/shared/wt-session.zsh), callable from a Pi `bash` tool (or any
+# non-interactive shell) instead of only from an interactive zsh session.
+#
+# Does the same three things wto() does, without prompts:
+#   1. `wt switch --create` (runs worktrunk hooks: .worktreeinclude copy,
+#      Android build-state cleanup, upstream rebase).
+#   2. `herdr worktree open` + 4 tabs (ai/editor/metro/shell), grouped under
+#      the space you ran it from — same as the [post-switch] hook, but we
+#      set _WTO_ACTIVE=1 so herdr-session.sh skips and doesn't double-create.
+#   3. Prints JSON with the ids a caller needs next: workspace_id, the `ai`
+#      tab's pane_id (to `herdr agent start --pane <id>`), and the worktree
+#      path (to write a brief file into before `herdr agent prompt`).
+#
+# Usage: wto-agent <branch-name>
+# Must run with $PWD inside the main repo checkout (same requirement as
+# wto()/wt switch).
+#
+# Requires: wt, herdr, jq, git — all already required by wto().
+
+set -euo pipefail
+
+BRANCH="${1:?Usage: wto-agent <branch-name>}"
+
+sanitize() { printf '%s\n' "${1//[^[:alnum:]_-]/-}"; }
+
+common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) \
+  || { echo "wto-agent: not inside a git repository" >&2; exit 1; }
+repo_folder=$(basename "$(dirname "$common_dir")")
+label="$(sanitize "$repo_folder")_$(sanitize "$BRANCH")"
+
+if ! herdr workspace list >/dev/null 2>&1; then
+  echo "wto-agent: herdr server is not running" >&2
+  exit 1
+fi
+
+# Already exists? Reuse it instead of failing on "Directory already exists".
+existing_path=$(git worktree list --porcelain 2>/dev/null \
+  | awk -v b="branch refs/heads/$BRANCH" '/^worktree /{p=$2} $0==b{print p; exit}')
+
+base_pwd="$PWD"
+
+if [[ -z "$existing_path" ]]; then
+  # _WTO_ACTIVE tells herdr-session.sh (the [post-switch] hook) to skip —
+  # this script opens the herdr workspace itself, below, exactly like wto().
+  _WTO_ACTIVE=1 wt -y switch --create "$BRANCH"
+else
+  _WTO_ACTIVE=1 wt -y switch "$BRANCH"
+fi
+
+worktree_path="$existing_path"
+if [[ -z "$worktree_path" ]]; then
+  worktree_path=$(git worktree list --porcelain \
+    | awk -v b="branch refs/heads/$BRANCH" '/^worktree /{p=$2} $0==b{print p; exit}')
+fi
+[[ -n "$worktree_path" ]] || { echo "wto-agent: could not resolve worktree path for '$BRANCH'" >&2; exit 1; }
+
+workspace_id=$(herdr workspace list 2>/dev/null \
+  | jq -r --arg l "$label" '.result.workspaces[] | select(.label == $l) | .workspace_id' | head -1)
+
+if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
+  result=$(herdr worktree open --cwd "$base_pwd" --path "$worktree_path" --label "$label" --no-focus)
+  workspace_id=$(jq -r '.result.workspace.workspace_id' <<<"$result")
+  first_tab=$(jq -r '.result.tab.tab_id' <<<"$result")
+
+  [[ -n "$workspace_id" && "$workspace_id" != "null" ]] \
+    || { echo "wto-agent: failed to open herdr worktree workspace" >&2; echo "$result" >&2; exit 1; }
+
+  herdr tab create --workspace "$workspace_id" --label ai     --cwd "$worktree_path" --no-focus >/dev/null
+  herdr tab create --workspace "$workspace_id" --label editor --cwd "$worktree_path" --no-focus >/dev/null
+  herdr tab create --workspace "$workspace_id" --label metro  --cwd "$worktree_path" --no-focus >/dev/null
+  herdr tab create --workspace "$workspace_id" --label shell  --cwd "$worktree_path" --no-focus >/dev/null
+  [[ -n "$first_tab" && "$first_tab" != "null" ]] && herdr tab close "$first_tab" >/dev/null
+fi
+
+ai_tab=$(herdr tab list --workspace "$workspace_id" \
+  | jq -r '.result.tabs[] | select(.label == "ai") | .tab_id' | tail -1)
+[[ -n "$ai_tab" ]] || { echo "wto-agent: no 'ai' tab found in workspace $workspace_id" >&2; exit 1; }
+
+ai_pane=$(herdr pane list --workspace "$workspace_id" \
+  | jq -r --arg t "$ai_tab" '.result.panes[] | select(.tab_id == $t) | .pane_id')
+[[ -n "$ai_pane" ]] || { echo "wto-agent: could not resolve pane for ai tab $ai_tab" >&2; exit 1; }
+
+jq -n \
+  --arg workspace_id "$workspace_id" \
+  --arg ai_tab "$ai_tab" \
+  --arg ai_pane "$ai_pane" \
+  --arg path "$worktree_path" \
+  --arg label "$label" \
+  --arg branch "$BRANCH" \
+  '{workspace_id:$workspace_id, ai_tab:$ai_tab, ai_pane:$ai_pane, path:$path, label:$label, branch:$branch}'

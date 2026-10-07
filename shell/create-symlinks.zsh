@@ -87,6 +87,18 @@ if command -v wt >/dev/null 2>&1; then
 fi
 
 ##
+# wto-agent — non-interactive sibling of the wto() zsh function, for AI
+# agents (Pi `bash` tool etc.) that run non-interactive shells and never
+# source ~/.zshrc, so the wto() function itself is invisible to them.
+# Lives on $PATH for the same reason as the `wt` wrapper above.
+if command -v wt >/dev/null 2>&1; then
+  local WTO_AGENT_TARGET="$HOME/.local/bin/wto-agent"
+  if [ ! -e "$WTO_AGENT_TARGET" ]; then
+    ln -s "$DOTFILES_SYMLINKS/worktrunk/wto-agent" "$WTO_AGENT_TARGET"
+  fi
+fi
+
+##
 # Claude Code status line script
 # Only the script is linked: ~/.claude/settings.json is rewritten by Claude
 # Code itself, so its `statusLine` block is added once per machine instead.
