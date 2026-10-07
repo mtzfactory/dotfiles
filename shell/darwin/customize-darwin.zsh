@@ -59,7 +59,7 @@ local GNU_TAR="$BREW_OPT_DIR/gnu-tar"
 [ -d "$GNU_TAR" ] && export PATH="$GNU_TAR/libexec/gnubin:$PATH"
 
 # grep
-local GREP="%BREW_OPT_DIR/grep"
+local GREP="$BREW_OPT_DIR/grep"
 [ -d "$GREP" ] && export PATH="$GREP/libexec/gnubin:$PATH"
 
 # gettext
