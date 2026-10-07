@@ -56,6 +56,26 @@
 #
 # `creates` sobre el binario evita que cargo recompile en cada ejecución: sin
 # ello `cargo install` revisa el registro y tarda, aunque no reinstale.
+#
+# Antes de compilar se actualiza el toolchain, pero solo si falta alguna app:
+# los crates suben su versión mínima de rustc con el tiempo, y un rustup
+# instalado hace meses ya no compila la última (worktrunk 0.80 pide 1.97).
+# Si están todas, no se toca nada.
+- name: Check which cargo apps are already installed
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.cargo/bin/{{ item.bin }}"
+  register: cargo_app_bins
+  loop: "{{ dotfiles_cargo_packages }}"
+  loop_control:
+    label: "{{ item.crate }}"
+
+- name: Update the Rust toolchain before building missing cargo apps
+  ansible.builtin.command: >-
+    {{ ansible_facts.env.HOME }}/.cargo/bin/rustup update stable
+  register: rustup_update
+  changed_when: "'unchanged' not in rustup_update.stdout"
+  when: cargo_app_bins.results | rejectattr('stat.exists') | list | length > 0
+
 - name: Install cargo apps
   ansible.builtin.command: >-
     {{ ansible_facts.env.HOME }}/.cargo/bin/cargo install {{ item.crate }}

@@ -118,6 +118,23 @@
         echo "OK"
       } >> "$LOG" 2>&1
 
+# Mismas variables que el script de arriba, para que el uso interactivo y el
+# cron no puedan apuntar a repos distintos.
+- name: Deploy the restic wrapper for interactive use
+  become: true
+  ansible.builtin.copy:
+    dest: "{{ restic_wrapper_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/usr/bin/env bash
+      # restic contra el repo del home lab. Gestionado por Ansible (role backups).
+      # Uso: sudo {{ restic_wrapper_path | basename }} snapshots
+      export RESTIC_REPOSITORY="{{ restic_repo }}"
+      export RESTIC_PASSWORD_FILE="{{ restic_password_file }}"
+      exec restic "$@"
+
 # Cron de root, no del usuario: ver restic_user en defaults/main.yml.
 - name: Schedule nightly backup via cron
   become: true

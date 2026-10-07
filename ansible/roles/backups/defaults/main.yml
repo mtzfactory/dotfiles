@@ -24,6 +24,9 @@ restic_user: root
 # ejecutar ni escribir nada que viva en un directorio escribible por el usuario.
 backup_script_path: /usr/local/sbin/homelab-backup.sh
 backup_log_path: /var/log/homelab-backup.log
+# Wrapper para el uso a mano: `sudo homelab-restic snapshots`. Lleva el repo y
+# el password dentro porque sudo no hereda las variables RESTIC_* del shell.
+restic_wrapper_path: /usr/local/sbin/homelab-restic
 
 # ── Qué se respalda ─────────────────────────────────────────────────────────
 # Rutas sueltas: restic guarda la ruta absoluta de cada una en el snapshot, así

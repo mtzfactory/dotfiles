@@ -115,6 +115,15 @@ El script y el log van a rutas de root (`backup_script_path`,
 escribible por el usuario, y un cron de root que ejecute algo de ahí da root a
 cualquier proceso que corra como él.
 
+Para operar el repo a mano está el wrapper `homelab-restic`, que lleva dentro
+el repo y el password (sudo no hereda las variables `RESTIC_*` del shell, así
+que definirlas en `~/.zshenv` no sirve):
+
+```sh
+sudo homelab-restic snapshots
+sudo homelab-restic restore latest --target /tmp/restore
+```
+
 #### Cuidado con los patrones de exclusión
 
 Son sintaxis de **restic**, no de rclone, y se evalúan contra la **ruta
