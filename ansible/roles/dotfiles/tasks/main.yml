@@ -73,6 +73,9 @@
   register: lazygit_bin
   changed_when: false
   failed_when: false
+  # Sonda de solo lectura: ejecutarla también en --check, o el dry-run no puede
+  # decir qué haría la tarea que depende de ella.
+  check_mode: false
 
 - name: Install lazygit (go install)
   ansible.builtin.shell: go install github.com/jesseduffield/lazygit@latest

@@ -68,6 +68,9 @@
   register: docker_net
   changed_when: false
   failed_when: false
+  # Sonda de solo lectura: ejecutarla también en --check, o el dry-run no puede
+  # decir qué haría la tarea que depende de ella.
+  check_mode: false
 
 - name: Create external network for compose services
   become: true

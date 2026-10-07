@@ -12,6 +12,9 @@
   register: gpg_check
   changed_when: false
   failed_when: false
+  # Sonda de solo lectura: ejecutarla también en --check, o el dry-run no puede
+  # decir qué haría la tarea que depende de ella.
+  check_mode: false
 
 # Si la clave falta Y el .asc tampoco está, el role antiguo moría con un
 # "file not found" opaco. Mejor avisar y seguir: el resto del playbook no
