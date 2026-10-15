@@ -1,5 +1,3 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- Customize Mason
 
 ---@type LazySpec
@@ -13,6 +11,9 @@ return {
       ensure_installed = {
         -- install language servers
         "lua-language-server",
+        -- eslint-lsp powers ESLint-as-formatter (`EslintFixAll`) for JS/TS/TSX
+        -- projects that don't use Prettier; see astrolsp.lua `formatting.filter`
+        "eslint-lsp",
 
         -- install formatters
         "stylua",

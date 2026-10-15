@@ -19,6 +19,11 @@
 # that even means.
 #
 # Usage: epic <EPIC-KEY> [jira-url]
+# [jira-url] is only required the very first time for a given <EPIC-KEY> (no
+# brief file yet at ~/.pi/agent/epics/<repo>/<EPIC-KEY>.md). Every restart
+# after that — agent closed, tab closed, whatever — just needs the key:
+# `epic <EPIC-KEY>` resumes via --session-id (conversation history) and the
+# existing brief file (--append-system-prompt), ignoring jira-url entirely.
 epic() {
   local epic_key="$1"
   local jira_url="$2"
@@ -100,10 +105,14 @@ epic() {
     local is_first_boot=false
     if [[ ! -f "$epic_brief" ]]; then
       is_first_boot=true
+      if [[ -z "$jira_url" ]]; then
+        echo "epic: no hay brief todavía para '$epic_key' y no has pasado una URL de Jira — házlo la primera vez: epic $epic_key <jira-url>" >&2
+        return 1
+      fi
       cat > "$epic_brief" <<EOF
 # Epic ${epic_key}
 
-Jira: ${jira_url:-https://trainline.atlassian.net/browse/${epic_key}}
+Jira: ${jira_url}
 
 (pending: filled in automatically on first manager boot)
 EOF

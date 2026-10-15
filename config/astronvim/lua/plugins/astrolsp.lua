@@ -1,9 +1,24 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- AstroLSP allows you to customize the features in AstroNvim's LSP configuration engine
 -- Configuration documentation can be found with `:h astrolsp`
 -- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
 --       as this provides autocomplete and documentation while editing
+
+-- ESLint config filenames searched upward from the buffer, same list `eslint-lsp`
+-- itself uses to decide whether to attach at all.
+local eslint_config_files = {
+  ".eslintrc",
+  ".eslintrc.js",
+  ".eslintrc.cjs",
+  ".eslintrc.yaml",
+  ".eslintrc.yml",
+  ".eslintrc.json",
+  "eslint.config.js",
+  "eslint.config.mjs",
+  "eslint.config.cjs",
+  "eslint.config.ts",
+  "eslint.config.mts",
+  "eslint.config.cts",
+}
 
 ---@type LazySpec
 return {
@@ -36,6 +51,33 @@ return {
       -- filter = function(client) -- fully override the default formatting function
       --   return true
       -- end
+      --
+      -- Prefer ESLint's own fixer over Prettier/vtsls when the `eslint` LSP is
+      -- actually attached to the buffer (i.e. a real eslint.config.*/.eslintrc*
+      -- was found upward from the file). This mirrors VSCode's
+      -- `dbaeumer.vscode-eslint` as default formatter + `source.fixAll.eslint`.
+      --
+      -- If that eslint config itself defers style to Prettier (via
+      -- eslint-config-prettier/eslint-plugin-prettier), we fall through to the
+      -- default behavior so Prettier/vtsls keep formatting as before.
+      filter = function(client)
+        if client.name ~= "null-ls" and client.name ~= "vtsls" then return true end
+
+        local bufnr = vim.api.nvim_get_current_buf()
+        if #vim.lsp.get_clients { bufnr = bufnr, name = "eslint" } == 0 then return true end
+
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+        if filename == "" then return true end
+        local config_path = vim.fs.find(eslint_config_files, { path = vim.fs.dirname(filename), upward = true, limit = 1 })[1]
+        if not config_path then return true end
+
+        local ok, lines = pcall(vim.fn.readfile, config_path)
+        local content = ok and table.concat(lines, "\n") or ""
+        local defers_to_prettier = content:find "eslint%-config%-prettier"
+          or content:find "eslint%-plugin%-prettier"
+          or content:find "plugin:prettier"
+        return defers_to_prettier ~= nil
+      end,
     },
     -- enable servers that you already have installed without mason
     servers = {
