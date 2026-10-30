@@ -121,7 +121,7 @@ EOF
     herdr agent start "$agent_name" --kind pi --pane "$pane_id" \
       -- --session-id "epic-${epic_key}" \
          --append-system-prompt "$epic_brief" \
-         --skill "$HOME/.agents/skills/start-ticket-worker"
+         --skill "$HOME/.agents/skills/factory"
 
     if $is_first_boot; then
       # Only send the bootstrap prompt on a truly fresh epic (brief just
@@ -129,7 +129,7 @@ EOF
       # already has history) just needs waking up — it already has its own
       # conversation; re-sending this would make it redo the Jira research.
       herdr agent prompt "$agent_name" \
-        "Eres el manager de la épica ${epic_key}. Usa Atlassian MCP para traer la épica y sus tickets, resume su alcance y decisiones clave, y guarda ese resumen en ${epic_brief} (sobrescribe el placeholder). Si tienes context-mode, indéxalo con source \"epic-${epic_key}\". Luego espera: te iré pasando enlaces de tickets para que uses el skill start-ticket-worker." \
+        "Eres el manager de la épica ${epic_key}. Usa Atlassian MCP para traer la épica y sus tickets, resume su alcance y decisiones clave, y guarda ese resumen en ${epic_brief} (sobrescribe el placeholder). Si tienes context-mode, indéxalo con source \"epic-${epic_key}\". Luego espera: te iré pasando enlaces de tickets para que lances sus workers con el skill factory (references/MANAGER.md)." \
         --wait --until working --timeout 60000
     else
       herdr agent wait "$agent_name" --until idle --until working --until blocked --timeout 30000 >/dev/null 2>&1
