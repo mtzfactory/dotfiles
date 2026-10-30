@@ -38,11 +38,19 @@ fi
 
 sanitize() {
   local str="$1"
-  # Replace non-allowed chars with '-' (matches worktrunk's sanitize filter)
+  # Replace every char but letters, digits, '_' and '-' with '-' (names that
+  # must be identifiers, such as herdr agent names; labels use _wt_sanitize)
   # Hyphen must be last in [...] to be literal, not a range operator
   # printf, not echo: zsh's echo swallows a lone "-", so `sanitize .` used to
   # return "" instead of "-" and silently dropped the repo prefix from labels.
   printf '%s\n' "${str//[^[:alnum:]_-]/-}"
+}
+
+# worktrunk's sanitize filter: only "/" and "\\" become "-". Labels use it so they
+# match what the worktrunk hooks build from {{ ... | sanitize }}.
+_wt_sanitize() {
+  local str="${1//\//-}"
+  printf '%s\n' "${str//\\/-}"
 }
 
 # Directory name of the MAIN repository, i.e. worktrunk's `{{ repo_path | basename }}`.
@@ -63,7 +71,7 @@ _wt_repo_folder() {
 # the post-remove cleanup cannot find what wto()/wts() created.
 _wt_label() {
   local branch="$1"
-  printf '%s\n' "$(sanitize "$(_wt_repo_folder)")_$(sanitize "$branch")"
+  printf '%s\n' "$(_wt_sanitize "$(_wt_repo_folder)")_$(_wt_sanitize "$branch")"
 }
 
 # pre-start hook: automatically applies .worktreeinclude when a new worktree
