@@ -2,15 +2,17 @@
 # Worktrunk post-remove hook: close the herdr workspace (and therefore all its
 # tabs) that belonged to the worktree just removed.
 #
-# Usage: herdr-session-close.sh <label> [worktree_path] [branch]
+# Usage: herdr-session-close.sh <label> [worktree_path] [branch] [repo_path]
 #
 # Resolution order — first hit wins:
 #   1. Workspace id stashed by the pre-remove hook (herdr-session-resolve.sh).
 #      The only source that still works once the checkout is gone.
 #   2. Live path -> workspace mapping via `herdr worktree list`. Covers the case
 #      where pre-remove did not run or the checkout is still on disk.
-#   3. Exact label match.
-#   4. Legacy label "_<branch>" — workspaces created before the missing-repo-
+#   3. Exact label match (the branch), within repo_path's workspaces when given.
+#   4. Legacy label "<repo>_<branch>" — workspaces created while labels still
+#      carried the repo's folder name.
+#   5. Legacy label "_<branch>" — workspaces created before the missing-repo-
 #      prefix bug in wt-session.zsh's wto()/wts() was fixed.
 #
 # Always exits 0: a failed cleanup must not make `wt remove` look broken.
@@ -23,6 +25,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/herdr-common.sh"
 LABEL="${1:-}"
 WORKTREE_PATH="${2:-}"
 BRANCH="${3:-}"
+REPO_PATH="${4:-}"
 
 if [ -z "$LABEL" ] && [ -z "$WORKTREE_PATH" ]; then
   echo "herdr-session-close: label or worktree path required" >&2
@@ -52,11 +55,18 @@ fi
 
 # 3. exact label
 if [ -z "$WORKSPACE_ID" ] && [ -n "$LABEL" ]; then
-  WORKSPACE_ID="$(herdr_workspace_for_label "$LABEL")"
+  WORKSPACE_ID="$(herdr_workspace_for_label "$LABEL" "$REPO_PATH")"
   [ -n "$WORKSPACE_ID" ] && MATCHED_BY="label '$LABEL'"
 fi
 
-# 4. legacy label without the repo prefix
+# 4. legacy label with the repo prefix
+if [ -z "$WORKSPACE_ID" ] && [ -n "$BRANCH" ] && [ -n "$REPO_PATH" ]; then
+  LEGACY="$(basename "$REPO_PATH" | tr '/\\' '--')_$BRANCH"
+  WORKSPACE_ID="$(herdr_workspace_for_label "$LEGACY")"
+  [ -n "$WORKSPACE_ID" ] && MATCHED_BY="legacy label '$LEGACY'"
+fi
+
+# 5. legacy label without the repo prefix
 if [ -z "$WORKSPACE_ID" ] && [ -n "$BRANCH" ]; then
   WORKSPACE_ID="$(herdr_workspace_for_label "_$BRANCH")"
   [ -n "$WORKSPACE_ID" ] && MATCHED_BY="legacy label '_$BRANCH'"

@@ -53,23 +53,37 @@ _wt_sanitize() {
   printf '%s\n' "${str//\\/-}"
 }
 
-# Directory name of the MAIN repository, i.e. worktrunk's `{{ repo_path | basename }}`.
-# --path-format=absolute is required: from the primary worktree,
-# `git rev-parse --git-common-dir` returns a relative ".git", whose dirname is
-# "." — that is what produced labels like "_feat-foo" instead of
+# Path of the MAIN repository, i.e. worktrunk's `{{ repo_path }}` and herdr's
+# worktree.repo_root. --path-format=absolute is required: from the primary
+# worktree, `git rev-parse --git-common-dir` returns a relative ".git", whose
+# dirname is "." — that is what produced labels like "_feat-foo" instead of
 # "toc-sgp-app_feat-foo", leaving workspaces unclosable on `wt remove`.
-_wt_repo_folder() {
+_wt_repo_root() {
   local common
   common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || return 1
   [[ -n "$common" ]] || return 1
-  basename "$(dirname "$common")"
+  dirname "$common"
 }
 
-# Session/workspace label, matching the worktrunk hook template exactly:
-# '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'
-# Must stay in sync with the hooks in ~/.config/worktrunk/config.toml, otherwise
-# the post-remove cleanup cannot find what wto()/wts() created.
+# Directory name of the MAIN repository, i.e. worktrunk's `{{ repo_path | basename }}`.
+_wt_repo_folder() {
+  local root
+  root=$(_wt_repo_root) || return 1
+  basename "$root"
+}
+
+# herdr workspace label, matching the worktrunk hook template exactly:
+# '{{ branch | sanitize }}'. Only the branch: herdr already shows the workspace
+# under its repo's space, so lookups by label must also check the repo.
+# Must stay in sync with the hooks in ~/.config/worktrunk/config.toml.
 _wt_label() {
+  _wt_sanitize "$1"
+}
+
+# tmux session name, matching the worktrunk post-remove tmux hook:
+# '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'. tmux sessions
+# are global, so this one keeps the repo prefix.
+_wt_tmux_session() {
   local branch="$1"
   printf '%s\n' "$(_wt_sanitize "$(_wt_repo_folder)")_$(_wt_sanitize "$branch")"
 }
@@ -141,10 +155,8 @@ wts() {
   local switch_exit=$?
   [[ $switch_exit -ne 0 ]] && return $switch_exit
 
-  # Build session name matching the worktrunk post-switch hook template:
-  # '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}'
   local branch=$(git branch --show-current 2>/dev/null)
-  local session="$(_wt_label "$branch")"
+  local session="$(_wt_tmux_session "$branch")"
 
   if tmux has-session -t "=$session" 2>/dev/null; then
     if [[ -n "$TMUX" ]]; then
@@ -189,10 +201,10 @@ wto() {
   # this by PATH via git, then map path -> herdr workspace using herdr's own
   # worktree<->workspace tracking (`herdr worktree list --cwd`) — the same
   # robust lookup herdr-session-close.sh uses. Labels are NOT trusted for this
-  # check: workspaces created before the repo-prefix fix to _wt_label use a
-  # legacy "_<branch>" label (missing the "<repo>_" prefix) and would
-  # otherwise be invisible here, making wto() think no workspace exists and
-  # try to recreate an already-existing worktree ("Directory already exists").
+  # check: workspaces created with older label formats ("<repo>_<branch>",
+  # "_<branch>") would otherwise be invisible here, making wto() think no
+  # workspace exists and try to recreate an already-existing worktree
+  # ("Directory already exists").
   local existing_path
   existing_path=$(git worktree list --porcelain 2>/dev/null \
     | awk -v b="branch refs/heads/$branch_arg" '/^worktree /{p=$2} $0==b{print p; exit}')
@@ -205,10 +217,12 @@ wto() {
   fi
 
   # Fallback: match by current-format label (covers a workspace that exists
-  # but isn't yet resolvable by path for some reason).
+  # but isn't yet resolvable by path for some reason), only among this repo's
+  # workspaces: the label is just the branch, which other repos may share.
   if [[ -z "$workspace_id" || "$workspace_id" == "null" ]]; then
     workspace_id=$(herdr workspace list 2>/dev/null \
-      | jq -r --arg l "$label" '.result.workspaces[] | select(.label == $l) | .workspace_id' \
+      | jq -r --arg l "$label" --arg r "$(_wt_repo_root)" \
+          '.result.workspaces[] | select(.label == $l and (.worktree.repo_root // "") == $r) | .workspace_id' \
       | head -1)
   fi
 

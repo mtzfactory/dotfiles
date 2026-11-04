@@ -34,12 +34,15 @@ herdr_workspace_for_path() {
 }
 
 # Workspace id for an exact label. Fallback only.
+# Usage: herdr_workspace_for_label <label> [repo_root]
+# Labels are just the branch, so with repo_root only that repo's worktree
+# workspaces match: another repo may well have a branch of the same name.
 herdr_workspace_for_label() {
-  local label="$1"
+  local label="$1" repo_root="${2:-}"
   [ -n "$label" ] || return 1
   herdr workspace list 2>/dev/null \
-    | jq -r --arg l "$label" \
-        '.result.workspaces[]? | select(.label == $l) | .workspace_id' \
+    | jq -r --arg l "$label" --arg r "$repo_root" \
+        '.result.workspaces[]? | select(.label == $l and ($r == "" or (.worktree.repo_root // "") == $r)) | .workspace_id' \
     | head -1
 }
 

@@ -60,7 +60,8 @@ sync = "{% if upstream %}git fetch && git rebase {{ upstream }}{% endif %}"
 # ("Failed to expand user:herdr: undefined value" — confirmed via a live
 # failure; `wt -v hook post-switch` run interactively/synchronously DOES show
 # it, but that's a different code path). {{ repo_path }} is always defined.
-herdr = "$HOME/.config/worktrunk/herdr-session.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' '{{ worktree_path }}' '{{ repo_path }}'"
+# The label is only the branch: herdr already shows it under the repo's space.
+herdr = "$HOME/.config/worktrunk/herdr-session.sh '{{ branch | sanitize }}' '{{ worktree_path }}' '{{ repo_path }}'"
 
 [[pre-remove]]
 # Resolve & stash the herdr workspace bound to this worktree while the checkout
@@ -71,6 +72,7 @@ herdr = "$HOME/.config/worktrunk/herdr-session-resolve.sh '{{ worktree_path }}'"
 # Kill the tmux session when removing the worktree
 tmux = "tmux kill-session -t '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' 2>/dev/null || true"
 # Close the herdr workspace (and its tabs) when removing the worktree.
-# Args: label, worktree path (primary key), sanitized branch (legacy fallback).
-herdr = "$HOME/.config/worktrunk/herdr-session-close.sh '{{ repo_path | basename | sanitize }}_{{ branch | sanitize }}' '{{ worktree_path }}' '{{ branch | sanitize }}'"
+# Args: label, worktree path (primary key), sanitized branch (legacy fallbacks),
+# repo path (scopes label matches to this repo).
+herdr = "$HOME/.config/worktrunk/herdr-session-close.sh '{{ branch | sanitize }}' '{{ worktree_path }}' '{{ branch | sanitize }}' '{{ repo_path }}'"
 

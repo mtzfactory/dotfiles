@@ -32,8 +32,12 @@ if [[ -n "$_WTO_ACTIVE" ]]; then
   exit 0
 fi
 
-# Find existing workspace with this label
-WORKSPACE_ID=$(herdr workspace list 2>/dev/null | jq -r --arg label "$LABEL" '.result.workspaces[] | select(.label == $label) | .workspace_id' | head -1)
+# Find the workspace already open on this checkout, else one with this label
+# in this repo: the label is only the branch, which other repos may share.
+WORKSPACE_ID=$(herdr workspace list 2>/dev/null | jq -r --arg label "$LABEL" --arg p "$WORKTREE_PATH" --arg r "$BASE_PATH" '
+  [.result.workspaces[] | select((.worktree.checkout_path // "") == $p)] +
+  [.result.workspaces[] | select(.label == $label and (.worktree.repo_root // "") == $r)]
+  | first | .workspace_id // empty')
 
 if [ -n "$WORKSPACE_ID" ] && [ "$WORKSPACE_ID" != "null" ]; then
   echo "✓ Herdr workspace '$LABEL' already exists ($WORKSPACE_ID)"
